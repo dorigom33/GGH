@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+	<title>지중해</title>
+	<link rel="stylesheet" href="/css/index.css">
+	<link rel="stylesheet" href="/css/deal.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+	<div th:replace="html/fragment/header.html :: header-head"></div>
+	<div th:replace="html/fragment/header.html :: header-container"></div>
+
+	<div class="body-container">
+		<h2 id="deal-title">거래 내역</h2>
+		<div class="transaction-container">
+			<div class="transaction-list" id="transactionList"></div>
+		</div>
+	</div>
+
+	<script>
+		async function fetchSellerNum(diNum) {
+			return new Promise((resolve, reject) => {
+				$.ajax({
+					url: `/fetch-seller-num?diNum=${diNum}`,
+					type: 'GET',
+					dataType: 'json',
+					success: function (sellerInfo) {
+						resolve(sellerInfo);
+					},
+					error: function (error) {
+						reject(error);
+					}
+				});
+			});
+		}
+		function onAddOrderInfo(diNum, oiNum, sellerUiNum, oiPrice) {
+			console.log('data :', diNum, oiNum, sellerUiNum, oiPrice);
+		}
+
+		function formatDate(rawDate) {
+			if (!rawDate) {
+				return null;
+			}
+
+			const year = rawDate.substr(0, 4);
+			const month = rawDate.substr(4, 2);
+			const day = rawDate.substr(6, 2);
+
+			return `${year}-${month}-${day}`;
+		}
+
+		function createTransactionItemHTML(transaction) {
+			console.log(transaction);
+			let resultText = '';
+			resultText += `${transaction.transactionType || 'N/A'} <br><br>`;
+			resultText += `상품 이름: ${transaction.biName || 'N/A'} <br>`;
+
+			if (transaction.transactionType === '구매') {
+				resultText += `상품 가격: ${transaction.oiPrice ? Number(transaction.oiPrice).toLocaleString() : '거래는 잘 하셨나요? 가격을 입력해주세요.'}`;
+
+				if (!transaction.oiPrice) {
+					resultText += ` <a id="input-price-link" href="javascript:void(0);" onclick="openPopup('/html/order/insert?diNum=${transaction.diNum}', '${transaction.diNum}')">가격 입력하기</a>`;
+				}
+			} else {
+				resultText += `상품 가격: ${transaction.oiPrice ? Number(transaction.oiPrice).toLocaleString() : '구매자가 가격을 입력하지 않았습니다'}`;
+
+			}
+
+			resultText += `<br>날짜: ${formatDate(transaction.credat) || 'N/A'} <br>`;
+
+			return resultText;
+		}
+
+		function fetchAndDisplayTransactions() {
+			$.ajax({
+				url: '/select-user-info',
+				type: 'GET',
+				dataType: 'json',
+				success: function (userInfo) {
+					$.ajax({
+						url: '/get-orderInfo/seller/' + userInfo.uiNum,
+						type: 'GET',
+						dataType: 'json',
+						success: function (sellTransactions) {
+							$.ajax({
+								url: '/get-orderInfo/buyer/' + userInfo.uiNum,
+								type: 'GET',
+								dataType: 'json',
+								success: function (buyTransactions) {
+									const allTransactions = [...sellTransactions.map(t => ({...t, transactionType: '판매'})), ...buyTransactions.map(t => ({...t, transactionType: '구매'}))];
+									allTransactions.sort((a, b) => b.credat - a.credat);
+									if(allTransactions.length <= 0){
+										document.querySelector('#transactionList').innerHTML = '현재 거래내역이 없습니다';
+										return;
+									}
+									let transactionListHTML = '';
+									for (const transaction of allTransactions) {
+										const transactionItemHTML = createTransactionItemHTML(transaction);
+										transactionListHTML += `<div class="transaction-item">${transactionItemHTML}</div>`;
+									}
+
+									$('#transactionList').html(transactionListHTML);
+								},
+								error: function (error) {
+									alert('구매내역을 가져오는데 실패했습니다');
+								}
+							});
+						},
+						error: function (error) {
+							alert('판매내역을 가져오는데 실패했습니다');
+						}
+					});
+				},
+				error: function (error) {
+					alert('사용자 정보를 가져오는데 실패했습니다');
+				}
+			});
+		}
+
+		$(document).ready(function () {
+			fetchAndDisplayTransactions();
+		});
+
+		function openPopup(url, diNum) {
+			$.ajax({
+				url: `/fetch-seller-num?diNum=${diNum}`,
+				type: 'GET',
+				dataType: 'json',
+				success: function (sellerInfo) {
+					const oiNum = sellerInfo.oiNum;
+					const sellerUiNum = sellerInfo.sellerUiNum;
+
+					const modal = $('<div class="popup-container"></div>');
+					modal.load(url, function () {
+						modal.dialog({
+							modal: true,
+							width: 'auto',
+							height: 'auto',
+							close: function () {
+								$(this).dialog('destroy').remove();
+							}
+						});
+
+						modal.find('#diNum').val(diNum);
+						modal.find('#oiNum').val(oiNum);
+						modal.find('#sellerUiNum').val(sellerUiNum);
+
+						modal.find('.add-order-info').on('click', function () {
+							const oiPrice = modal.find('#oiPrice').val();
+							const diNum = modal.find('#diNum').val();
+							const oiNum = modal.find('#oiNum').val();
+							const sellerUiNum = modal.find('#sellerUiNum').val();
+
+							window.onAddOrderInfo(diNum, oiNum, sellerUiNum, oiPrice);
+
+							modal.dialog('close');
+						});
+					});
+				},
+				error: function (error) {
+					alert('판매자 정보를 가져오는데 실패했습니다');
+				}
+			});
+
+		}
+	</script>
+</body>
+
+</html>

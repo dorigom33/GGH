@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.secu.team2.chat.mapper.ChatInfoMapper">
+	<sql id="ChatInfoCols">CI_NUM, BI_NUM, BUYER_UI_NUM, SELLER_UI_NUM, CREDAT, CRETIM</sql>
+    <!-- 채팅 정보 조회(select) 쿼리 -->
+    <select id="getChatInfoByCiId" resultType="com.secu.team2.chat.vo.ChatInfoVO">
+        SELECT * FROM CHAT_INFO WHERE CI_NUM = #{ciNum}
+    </select>
+    
+    <select id="getChatInfoListByUiNum" resultType="com.secu.team2.chat.vo.ChatInfoVO">
+    	SELECT <include refid="ChatInfoCols"/> FROM CHAT_INFO WHERE BUYER_UI_NUM = #{uiNum} OR SELLER_UI_NUM = #{uiNum}
+    </select>
+    
+    <select id="selectChatInfo" resultType="com.secu.team2.chat.vo.ChatInfoVO">
+        SELECT <include refid="ChatInfoCols"/> FROM CHAT_INFO WHERE BUYER_UI_NUM = #{buyerUiNum} AND BI_NUM = #{biNum}
+    </select>
+    
+    <select id="selectChatInfoByCiNum" resultType="com.secu.team2.chat.vo.ChatInfoVO">
+	    SELECT <include refid="ChatInfoCols"/> FROM CHAT_INFO WHERE CI_NUM = #{ciNum}
+	</select>
+	
+	<select id="selectChatRoomList" resultType="com.secu.team2.chat.vo.ChatRoomInfoVO">
+		SELECT 
+		IF(CI.BUYER_UI_NUM = #{uiNum}, CI.BUYER_UI_NUM, CI.SELLER_UI_NUM) UI_NUM,
+		IF(CI.BUYER_UI_NUM = #{uiNum}, BUI.UI_NAME, SUI.UI_NAME) UI_NAME,
+		IF(CI.BUYER_UI_NUM = #{uiNum}, CI.SELLER_UI_NUM, CI.BUYER_UI_NUM) OP_UI_NUM,
+		IF(CI.BUYER_UI_NUM = #{uiNum}, SUI.UI_NAME, BUI.UI_NAME) OP_UI_NAME,
+		CI.CI_NUM, CI.BI_NUM, BI.BI_TITLE, BI.BI_PRICE, BI.BI_STAT,
+		CI.BUYER_UI_NUM, CI.SELLER_UI_NUM, FI.FI_PATH,
+		CTI.LMODAT AS 'checkTime.LMODAT', CTI.LMOTIM AS 'checkTime.LMOTIM',
+		MI.CREDAT AS 'checkTime.CREDAT', MI.CRETIM AS 'checkTime.CRETIM',
+		(SELECT IFNULL(AVG(RI_RANK), 0.0) AS averageRank FROM RANK_INFO WHERE BUYER_UI_NUM = #{uiNum} OR SELLER_UI_NUM = #{uiNum}) as opUiRank
+		FROM CHAT_INFO CI
+		INNER JOIN USER_INFO BUI ON CI.BUYER_UI_NUM = BUI.UI_NUM
+		INNER JOIN USER_INFO SUI ON CI.SELLER_UI_NUM = SUI.UI_NUM
+		INNER JOIN BOARD_INFO BI ON CI.BI_NUM = BI.BI_NUM
+		INNER JOIN (SELECT * FROM FILE_INFO WHERE FI_SEQ = 1) FI ON BI.BI_NUM = FI.BI_NUM
+		LEFT OUTER JOIN CHECKED_TIME_INFO CTI ON CI.CI_NUM = CTI.CI_NUM AND CTI.UI_NUM= #{uiNum}
+		LEFT OUTER JOIN MESSAGE_INFO MI ON MI.CI_NUM = CTI.CI_NUM AND MI.MI_NUM = (SELECT MAX(MI_NUM) FROM MESSAGE_INFO MI2 WHERE MI2.CI_NUM = CTI.CI_NUM)
+		WHERE CI.SELLER_UI_NUM = #{uiNum} OR CI.BUYER_UI_NUM = #{uiNum}
+	</select>
+
+    <insert id="insertChatInfo" keyProperty="ciNum" useGeneratedKeys="true">
+	    INSERT INTO CHAT_INFO (BI_NUM, BUYER_UI_NUM, SELLER_UI_NUM)
+	    VALUES (#{biNum}, #{buyerUiNum}, #{sellerUiNum})
+	</insert>
+	
+	<!-- 해당 게시물의 채팅방 개수 -->
+	<select id="selectChatInfoCntByBiNum" resultType="int">
+		SELECT COUNT(*) FROM CHAT_INFO WHERE BI_NUM=#{biNum}
+	</select>
+</mapper>

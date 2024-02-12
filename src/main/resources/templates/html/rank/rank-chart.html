@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+<script th:src="@{/js/echarts.min.js}"></script>
+
+<style>
+	body {
+	    color: #333;
+	    background: #fafafa;
+	}
+	.form-control{
+		background-color: #FFF;
+	}
+	.contact-form {
+	    padding: 50px;
+	    margin: 30px 0;
+	}
+	.contact-form h3 {
+		font-size: 1.5em;
+		font-weight: 500;
+	    color: #000;
+	    margin: 0 0 15px;
+	}
+	.contact-form .form-control, .contact-form .btn {
+	    min-height: 38px;
+	    border-radius: 2px;
+	}
+	.contact-form .form-control:focus {
+	    border-color: #10AEDB;
+	}
+	.contact-form .btn-primary, .contact-form .btn-primary:active {
+	    color: #fff;
+	    font-size: 16px;
+	    background: #10AEDB !important;
+	    border: none;
+	}
+	.contact-form .btn-primary:hover {
+	    background: #15a487 !important; 
+	}
+	.contact-form .btn i {
+	    margin-right: 5px;
+	}
+	.contact-form label {
+	    opacity: 0.7;
+	}
+	.contact-form textarea {
+	    resize: vertical;
+	}
+	.rate {
+		border: 0;
+	}
+	
+	.rate>input {
+		display: none;
+	}
+	
+	.rate>label {
+		float: right;
+		color: #FFDB5C;
+	}
+	
+	.rate>label:before {
+		display: inline-block;
+		font-size: 2rem;
+		padding: .3rem .2rem;
+		margin: 0;
+		cursor: pointer;
+		font-family: FontAwesome;
+		content: "\f005 ";
+	
+	}
+	
+	.rate .half:before {
+		content: "\f089 ";
+		position: absolute;
+		padding-right: 0;
+	}
+	
+	.rate input:checked~label,
+	.rate label:hover,
+	.rate label:hover~label {
+		color: #FFDB5C;
+	}
+	
+	.rate input:checked+.rate label:hover,
+	.rate input input:checked~label:hover,
+	.rate input:checked~.rate label:hover~label,
+	.rate label:hover~input:checked~label {
+		color: #FFDB5C;
+	}
+	
+	#rank{
+		margin-left: 10px;
+	}
+	
+	#chart-form{
+		margin-top: 30px;
+	}
+	
+	/* 모바일 스타일 */
+	@media only screen and (max-width: 767px) {
+		
+	}
+</style>
+
+<body class="body-wrapper">
+  <th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+  
+  <section class="content-container">
+
+	  <section class="page-search"></section>
+	
+	  <div class="container-lg">
+		  <div class="row">
+		        <div class="col-md-10 mx-auto">
+		            <div class="contact-form">
+		                <h3>내 평점</h3>
+		                <p class="hint-text"><span id="uiName"></span> 님을 평가한 사용자는 <span id="count"></span>명 입니다.</p>  
+		                <form id="chart-form">
+		                    <div class="row">
+								<div class="col-sm-3" style="display: flex;">
+		                            <div id="star" style="display: inline-flex;"></div>
+		                            <div id="rank"></div>
+		                        </div>
+								<div class="col-sm-9">
+		                            <div class="chart-group" style="margin: 0 auto;">
+										<div id="chart" style="width: 100%;height:80vh; margin: 0 auto;"></div>
+									</div>
+		                        </div>
+		                        
+		                    </div>
+		                </form>
+		            </div>
+		        </div>
+		    </div>
+	  </div>
+	
+	  <th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+  </section>
+
+  <script>
+	  window.addEventListener('load', async function(){
+		const response = await fetch('/select-user-info', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json;charset=UTF-8'
+			}
+		});
+		if (response.ok) {
+			const userInfo = await response.json();
+	  		document.querySelector('#uiName').innerText = userInfo.uiName;
+		} else {
+			alert('사용자 정보 가져오기 오류:', response.status);
+		}
+	  })
+	 
+	 window.addEventListener('load', async function () {
+		const userInfoRes = await fetch('/num');
+		const userInfo = await userInfoRes.json();
+		const uiNum = userInfo.uiNum;
+		const countRes = await fetch(`/count/${uiNum}`);
+		const rank = await countRes.json();
+		document.querySelector('#count').innerText = rank;
+
+		const searchres = await fetch(`/select/${uiNum}`);
+		const averageRank = await searchres.json();
+		const numAverageRank = averageRank.toFixed(1);
+		const rankDisplay = document.querySelector('#rank');
+		let html = '';
+		
+		if (averageRank !== null) {
+			rankDisplay.innerHTML = `(${numAverageRank}점)`;
+
+			let starsToDisplay = 0;
+			if (averageRank >= 0 && averageRank < 0.5) {
+				starsToDisplay = 0; // 0에서 0.4 사이의 평점은 0개의 별을 표시합니다.
+			} else if (averageRank >= 0.5 && averageRank < 1.5) {
+				starsToDisplay = 1; // 0.5에서 1.4 사이의 평점은 1개의 별을 표시합니다.
+			} else if (averageRank >= 1.5 && averageRank < 2.5) {
+				starsToDisplay = 2; // 1.5에서 2.4 사이의 평점은 2개의 별을 표시합니다.
+			} else if (averageRank >= 2.5 && averageRank < 3.5) {
+				starsToDisplay = 3; // 2.5에서 3.4 사이의 평점은 3개의 별을 표시합니다.
+			} else if (averageRank >= 3.5 && averageRank < 4.5) {
+				starsToDisplay = 4; // 3.5에서 4.4 사이의 평점은 4개의 별을 표시합니다.
+			} else if (averageRank >= 4.5 && averageRank <= 5.0) {
+				starsToDisplay = 5; // 4.5에서 5.0 사이의 평점은 5개의 별을 표시합니다.
+			}
+
+			// 정수 부분을 기준으로 별의 개수를 결정
+			html += '<div class="rate">'; // 별이 표시될 부분
+			for (let i = 0; i < starsToDisplay; i++) {
+				html += '<input type="radio" id="riRank' + (i + 1) + '" name="rating" value="' + (i + 1) + '" checked>';
+				html += '<label for="riRank' + (i + 1) + '" title="' + (i + 1) + '점"></label>';
+			}
+			html += '</div>';
+			} else {
+				html = '<div class="rate">'; // 별이 표시될 부분
+				for (let i = 0; i < 5; i++) { // 기본적으로 5개의 빈 별을 표시
+					html += '<input type="radio" id="riRank' + (i + 1) + '" name="rating" value="' + (i + 1) + '">';
+					html += '<label for="riRank' + (i + 1) + '" title="' + (i + 1) + '점"></label>';
+				}
+				html += '</div>';
+			}
+
+			document.querySelector('#star').innerHTML = html;
+			
+	});
+	
+	window.addEventListener('load', async function () {
+		// 차트 그리기
+		const chart = document.querySelector('#chart');
+		chart.remove();
+		html = '<div id="chart" style="width: 100%;height:80vh; margin: 0 auto;"></div>';
+		document.querySelector('.chart-group').insertAdjacentHTML("beforeend", html);
+		
+		const userInfoRes = await fetch('/num');
+		const userInfo = await userInfoRes.json();
+		const uiNum = userInfo.uiNum;
+		const res = await fetch(`/review/${uiNum}`);
+		ranks = await res.json();
+		
+		let myChart = echarts.init(document.querySelector('#chart'));
+			let option = '';
+			option = {
+				tooltip: {
+					trigger: 'item'
+				},
+				legend: {
+					orient: 'vertical',
+					left: 'right'
+				},
+				series: [
+					{
+						type: 'pie',
+						color: [
+					        '#37A2DA',
+					        '#32C5E9',
+					        '#67E0E3',
+					        '#9FE6B8',
+					        '#FFDB5C',
+					        '#ff9f7f',
+					        '#fb7293',
+					        '#E062AE',
+					        '#E690D1',
+					        '#e7bcf3',
+					        '#9d96f5',
+					        '#8378EA',
+					        '#96BFFF'
+					      ],
+						radius: '50%',
+						data: [],
+						emphasis: {
+							itemStyle: {
+								shadowBlur: 10,
+								shadowOffsetX: 0,
+								shadowColor: 'rgba(0, 0, 0, 0.5)'
+							}
+						}
+					}
+				]
+			};
+			
+			for (let i = 0; i < ranks.length; i++) {
+		        let comment = ranks[i].riComment;
+		        if (comment != null && !option.series[0].data.some(item => item.name === comment)) {
+		            option.series[0].data.push({
+		                name: comment,
+		                value: 1
+		            });
+		        } else {
+					// 이미 있는 경우
+		            let commentIdx = option.series[0].data.findIndex(item => item.name === comment);
+		            option.series[0].data[commentIdx].value += 1;
+		        }
+		    }
+			option && myChart.setOption(option);
+	});
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+<script src="/js/report.js"></script>
+<style>
+	  .user-dashboard-menu li:hover{background-color: rgb(0,0,0,0.05);}
+	  .user-dashboard-menu li img{width:22px; margin-right: 5px;}
+	  
+	  .widget{
+		  cursor: pointer;
+	}
+	#ruiDesc::placeholder{
+		font-size: 0.9rem;
+		font-family: 'Noto Sans KR', sans-serif;
+	}
+
+	#ruiDesc{
+		font-family: 'Noto Sans KR', sans-serif;
+	  	resize: none;
+	  	height: 7em;
+	  	width: 90%;
+		margin: 0 auto;
+		display: block;
+	}
+</style>
+
+<body class="body-wrapper">
+	<!-- Top으로 가는 버튼 -->
+	<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+	
+	<!-- Header 및 Nav -->
+	<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+
+	<section class="content-container">
+	<section class="page-search"></section>
+	
+	<section class="dashboard section">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-4">
+					<div class="sidebar">
+						<div class="widget user-dashboard-profile">
+							<div class="profile-thumb">
+								<img class="rounded-circle">
+							</div>
+							<h5 class="uiName"></h5>
+							<p class="uiRank"></p>
+							<p class="uiDesc"></p>
+							<p class="credat"></p>
+							<p class="moveToRankChart" onclick="moveToRankChart()">평점 보러가기</p>
+						</div>
+						<div class="widget user-dashboard-menu">
+							<ul>
+								<li class="boardList active">
+									<a onclick="drawBoard()">
+										<img src="/imgs/profileBoard.png"></img> 등록 물품
+										<span class="boardListCount"></span>
+									</a>
+								</li>
+								<li class="orderList">
+									<a onclick="drawOrder()">
+										<img src="/imgs/profileOrder.png"></img> 거래 내역
+										<span class="orderListCount"></span>
+									</a>
+								</li>
+								<li>
+									<a href="#!" data-toggle="modal" data-target="#report-modal" id="reportButton" style="color:red !important;">
+										<img src="/imgs/profileReport.png"></img> 유저 신고
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-8">
+					<div class="widget dashboard-container my-adslist">
+						<h3 class="widget-header"></h3>
+						<table class="table table-responsive product-dashboard-table">
+							<thead>
+								<tr>
+									<th class="tableHead">이미지</th>
+									<th class="tableHead">물품 정보</th>
+									<th class="tableHead text-center" style="width:100px;">거래 상태</th>
+									<th class="tableHead text-center">상세 보기</th>
+								</tr>
+							</thead>
+							<tbody class="productTableBody">
+							</tbody>
+						</table>
+					</div>
+					<div ss="pagination justify-content-center">
+						<nav aria-label="Page navigation example">
+							<ul class="pagination">
+							</ul>
+						</nav>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- 유저 신고 모달 -->
+	<div class="modal fade" id="report-modal" tabindex="-1" role="dialog"
+		aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header border-bottom-0">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body text-center">
+					<h6 class="py-2">사용자 신고하기</h6>
+					<p>신고 사유를 작성해주세요.</p>
+					<textarea class="form-control" id="ruiDesc" rows="5" required placeholder="최대 80자 이내"></textarea>
+				</div>
+				<div class="modal-footer border-top-0 mb-3 mx-5 justify-content-center">
+					<button type="button" class="btn btn-danger" onclick="cancel()" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" onclick="report()">신고하기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Footer  -->
+	<th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+</section>
+<script>
+	const pageSize = 5;
+	const blockSize = 5;
+	let profile;
+	let board;
+	let uiNum;
+	let order;
+	window.addEventListener('load', async function () {
+		uiNum = '[[${param.uiNum}]]';
+		console.log(uiNum);
+		if(uiNum === ''){
+			alert('잘못된 접근입니다.');
+			location.href='/';
+		};
+		const profileRes = await fetch(`/get-user-profile/${uiNum}`);
+		profile = await profileRes.json();
+		console.log(profile);
+		if(profile.uiName===undefined){
+			alert('잘못된 접근입니다.');
+			location.href='/';
+		}
+		const boardRes = await fetch(`/board-infos?searchNum=${uiNum}`);
+		board = await boardRes.json();
+		const orderRes = await fetch(`/get-deal-info-list-by-uinum/${uiNum}`);
+		order = await orderRes.json();
+		const rankres = await fetch(`/select/${uiNum}`);
+		averageRank = await rankres.json();
+		const numAverageRank = averageRank.toFixed(1);
+		console.log(numAverageRank);
+		
+		if(averageRank == 0.0){
+			document.querySelector('.uiRank').innerText = '해당하는 평가가 없습니다.';
+		}else{
+			document.querySelector('.uiRank').innerHTML = `(☆${numAverageRank}/5)`;
+		}
+		document.querySelector('.boardListCount').innerHTML = board.totalCnt;
+		document.querySelector('.orderListCount').innerHTML = order.length;
+		
+		if(profile.uiImgPath === ''){
+			document.querySelector('.profile-thumb img').src = '/assets/images/profile-thumb.jpg';
+		}else{
+			document.querySelector('.profile-thumb img').src = `${profile.uiImgPath}`;
+		}
+		
+		document.querySelector('.uiName').innerText = `${profile.uiName}`;
+		if(`${profile.uiDesc}` !== 'null'){
+			document.querySelector('.uiDesc').innerText = `${profile.uiDesc}`;
+		}else{
+			document.querySelector('.uiDesc').innerText = '지구를 생각하는 중고거래 해결책';
+		}
+		subDate = subStr(profile.credat);
+		document.querySelector('.credat').innerText = `가입 ${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일`;
+		
+		drawBoard();
+	});
+	
+	function subStr(date) {
+		return subDate=[date.substr(0, 4), date.substr(4, 2), date.substr(6, 2)];
+	}
+	
+	function active(dom){
+		document.querySelector('.user-dashboard-menu .active').classList.remove('active');
+		document.querySelector(`.user-dashboard-menu .${dom}`).className += " active";
+	}
+	
+	function drawBoard(page){
+		if(!page){
+			page=1;
+		}
+		let startIdx = (page-1)*pageSize;
+		active('boardList');
+		document.querySelector('.productTableBody').innerHTML = '';
+		document.querySelector('.widget-header').innerHTML = '등록 물품';
+		drawTableHead(['이미지','물품 정보','거래 상태','상세 보기']);
+		for(let i=startIdx;i<startIdx+pageSize;i++){
+			if(i<board.list.length){
+				subDate = subStr(board.list[i].credat);
+				let html = `<tr><td class="product-thumb">
+					<img width="80px" height="auto" src="${board.list[i].files[0].fiPath}" alt="${board.list[i].files[0].fiName}"></td>
+					<td class="product-details">
+					<h3 class="title">${board.list[i].biTitle}</h3>
+					<span class="add-id"><strong>상품 ID:</strong>${board.list[i].biNum}</span>
+					<span><strong>게시일 : </strong><time>${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일</time> </span>
+					<span class="location"><strong>거래 장소</strong>${board.list[i].biAddr}</span></td>
+					<td class="product-category"><span class="categories" style="color:${board.list[i].biStat === '판매중' ? 'rgb(0, 183, 0)' : 'gray'}; font-weight:bold;">${board.list[i].biStat}</span></td>
+					<td class="action" data-title="Action">
+					<div class="">
+					<ul class="list-inline justify-content-center">
+					<li class="list-inline-item">
+					<a data-toggle="tooltip" data-placement="top" title="View" class="view" href="/html/board/board-view?biNum=${board.list[i].biNum}">
+					<i class="fa fa-eye"></i></a></li>
+					</ul></div></td></tr>`;
+				document.querySelector('.productTableBody').innerHTML += html;
+			}
+		}
+		drawPage(board.list.length, page, 'drawBoard', page);
+	}
+	
+	function drawOrder(page) {
+	    if (!page) {
+	        page = 1;
+	    }
+	    let startIdx = (page - 1) * pageSize;
+	    active('orderList');
+	    document.querySelector('.productTableBody').innerHTML = '';
+	    document.querySelector('.widget-header').innerHTML = '거래 내역';
+	    drawTableHead(['이미지', '거래 정보', '거래 형태', '받은 별점']);
+	    
+	    for (let i = startIdx; i < startIdx + pageSize; i++) {
+	        if (i < order.length) {
+	            subDate = subStr(order[i].credat);
+	            
+	            let comment = profile.riComment[i] ? profile.riComment[i].riComment : '해당하는 평가가 없습니다';
+	            let rank = profile.riComment[i] ? profile.riComment[i].riRank : '해당하는 평가가 없습니다';
+	
+	            let html = `<tr><td class="product-thumb">
+	                <img width="80px" height="auto" src="${order[i].files[0].fiPath}" alt="${order[i].files[0].fiName}"></td>
+	                <td class="product-details">
+	                <h3 class="title">${order[i].biTitle}</h3>
+	                <span><strong>상품 ID:</strong>${order[i].biNum}</span>
+	                <span><strong>게시일 : </strong><time>${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일</time> </span>
+	                <span><strong>거래 가격</strong>${order[i].oiPrice}</span>
+	                <span><strong>코멘트</strong>${comment}</span></td>
+	                <td class="product-category"><span class="categories" style="color:${order[i].buyerUiNum == uiNum ? 'rgb(0, 183, 0)' : 'gray'}; font-weight:bold;">${order[i].buyerUiNum == uiNum ? '구매' : '판매'}</span></td>
+	                <td class="action" data-title="Action" style="font-weight:800; font-size:18px; color:${getRankColor(rank)};">${rank}</td></tr>`;
+	
+	            document.querySelector('.productTableBody').innerHTML += html;
+	        }
+		}
+		drawPage(order.length, page, 'drawOrder', page);
+	}
+		
+	function drawTableHead(arr){
+		let i = 0;
+		const tableHead = document.querySelectorAll('.product-dashboard-table .tableHead');
+		for(const head of tableHead){
+			head.innerHTML = `${arr[i++]}`;
+		}
+	}
+	
+	function drawPage(totalCnt, page, draw, selected){
+		const pageBlock = Math.ceil(totalCnt/pageSize); 
+		const startBlock = (Math.ceil(page/blockSize)-1)*blockSize+1;
+		let endBlock = startBlock + blockSize - 1;
+		let pageHtml = '';
+		if(endBlock > pageBlock){
+			endBlock = pageBlock
+		}
+		if(startBlock != 1){
+			pageHtml += `<li class="page-item">
+						   <a onclick="${draw}(${startBlock-1})" class="page-link" href="javascript:void(0)" aria-label="Previous">
+							  <span aria-hidden="true">&laquo;</span>
+							  <span class="sr-only">Previous</span>
+						   </a>
+						 </li>`;
+		}
+		for(let i=startBlock; i<=endBlock; i++){
+			if(i === selected){
+				pageHtml += `<li class="page-item active"><a onclick="${draw}(${i})" class="page-link" href="javascript:void(0)">${i}</a></li>`;
+			}else{
+				pageHtml += `<li class="page-item"><a onclick="${draw}(${i})" class="page-link" href="javascript:void(0)">${i}</a></li>`;
+			}
+		}
+		if(endBlock<pageBlock){
+			pageHtml += `<li class="page-item">
+						   <a onclick="${draw}(${endBlock+1})" class="page-link" href="javascript:void(0)" aria-label="Next">
+							 <span aria-hidden="true">&raquo;</span>
+							 <span class="sr-only">Next</span>
+						   </a>
+						 </li>`;
+		}
+		document.querySelector('.pagination').innerHTML = pageHtml;
+	}
+	
+	function getRankColor(rank){
+		switch(rank){
+			case "1":
+				return '#ff0000';
+			case "2":
+				return '#FF7143';
+			case "3":
+				return '#FFBB50';
+			case "4":
+				return '#B6D12A';
+			case "5":
+				return '#0db01f';
+		}
+	}
+	
+	function report(){
+		reportUser(`${uiNum}`);
+	}
+	
+	function moveToRankChart(){
+		window.location.href=`/html/profile/profile-to-rankchart?uiNum=${uiNum}`;
+	}
+</script>
+</body>
+</html>

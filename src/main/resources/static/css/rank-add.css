@@ -1,0 +1,143 @@
+@charset "UTF-8";
+
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+.body-container{
+	background-color: #E5F6FE;
+	border: 2px solid #87C4EF;
+    text-align: center;
+	width: 30%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 800px;
+	height: 450px;
+	border-radius: 0.9rem;
+}
+
+#excuese{
+	margin-top: 3.5em;
+}
+
+#userName{
+	font-size: 1.2rem;
+    color: #000;
+}
+
+.rate {
+	display: inline-block;
+	border: 0;
+}
+
+.rate>input {
+	display: none;
+}
+
+.rate>label {
+	float: right;
+	color: #ddd
+}
+
+.rate>label:before {
+	display: inline-block;
+	font-size: 2.8rem;
+	padding: .3rem .2rem;
+	margin: 0;
+	cursor: pointer;
+	font-family: FontAwesome;
+	content: "\f005 ";
+}
+
+.rate .half:before {
+	content: "\f089 ";
+	position: absolute;
+	padding-right: 0;
+}
+
+.rate input:checked~label,
+.rate label:hover,
+.rate label:hover~label {
+	color: rgb(249, 249, 0) !important;
+}
+
+.rate input:checked+.rate label:hover,
+.rate input input:checked~label:hover,
+.rate input:checked~.rate label:hover~label,
+.rate label:hover~input:checked~label {
+	color: #0A60AF !important;
+}
+		
+img{
+	width: 3.0em;
+	height: 3.0em;
+	text-align: center;
+	margin-top: -0.5em;
+	cursor: pointer;
+}
+		
+#image1,#image2{
+	margin-right: 10%;
+}
+		
+
+		
+
+
+#image1{
+	filter: opacity(0.5) drop-shadow(0 0 0 red);
+}
+
+#image2{
+	filter: opacity(0.5) drop-shadow(0 0 0 yellow);
+}
+
+#image3{
+	filter: opacity(0.5) drop-shadow(0 0 0 green);
+}
+
+select{
+	float: left;
+	border-radius: 0.4rem;
+	border: 2px solid #87C4EF;
+	height: 3em;
+	text-align: center;
+	width: 60%;
+	margin-top: 2em;
+	font-size: 0.8em;
+}
+
+select#select1,
+select#select2,
+select#select3 {
+    margin-left: 20.5%;
+    margin-right: 24.5%;
+}
+
+button#rank-btn{
+	cursor: pointer;
+	font-size: 0.9rem;
+	font-weight: 500;
+	border: none;
+	padding: 10px;
+	width: 140px;
+	height: 40px;
+	background-color: #0A60AF;
+	color: white;
+	border-radius: 0.4rem;
+	margin-top: 1.5em;
+}
+
+.nice-select{
+	display: none;
+}
+
+.p-5{
+	padding: 5rem!important;
+}
+
+#package-content{
+	width: 100%;
+	box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1);	
+	max-height: 50vh;
+    max-width: 50vh;
+}

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+<title>지중해</title>
+<link rel="stylesheet" href="/css/board-view.css">
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=abb76285215945e8b22290d7759dcd17&libraries=services"></script>
+<script src="/js/data-processing.js"></script>
+<script src="/js/report.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/animejs"></script>
+</head>
+<body>
+	<div class="body-container">
+		<div class="seller">
+			<div id="board">
+				<button type="button" onclick="location.href=`/html/board/board-update?biNum=${biNum}`">수정</button>
+				<button onclick="delBoard()">삭제</button>
+			</div>
+			<div id="deal">
+				<button id="dealButton" onclick="dealEnd()">거래 완료</button>
+				<button id="updateBoard" onclick="updateList()">끌어올리기</button>
+			</div>
+		</div>
+		
+		<div class="buyer">
+			<div id="chatting">
+				<button id="startChatBtn" onclick="startChat()">채팅하기</button>
+			</div>
+			<div id="likeIt">
+				<button id="likeBtn" onclick="likeChange()">
+				<img id="heart" src="" alt="관심">
+				</button>
+			</div>
+		</div>
+		
+		<div class="boardDiv">
+			<div id="head">
+				<h1 id="biTitle"></h1>
+				<p id="ago"></p> &nbsp;∙
+				<p id="biStat"></p><br>
+				<p id="info">채팅 <span id="chatCnt"></span>  ∙ 관심 <span id="likeCnt"></span>  ∙ 조회 <span id="biViews"></span></p>
+			</div>
+			<div id="price-field">
+				<p><span id="price"></span>원</p>
+			</div>
+			<div id="profile">
+				<a href="#" onclick="goProfile()" id="goProfile">
+					<img id="uiImg" src="/imgs/user.png" alt="user-image">
+					<p id="uiName"></p>
+				</a>
+			</div>
+			<hr>
+			<div class="board-form" id="content">
+				<p id="name-field">상품명 : <span id="biName"></span></p>
+				<p id="desc-field">
+					<span id="biContent"></span>
+				</p>
+				<div class="board-form" id="mapDiv">
+					<p>거래 희망 주소 : <span id="biAddr"></span></p><br>
+					<p>판매자 지정 장소 : <span id="biLoca"></span></p>
+					<div id="map" style="width:100%;height:320px;"></div>
+				</div>
+			</div>
+			<div class="board-form" id="file-images">
+				<div id="file-slider"></div>
+				<button class="prev-button">&lang;</button>
+	      		<button class="next-button">&rang;</button>
+      		</div>
+		</div>
+	</div>
+	<div class="modal">
+		<div class="chat-modal">
+			<div id="modal-desc">거래한 상대방을 선택해주세요</div>
+			<div id="chatRoomBody"></div>
+			<div id="modal-btn">
+				<button id="cancel-btn" onclick="cancel()">취소</button>
+				<button id="endSell-btn" onclick="endSell()">이 사람과 거래했어요</button>
+			</div>
+		</div>
+	</div>
+	<script>
+		const biNum = '[[${param.biNum}]]';
+		const uiNum = '[[${param.uiNum}]]';
+		console.log(uiNum);
+		console.log(biNum);
+		let selectedChatInfo = {};
+		let board;
+		let res;
+		window.addEventListener('load', async function(){
+			res = await fetch(`/board-infos/${biNum}`);
+			board = await res.json();
+			console.log(board);
+			
+			if (board.biStat === '판매완료') {
+                document.querySelector('#dealButton').style.display = "none";
+            }
+
+			// 작성자 : 수정, 삭제, 판매 완료 버튼이 보이도록
+			// 작성자 외 : 관심 버튼이 보이도록, 최근 방문 리스트에 추가
+			if(!board.author){
+				document.querySelector('.seller').style.display = "none";
+				// 관심목록에 있는지 확인
+				if(board.like){
+					document.querySelector('#heart').src = "/imgs/full-heart.png";
+				}else{
+					document.querySelector('#heart').src = "/imgs/empty-heart.png";
+				}
+				// 최근 방문한 게시물에 추가
+				res = await fetch(`/viewed-infos/${biNum}`, {
+					method: 'POST'
+				})
+			}else{
+				document.querySelector('.buyer').style.display = "none";
+			}
+			
+			// 이미지 파일
+			boardFiles = board.files;
+			for(let i=0; i<boardFiles.length; i++){
+				const boardFile = boardFiles[i];
+				console.log(boardFile);
+				const html = `<div class="file-slide" id="file${i+1}"><img src="${boardFile.fiPath}" id="img${i+1}"></div>`;
+				document.querySelector('#file-slider').insertAdjacentHTML('beforeend',html);  
+			}
+			
+			// 유저 프로필 사진
+			if(!(board.uiImgName.trim() === '' && board.uiImgPath.trim() === '')){
+				document.querySelector('#uiImg').src = board.uiImgPath;
+			}
+			
+			// 현재를 기준으로 얼마 전에 수정했는지
+			document.querySelector('#ago').innerText = `끌올 ${calculateTime(board.credat, board.cretim)}`;
+			
+			// 가격 콤마로 표시
+			document.querySelector('#price').innerText = priceToString(board.biPrice);
+			
+			// 다른 키 값
+			for(let key in board){
+				if(document.querySelector('#' + key)){
+					document.querySelector('#' + key).innerText = board[key];
+				}
+			}
+			
+			var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+		    mapOption = {
+		        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+		        level: 3 // 지도의 확대 레벨
+		    };  
+		
+			// 지도를 생성합니다    
+			var map = new kakao.maps.Map(mapContainer, mapOption); 
+			
+			// 주소-좌표 변환 객체를 생성합니다
+			var geocoder = new kakao.maps.services.Geocoder();
+			
+			// 주소로 좌표를 검색합니다
+			geocoder.addressSearch(board.biAddr, function(result, status) {
+			
+			    // 정상적으로 검색이 완료됐으면 
+			     if (status === kakao.maps.services.Status.OK) {
+			
+			        var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+			
+			        // 결과값으로 받은 위치를 마커로 표시합니다
+			        var marker = new kakao.maps.Marker({
+			            map: map,
+			            position: coords
+			        });
+			
+			        // 인포윈도우로 장소에 대한 설명을 표시합니다
+			        var infowindow = new kakao.maps.InfoWindow({
+			            content: '<div style="width:150px;text-align:center;padding:6px 0;">거래 희망 주소 위치</div>'
+			        });
+			        infowindow.open(map, marker);
+			
+			        // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+			        map.setCenter(coords);
+			    } 
+			});
+			
+			// 파일 슬라이드			
+			const slider = document.querySelector('#file-slider');
+	        const slides = slider.querySelectorAll('.file-slide');
+	        const prevButton = document.querySelector('.prev-button');
+	        const nextButton = document.querySelector('.next-button');
+	        
+	        let slideIdx = 0;
+	
+	        // 이전 슬라이드로 이동
+	        prevButton.addEventListener('click', function () {
+				slideIdx = (slideIdx - 1 + slides.length) % slides.length;
+				updateSlide();
+	        });
+	
+	        // 다음 슬라이드로 이동
+	        nextButton.addEventListener('click', function () {
+				slideIdx = (slideIdx + 1) % slides.length;
+				updateSlide();
+	        });
+	
+	        // 슬라이드 업데이트 함수
+			function updateSlide() {
+			    const slideWidth = slides[0].clientWidth;
+			    const maxIdx = slides.length - 1;
+			    
+			    if(slideIdx >= 0 && slideIdx <= maxIdx){
+					slider.style.transform = `translateX(-${slideIdx * slideWidth}px)`;
+			    }
+			    
+			    if(slideIdx < 0){
+			        slideIdx = 0; // 처음 슬라이드로 고정
+			    }
+			    
+			    if(slideIdx > maxIdx){
+			        slideIdx = maxIdx; // 끝 슬라이드로 고정
+			    }
+			}
+		});
+		
+		// 게시물 삭제
+		async function delBoard(){
+			if(confirm("삭제하시겠습니까?")){
+					const res = await fetch(`/board-infoList/${biNum}`, {
+					method: 'PATCH'
+				});
+				if(res.ok){
+					alert("삭제되었습니다.");
+					location.href='/html/board/board-list';
+				}else{
+					alert('게시물 삭제에 실패했습니다.');
+				}
+			}
+		}
+		
+	    
+	    // 클릭했을 때 관심 목록 추가, 삭제
+		async function likeChange(){
+			let res = await fetch(`/like-infos/${biNum}`);
+			const likeCnt = document.querySelector('#likeCnt').textContent;
+			const isLike = await res.json();
+			if(isLike === 1){
+				document.querySelector('#likeCnt').textContent = parseInt(likeCnt) - 1;
+				res = await fetch(`/like-infos/${biNum}`, {
+					method: 'DELETE'
+				});
+				if(res.ok){
+					document.querySelector('#heart').src = "/imgs/empty-heart.png";
+				}else{
+					alert('관심 목록 삭제에 실패했습니다.')
+				}
+			}else{
+				res = await fetch(`/like-infos/${biNum}`, {
+					method: 'POST'
+				});
+				const addlike = await res.json();
+				if(addlike === 1){
+					document.querySelector('#likeCnt').textContent = parseInt(likeCnt) + 1;
+					anime({
+						begin: function(anim){
+							document.querySelector('#heart').src = "/imgs/full-heart.png";
+						},
+						targets: '#heart',
+						easing: 'cubicBezier(.7, .1, .1, .3)',
+						delay: 0,
+						keyframes: [
+							{scale: 1.6, duration: 100},
+							{scale: 1, duration: 200}
+						]
+					})
+				}else{
+					alert('관심 목록 추가에 실패했습니다.');
+				}
+			}
+		}
+		async function updateList() {
+			const param = {
+				biNum: biNum
+
+			};
+			console.log(biNum);
+			if (board.biStat === '판매중') {
+				if(board.biCount == 0){
+					alert('횟수를 초과 하였습니다.');
+					return;
+				}
+				console.log(board.biCount);
+				const updateBoardList = await fetch(`/board-info-update-BoardInfoList/${biNum}`, {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json;charset=UTF-8'
+					},
+					body: JSON.stringify(param)
+				});
+				if (updateBoardList.ok) {
+					alert("업데이트 되었습니다.");
+					location.href = '/html/board/board-list';
+				}
+			} else {
+				alert("판매 상태가 아닙니다.");
+			}
+		}
+		
+		async function startChat(){
+			const param = {
+				biNum:biNum,
+				sellerUiNum:board.uiNum
+			};
+			const createChatRoom = await fetch('/create-chat-room',{
+				method:'POST',
+				headers:{
+					'Content-Type':'application/json;charset=UTF-8'
+				},
+				body:JSON.stringify(param)
+			});
+			const createChatRoomRes = await createChatRoom.json();
+			if(createChatRoomRes === 1){
+				location.href=`/html/chat/chatRoomList?biNum=${biNum}`
+			}else{
+				alert('채팅방 생성에 실패했습니다.');
+			}
+		}
+
+		async function dealEnd() {
+			document.querySelector('.modal').style.display="flex";
+			const body = document.querySelector('body');
+			body.style.overflow="hidden";
+			body.style.height="100%";
+			
+		    const responseChatRoomList = await fetch('/get-chat-room-list');
+		
+		    if (!responseChatRoomList.ok) {
+		        console.error('채팅 목록을 가져오는 데 실패했습니다.');
+		        return;
+		    }
+		
+		    const chatRoomList = await responseChatRoomList.json();
+		
+		    let html = '';
+		    let count = 1;
+		
+		    for (const chatRoom of chatRoomList) {
+		        if (chatRoom.biTitle === board.biTitle) {
+		            html += '<div>';
+		            html += `<input type="radio" name="chatRadio" value="${chatRoom.biNum}-${chatRoom.sellerUiNum}-${chatRoom.buyerUiNum}-${chatRoom.ciNum}" />`;
+		            html += `<label>${count++}. ${chatRoom.opUiName}</label>`;
+		            html += '</div>';
+		        }
+		    }
+		
+		    document.querySelector('#chatRoomBody').innerHTML = html;
+		
+		    // 라디오 버튼 클릭 시 선택한 채팅 정보 저장
+		    const radioButtons = document.querySelectorAll('input[name="chatRadio"]');
+		    radioButtons.forEach(function (radioButton) {
+		        radioButton.addEventListener('click', function () {
+		            const values = radioButton.value.split('-');
+		            selectedChatInfo = {
+		                biNum: values[0],
+		                sellerUiNum: values[1],
+		                buyerUiNum: values[2],
+		                ciNum: values[3]
+		            };
+		            console.log("biNum=>", selectedChatInfo.biNum);
+		            console.log("sellerUiNum=>", selectedChatInfo.sellerUiNum);
+		            console.log("buyerUiNum=>", selectedChatInfo.buyerUiNum);
+		            console.log("ciNum=>", selectedChatInfo.ciNum);
+		        });
+		    });
+		}
+		
+		
+		// 모달창 닫기
+		function cancel(){
+			document.querySelector('.modal').style.display="none";
+			const body = document.querySelector('body');
+			body.style.overflow="visible";
+		}
+
+		async function endSell() {
+		    if (!selectedChatInfo || Object.keys(selectedChatInfo).length === 0) {
+		        alert('채팅을 선택해주세요.');
+		        return;
+		    }
+		
+		    const { biNum, sellerUiNum, buyerUiNum, ciNum } = selectedChatInfo;
+		
+		    const queryParams = new URLSearchParams(window.location.search);
+		    const boardBiNum = queryParams.get('biNum');
+		
+		    const responseUpdateBiStat = await fetch(`/board-infos/update-bi-stat/${boardBiNum}`, {
+		        method: 'PATCH',
+		    });
+		
+		    if (!responseUpdateBiStat.ok) {
+		        console.error('updateBiStat에 실패했습니다.');
+		        return;
+		    }
+		
+		    const responseDeal = await fetch(`/insert-deal-info?biNum=${biNum}&sellerUiNum=${sellerUiNum}&buyerUiNum=${buyerUiNum}&ciNum=${ciNum}`, {
+		        method: 'POST',
+		    });
+		    console.log(biNum);
+		    console.log(sellerUiNum);
+		    console.log(buyerUiNum);
+		    console.log(ciNum);
+		
+		    if (responseDeal.ok) {
+		        const { diNum } = await responseDeal.json();
+		
+		        const orderInfo = {
+		            diNum: diNum,
+		        };
+		
+		        const responseOrder = await fetch('/add-order-info', {
+		            method: 'POST',
+		            headers: {
+		                'Content-Type': 'application/json',
+		            },
+		            body: JSON.stringify(orderInfo),
+		        });
+		
+		        if (responseOrder.ok) {
+		            alert('거래 및 주문이 성공적으로 완료되었습니다.');
+		            console.log(diNum);
+		
+		            fetchbuyerUiNumAndRedirect(diNum);
+		        } else {
+		            alert('거래 또는 주문에 실패했습니다.');
+		            console.log(diNum);
+		        }
+		    } else {
+		        alert('거래에 실패했습니다.');
+		    }
+		}
+
+
+
+	async function fetchbuyerUiNumAndRedirect(diNum) {
+	    const oiNumRes = await fetch(`/fetch-buyer-num?diNum=${diNum}`);
+	
+	    if (oiNumRes.ok) {
+	        const oiNumData = await oiNumRes.json();
+	
+	        const oiNum = oiNumData.oiNum;
+	        const diNumFromServer = oiNumData.diNum;
+	        const buyerUiNum = oiNumData.buyerUiNum;
+	
+	        window.location.href = `/html/rank/rank-add-buyer?oiNum=${oiNum}&diNum=${diNumFromServer}&buyerUiNum=${buyerUiNum}`;
+	    } else {
+	        alert("서버에서 데이터를 가져오는 중 오류가 발생했습니다.");
+	    }
+	    console.log("oiNum:", oiNum);
+	    console.log("diNumFromServer:", diNumFromServer);
+	    console.log("buyerUiNum:", buyerUiNum);
+	}
+	
+	function goProfile(){
+		location.href=`/html/user/profile?uiNum=${uiNum}`;
+	}
+	</script>
+</body>
+</html>

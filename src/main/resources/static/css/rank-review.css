@@ -1,0 +1,103 @@
+@charset "UTF-8";
+
+.body-container{
+	background-color: #E5F6FE;
+	border: 2px solid #87C4EF;
+    text-align: center;
+	width: 50%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 60em;
+	height: 80vh;
+    padding: 20px;
+	border-radius: 0.8rem;
+}
+
+#welcome h1{
+    font-size: 1.7em;
+    margin-bottom: 1.5em;
+    margin-top: 2.7em;
+    color: #000;
+    font-weight: 500;
+}
+
+#count, #rank{
+	font-size: 1em;
+}
+
+#star, #rank{
+	vertical-align: middle;
+}
+
+#star{
+	margin-right: -10px;
+}
+
+
+.review{
+	margin-bottom: 20px;
+	border-radius: 0.7rem;
+}
+
+#my-review {
+	text-align: left;
+	color: #000;
+	font-size: 1rem;
+	font-weight: 500;
+	padding: 20px;
+}
+
+.rank-container{
+    width: 98%;
+    height: 100%;
+    margin-bottom: 10px;
+	border: 2px solid #4C9ACC;
+	background-color: #D3EEFC;
+	border-radius: 0.4rem;
+	display:flex;
+	align-items:center;
+	vertical-align: middle;
+	margin: auto;
+}
+
+.checkClickbtn {
+	cursor: pointer;
+	display: inline-block;
+	margin: 10px;
+	width: 50px;
+	height: 50px;
+}
+
+.checkClickbtn [id$="Img"] {
+	width: 50px;
+	height: 50px;
+}
+
+.rank-container span{
+    font-size: 0.9rem;
+    font-weight: 400;
+	padding: 1px;
+}
+
+.rank-container img{
+	padding: 2%;
+	width: 40px;
+	height: 40px;
+}
+
+#msg {
+	display: block;
+	width: 100%;
+}
+
+#rankComment {
+	padding: 0;
+	margin: 0;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 70px;
+	margin-bottom: 70px;
+	border-radius: 0.7rem;
+	border: none;
+}

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- head 태그 -->
+<style>
+	.buyer img{
+		width: 25px;
+		height: 25px;
+	}
+	
+	#eco-img{
+		width: 150px;
+		height: 150px;
+	}
+	
+	#ruiDesc::placeholder{
+		font-size: 0.9rem;
+		font-family: 'Noto Sans KR', sans-serif;
+	}
+
+	#ruiDesc{
+		font-family: 'Noto Sans KR', sans-serif;
+	  	resize: none;
+	  	height: 7em;
+	  	width: 90%;
+		margin: 0 auto;
+		display: block;
+	}
+	
+	#likeBtn{
+		background: none;
+	}
+	
+	/* 모바일 스타일 */
+	@media only screen and (max-width: 767px) {
+		#section{
+			padding-top: 40px;
+			padding-bottom: 10px;
+		}
+	}
+</style>
+<script src="/js/report.js"></script>
+<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=abb76285215945e8b22290d7759dcd17&libraries=services"></script>
+
+<body class="body-wrapper">
+	<!-- Top으로 가는 버튼 -->
+	<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+	
+	<!-- Header 및 Nav -->
+	<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+	
+	<section class="content-container">
+
+		<section class="page-search"></section>
+		
+		<section class="section bg-gray" id="section">
+			<!-- Container Start -->
+			<div class="container">
+				<div class="row">
+					<!-- Left sidebar -->
+					<div class="col-md-8">
+						<div class="product-details">
+							<h1 class="product-title" id="biTitle"></h1>
+							<div class="product-meta">
+								<ul class="list-inline">
+									<li class="list-inline-item"><i class="fa fa-user-o"></i> <a onclick="goProfile()" id="uiName" style="cursor: pointer;"></a></li>
+									<li class="list-inline-item" id="ago"></li>
+									<li class="list-inline-item" id="biStat"></li>
+									<li class="list-inline-item"><p class="card-text">채팅 <span id="chatCnt"></span>  ∙ 관심 <span id="likeCnt"></span>  ∙ 조회 <span id="biViews"></span></p></li>
+								</ul>
+							</div>
+							<div id="carouselExampleIndicators" class="product-slider carousel slide" data-ride="carousel">
+								<ol class="carousel-indicators">
+									<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+								</ol>
+								<div class="carousel-inner">
+									<div class="carousel-item active">
+										<img class="d-block w-100" id="img0" src="" alt="">
+									</div>
+								</div>
+								<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+									<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+									<span class="sr-only">Previous</span>
+								</a>
+								<a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+									<span class="carousel-control-next-icon" aria-hidden="true"></span>
+									<span class="sr-only">Next</span>
+								</a>
+							</div>
+							<div class="content">
+								<ul class="nav nav-pills  justify-content-center" id="pills-tab" role="tablist">
+									<li class="nav-item">
+										<a class="nav-link active" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="true">거래 장소</a>
+									</li>
+									<li class="nav-item" style="margin-left: 10px;">
+										<a class="nav-link" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="false">상품 설명</a>
+									</li>
+								</ul>
+								<div class="tab-content" id="pills-tabContent">
+									<div class="tab-pane fade show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+										<h3 class="tab-title">거래 장소</h3>
+										<div class="board-form" id="mapDiv">
+											<div id="map" style="width:100%; height:350px;"></div>
+										</div>
+										<table class="table table-bordered product-table">
+										  <tbody>
+										    <tr>
+										      <td>거래 희망 주소</td>
+										      <td id="biAddr"></td>
+										    </tr>
+										    <tr>
+										      <td>판매자 지정 장소</td>
+										      <td id="biLoca"></td>
+										    </tr>
+										  </tbody>
+										</table>
+									</div>
+									<div class="tab-pane fade" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+										<h3 class="tab-title" id="biName"></h3>
+										<p id="biContent"></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="sidebar">
+							<div class="widget price text-center">
+								<p><span id="price"></span>원</p>
+							</div>
+							<div class="widget map">
+								<ul class="list-inline mt-20" style="margin: 0;">
+									<div class="buyer">
+										<li class="list-inline-item"><button id="likeBtn" onclick="likeChange()" class="btn btn-offer"><img id="heart" src="" alt="관심"></button></li>
+										<li class="list-inline-item"><a href="#!" id="startChatBtn" onclick="startChat()" class="btn btn-transparent">채팅하기</a></li>
+										<li class="list-inline-item" id="report"><a href="#!" data-toggle="modal" data-target="#report-modal" id="reportButton" class="btn btn-transparent">신고</a></li>
+									</div>
+									<div class="seller">
+										<li class="list-inline-item" id="edit-board"><button type="button" onclick="location.href=`/html/board/board-update?biNum=${biNum}`" class="btn btn-transparent" style="margin: 10px;  margin-left: 25px;">글 수정</button></li>
+										<li class="list-inline-item" id="dealButton"><a href="#!" data-toggle="modal" data-target="#deal-end" id="dealButton" class="btn btn-transparent" onclick="dealEnd()" style="margin: 10px;">거래 완료</a></li>
+										<li class="list-inline-item"><button onclick="delBoard()" class="btn btn-transparent" style="margin: 10px; margin-left: 25px;">글 삭제</button></li>
+										<li class="list-inline-item" id="pull-up"><button onclick="pullUp()" class="btn btn-transparent" style="margin: 10px; margin-left: 10px;">끌올 하기</button></li>
+									</div>
+								</ul>
+							</div>
+							<!-- User Profile widget -->
+							<div class="widget user">
+								<img class="rounded-circle" id="uiImg" src="/imgs/user.png" alt="user-image">
+								<h4><a href="#" onclick="goProfile()" id="name"></a></h4>
+								<p class="member-time">Member Since <span id="userMonth"></span>, <span id="userYear"></span></p>
+							</div>
+							<!-- Safety tips widget -->
+							<div class="widget disclaimer">
+								<h5 class="widget-header">안전한 중고거래를 위한 TIP</h5>
+								<ul>
+									<li>반품·환불 등 거래조건 확인</li>
+									<li>물품 사진 확인</li>
+									<li>직거래 또는 안전결제 이용</li>
+									<li>거래 상대 프로필 조회</li>
+								</ul>
+							</div>
+							<!-- Coupon Widget -->
+							<div class="widget coupon text-center">
+								<!-- Coupon description -->
+								<p>쓰지 않는 물건을 나눠요
+								</p>
+								<!-- Submii button -->
+								<a href="/html/board/board-add" class="btn btn-transparent-white">판매하기</a>
+							</div>
+							
+						</div>
+					</div>
+					
+				</div>
+			</div>
+			<!-- Container End -->
+		</section>
+		<!-- 거래 완료 모달 -->
+		<div class="modal fade" id="deal-end" tabindex="-1" role="dialog"
+			aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header border-bottom-0">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body text-center">
+						<img src="/imgs/eco-deal.png" class="img-fluid mb-2" id="eco-img">
+						<h6 class="py-2">거래가 완료됐어요.</h6>
+						<p>구매자를 선택해주세요.</p>
+						<div id="chatRoomBody"></div>
+					</div>
+					<div class="modal-footer border-top-0 mb-3 mx-5 justify-content-center">
+						<button type="button" class="btn btn-danger" onclick="cancel()" data-dismiss="modal">취소</button>
+						<button type="button" class="btn btn-primary" onclick="endSell()">이 사람과 거래했어요</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 유저 신고 모달 -->
+		<div class="modal fade" id="report-modal" tabindex="-1" role="dialog"
+			aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header border-bottom-0">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body text-center">
+						<h6 class="py-2">사용자 신고하기</h6>
+						<p>신고 사유를 작성해주세요.</p>
+						<textarea class="form-control" id="ruiDesc" rows="5" required placeholder="최대 80자 이내"></textarea>
+					</div>
+					<div class="modal-footer border-top-0 mb-3 mx-5 justify-content-center">
+						<button type="button" class="btn btn-danger" onclick="cancel()" data-dismiss="modal">취소</button>
+						<button type="button" class="btn btn-primary" onclick="report()">신고하기</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Footer  -->
+		<th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+	</section>
+	<script>
+		const biNum = '[[${param.biNum}]]';
+		const uiNum = '[[${param.uiNum}]]';
+		let selectedChatInfo = {};
+		let board;
+		let res;
+		
+		window.addEventListener('load', async function(){
+			res = await fetch(`/board-infos/${biNum}`);
+			board = await res.json();
+			console.log(board);
+			
+			if (board.biStat === '판매완료') {
+                document.querySelector('#dealButton').style.display = "none";
+            }
+            
+            // 작성자 : 수정, 삭제, 판매 완료 버튼이 보이도록
+			// 작성자 외 : 관심 버튼이 보이도록, 최근 방문 리스트에 추가
+			if(!board.author){
+				// 판매자 옵션들이 안보이게
+				document.querySelector('.seller').style.display = "none";
+				
+				// 관심목록에 있는지 확인
+				if(board.like){
+					document.querySelector('#heart').src = "/imgs/full-heart.png";
+				}else{
+					document.querySelector('#heart').src = "/imgs/empty-heart.png";
+				}
+				
+				// 최근 방문한 게시물에 추가
+				res = await fetch(`/viewed-infos/${biNum}`, {
+					method: 'POST'
+				})
+			}else{
+				// 구매자 옵션들이 안보이게
+				document.querySelector('.buyer').style.display = "none";
+				
+				// 판매 완료했거나 5번 끌올 했으면 안보이게
+				if(board.biStat === '판매완료' || board.biCount <= 0){
+					document.querySelector('#pull-up').style.display = "none";
+				}
+				
+				// 판매 완료했으면 수정 버튼 안보이게
+				if(board.biStat === '판매완료'){
+					document.querySelector('#edit-board').style.display = "none";
+				}
+			}
+			
+            // 이미지 파일
+			boardFiles = board.files;
+			document.querySelector('#img0').src = boardFiles[0].fiPath;
+			document.querySelector('#img0').alt = boardFiles[0].fiName;
+			for(let i=1; i<boardFiles.length; i++){
+				const boardFile = boardFiles[i];
+				let imghtml = `<li data-target="#carouselExampleIndicators" data-slide-to="${i}"></li>`;
+				document.querySelector('.carousel-indicators').insertAdjacentHTML('beforeend',imghtml);
+				imghtml = `<div class="carousel-item">
+								<img class="d-block w-100" src="${boardFile.fiPath}" id="img${i} alt="${boardFile.fiName}">
+							</div>`;
+				document.querySelector('.carousel-inner').insertAdjacentHTML('beforeend',imghtml);
+			}
+            
+            // 유저 프로필 사진
+			if(!(board.uiImgName.trim() === '' && board.uiImgPath.trim() === '')){
+				document.querySelector('#uiImg').src = board.uiImgPath;
+			}
+			
+			// 현재를 기준으로 얼마 전에 수정했는지
+			document.querySelector('#ago').innerHTML = `<i class="fa fa-calendar"></i> ${calculateTime(board.credat, board.cretim)}`;
+			
+			// 가격 콤마로 표시
+			document.querySelector('#price').innerText = priceToString(board.biPrice);
+			document.querySelector('#name').innerText = board.uiName;
+			
+			// 다른 키 값
+			for(let key in board){
+				if(document.querySelector('#' + key)){
+					document.querySelector('#' + key).innerText = board[key];
+				}
+			}
+			var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+		    mapOption = {
+		        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+		        level: 4 // 지도의 확대 레벨
+		    };  
+		
+			// 지도를 생성합니다    
+			var map = new kakao.maps.Map(mapContainer, mapOption); 
+			
+			// 주소-좌표 변환 객체를 생성합니다
+			var geocoder = new kakao.maps.services.Geocoder();
+			
+			// 주소로 좌표를 검색합니다
+			geocoder.addressSearch(board.biAddr, function(result, status) {
+			
+			    // 정상적으로 검색이 완료됐으면 
+			     if (status === kakao.maps.services.Status.OK) {
+			
+			        var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+			
+			        // 결과값으로 받은 위치를 마커로 표시합니다
+			        var marker = new kakao.maps.Marker({
+			            map: map,
+			            position: coords
+			        });
+			
+			        // 인포윈도우로 장소에 대한 설명을 표시합니다
+			        var infowindow = new kakao.maps.InfoWindow({
+			            content: '<div style="width:170px; text-align:center; padding:3px;">거래 희망 주소 위치</div>'
+			        });
+			        infowindow.open(map, marker);
+			
+			        // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+			        map.setCenter(coords);
+			    } 
+			});
+		});
+		
+		// 게시물 삭제
+		async function delBoard(){
+			if(confirm("삭제하시겠습니까?")){
+					const res = await fetch(`/board-infoList/${biNum}`, {
+					method: 'PATCH'
+				});
+				if(res.ok){
+					alert("삭제되었습니다.");
+					location.href='/html/board/board-list';
+				}else{
+					alert('게시물 삭제에 실패했습니다.');
+				}
+			}
+		}
+		
+		// 클릭했을 때 관심 목록 추가, 삭제
+		async function likeChange(){
+			let res = await fetch(`/like-infos/${biNum}`);
+			const likeCnt = document.querySelector('#likeCnt').textContent;
+			const isLike = await res.json();
+			console.log(isLike);
+			if(isLike !== 0){
+				document.querySelector('#likeCnt').textContent = parseInt(likeCnt) - 1;
+				res = await fetch(`/like-infos/${biNum}`, {
+					method: 'DELETE'
+				});
+				if(res.ok){
+					document.querySelector('#heart').src = "/imgs/empty-heart.png";
+				}else{
+					alert('관심 목록 삭제에 실패했습니다.')
+				}
+			}else{
+				res = await fetch(`/like-infos/${biNum}`, {
+					method: 'POST'
+				});
+				const addlike = await res.json();
+				if(addlike === 1){
+					document.querySelector('#likeCnt').textContent = parseInt(likeCnt) + 1;
+					anime({
+						begin: function(anim){
+							document.querySelector('#heart').src = "/imgs/full-heart.png";
+						},
+						targets: '#heart',
+						easing: 'cubicBezier(.7, .1, .1, .3)',
+						delay: 0,
+						keyframes: [
+							{scale: 1.6, duration: 100},
+							{scale: 1, duration: 200}
+						]
+					})
+				}else{
+					alert('관심 목록 추가에 실패했습니다.');
+				}
+			}
+		}
+		
+		// 끌어올리기 링크 이동
+		function pullUp(){
+			location.href=`/html/board/board-pull-up?biNum=${board.biNum}&uiNum=${board.uiNum}`;
+		}
+		
+		
+		
+		// 채팅하기
+		async function startChat(){
+			const param = {
+				biNum:biNum,
+				sellerUiNum:board.uiNum
+			};
+			const createChatRoom = await fetch('/create-chat-room',{
+				method:'POST',
+				headers:{
+					'Content-Type':'application/json;charset=UTF-8'
+				},
+				body:JSON.stringify(param)
+			});
+			const createChatRoomRes = await createChatRoom.json();
+			if(createChatRoomRes === 1){
+				location.href=`/html/chat/chat-room-list?biNum=${biNum}`
+			}else{
+				alert('채팅방 생성에 실패했습니다.');
+			}
+		}
+		
+		// 거래 완료 모달
+		async function dealEnd() {
+		    const responseChatRoomList = await fetch('/get-chat-room-list');
+		    if (!responseChatRoomList.ok) {
+		        console.error('채팅 목록을 가져오는 데 실패했습니다.');
+		        return;
+		    }
+		    const chatRoomList = await responseChatRoomList.json();
+		    let html = '';
+		    let count = 1;
+		    for (const chatRoom of chatRoomList) {
+		        if (chatRoom.biTitle === board.biTitle) {
+		            html += '<div>';
+		            html += `<input type="radio" name="chatRadio" value="${chatRoom.biNum}-${chatRoom.sellerUiNum}-${chatRoom.buyerUiNum}-${chatRoom.ciNum}" />`;
+		            html += `<label>${count++}. ${chatRoom.opUiName}</label>`;
+		            html += '</div>';
+		        }
+		    }
+		    document.querySelector('#chatRoomBody').innerHTML = html;
+		    // 라디오 버튼 클릭 시 선택한 채팅 정보 저장
+		    const radioButtons = document.querySelectorAll('input[name="chatRadio"]');
+		    radioButtons.forEach(function (radioButton) {
+		        radioButton.addEventListener('click', function () {
+		            const values = radioButton.value.split('-');
+		            selectedChatInfo = {
+		                biNum: values[0],
+		                sellerUiNum: values[1],
+		                buyerUiNum: values[2],
+		                ciNum: values[3]
+		            };
+		            console.log("biNum=>", selectedChatInfo.biNum);
+		            console.log("sellerUiNum=>", selectedChatInfo.sellerUiNum);
+		            console.log("buyerUiNum=>", selectedChatInfo.buyerUiNum);
+		            console.log("ciNum=>", selectedChatInfo.ciNum);
+		        });
+		    });
+		}
+		
+		async function endSell() {
+		    if (!selectedChatInfo || Object.keys(selectedChatInfo).length === 0) {
+		        alert('거래 상대를 선택해주세요.');
+		        return;
+		    }
+		
+		    const { biNum, sellerUiNum, buyerUiNum, ciNum } = selectedChatInfo;
+		
+		    const queryParams = new URLSearchParams(window.location.search);
+		    const boardBiNum = queryParams.get('biNum');
+		
+		    const responseUpdateBiStat = await fetch(`/board-infos/update-bi-stat/${boardBiNum}`, {
+		        method: 'PATCH',
+		    });
+		
+		    if (!responseUpdateBiStat.ok) {
+		        console.error('updateBiStat에 실패했습니다.');
+		        return;
+		    }
+		
+		    const responseDeal = await fetch(`/insert-deal-info?biNum=${biNum}&sellerUiNum=${sellerUiNum}&buyerUiNum=${buyerUiNum}&ciNum=${ciNum}`, {
+		        method: 'POST',
+		    });
+		
+		    if (responseDeal.ok) {
+		        const { diNum } = await responseDeal.json();
+		
+		        const orderInfo = {
+		            diNum: diNum,
+		        };
+		
+		        const responseOrder = await fetch('/add-order-info', {
+		            method: 'POST',
+		            headers: {
+		                'Content-Type': 'application/json',
+		            },
+		            body: JSON.stringify(orderInfo),
+		        });
+		
+		        if (responseOrder.ok) {
+		            alert('거래 및 주문이 성공적으로 완료되었습니다.');
+		            Location.reload();
+		
+		            fetchbuyerUiNumAndRedirect(diNum);
+		        } else {
+		            alert('거래 또는 주문에 실패했습니다.');
+		        }
+		    } else {
+		        alert('거래에 실패했습니다.');
+		    }
+		}
+		
+		// 프로필 가기
+		function goProfile(){
+			location.href=`/html/profile/profile?uiNum=${uiNum}`;
+		}
+		
+		// 스크롤 이벤트 리스너
+		window.addEventListener('scroll', () => {
+			// 스크롤 위치가 100px 이상일 때 위로 가기 버튼을 보이게 함
+			if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+				document.querySelector('#btn-back-to-top').style.display = 'block';
+			} else {
+				document.querySelector('#btn-back-to-top').style.display = 'none';
+			}
+		});
+		
+		
+		function report(){
+		reportUser(`${uiNum}`);
+	}
+  	</script>
+
+</body>
+
+</html>

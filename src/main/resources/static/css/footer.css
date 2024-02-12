@@ -1,0 +1,16 @@
+@charset "UTF-8";
+
+.footer-container{
+	
+}
+footer{
+	height: 10em;
+	border-top: 1px solid chartreuse;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: greenyellow;
+	position: fixed;
+	bottom: 0px;
+	width: 100%;
+}

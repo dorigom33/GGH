@@ -1,0 +1,131 @@
+/* index.html의 css 파일입니다 */
+@charset "UTF-8";
+
+.header img#blue-logo {
+			margin-top: 4px;
+		    width: auto; 
+		    height: 65px; 
+		    position: absolute;
+		    cursor: pointer;
+		    margin-left: 2em;
+				}
+
+html, body{
+	background-color: #FFF;
+	font-family: 'Noto Sans KR', sans-serif;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	padding-bottom: 50%;
+	min-height: 100%;
+}
+
+.header-container{
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	position: fixed;
+	z-index: 10;
+	top: 0;
+}
+
+.header{
+	border: 2px solid #87C4EF;
+	height: 70px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: #E5F6FE;
+	position: relative;
+}
+
+.header a{
+	text-decoration-line: none;
+  	font-size: 1rem;
+  	color: #000;
+  	position: relative;
+  	float: right;
+  	padding: 5px 5px 5px;
+  	margin-top: 20px;
+  	text-align: center;
+  	margin-right: 50px;
+}
+
+.header a1{
+	text-decoration-line: none;
+  	font-size: 1.2rem;
+  	color: #000;
+  	position: relative;
+  	float: right;
+  	height: 2px;
+  	padding: 15px 20px 25px;
+  	margin-top: 10px;
+  	text-align: center;
+  	margin-right: 50px;
+}
+
+.header a#login-and-logout{
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+	position: relative;
+	float: right;
+  	padding: 3px 13px 12px;
+	height: 17px;
+	border-radius: 0.4rem;
+	text-align: center;
+  	margin-top: 18px;
+}
+
+.header a#login-and-logout:hover{
+	border: 2px solid #4C9ACC;
+    background-color: #4C9ACC;
+    color: #FFF;
+}
+
+#sumAlert{
+	display: none;
+	width: 35px;
+	height: 35px;
+	float: right;
+	margin-top: 35px;
+	transform: translateY(-50%);
+	margin-right: 50px;
+}#sumAlert img{
+	width: 100%;
+	height: 100%;
+}#sumAlert div{
+	position: absolute;
+	text-align: center;
+	font-size: 15px;
+	line-height: 20px;
+	width: 22px;
+	height: 22px;
+	border-radius: 100%;
+	background-color: red;
+	color: white;
+	right: -10px;
+	bottom: -5px;
+}#sumAlert:hover{
+	cursor: pointer;
+}
+
+#newDeal, #newChat{
+	position:fixed;
+	top: 70px;
+	right: 545px;
+	background-color: #E5F6FE;
+	border-radius: 8px;
+	border: 2px solid #87C4EF;
+	padding:6px 12px;
+	margin: 10px 14px;
+	text-align: center;
+}#newChat{
+	right: 560px;
+}
+
+a{
+	text-decoration: none;
+	color: black;
+}

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+<link rel="stylesheet" th:href="@{/css/chat-room-list.css}">
+
+<body class="body-wrapper">
+	<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+
+	<section class="content-container">
+
+		<section class="section bg-gray container">
+			<div class="bodyDiv">
+				<div id="List-Container"> <!-- 채팅방 목록을 보여줄 전체적인 컨테이너 -->
+					<div id="chatRoomListBody"></div> <!-- 목록을 그려낼 바디 -->
+				</div>
+				<div id="Chat-Container"> <!-- 채팅방을 그려낼 전체적인 컨테이너 -->
+					<div id="chatArea"> <!-- 채팅방이 생성 될 공간 -->
+						<div id="chatAreaHead"> <!-- 채팅방의 헤드 -->
+							<div id="chatAreaInfo"></div>
+							<div id="requestOrder"></div> <!-- 상품 정보와 판매 완료 버튼 -->
+							<button id="endChatBtn" onclick="endChatToBtn()"><img src="/imgs/back.png"
+									id="endChatBtnImg"></img></button>
+						</div>
+						<div id="chatAreaBody"> <!-- 채팅방의 기능이 구현될 바디 -->
+							<div id="chatDiv"></div><br> <!-- 채팅 내용들이 그려질 공간 -->
+							<div id="inputArea">
+								<textarea id="msg" onkeypress="sendMsg()" placeholder="메세지를 입력하세요."></textarea>
+								<!-- 메세지를 작성할 공간 -->
+								<div id="sendBtn" onclick="sendMsg()"><img id="sendBtnImg" src="/imgs/sendBtn.png"
+										onclick="sendMsg()"></img></div> <!-- 메세지 전송 버튼 -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	<script>
+		let ws;													//웹소캣
+		let chatRoomList;										//채팅방 목록 정보
+		let index;												//선택된 채팅방의 정보 접근을 위한 인덱스
+		const biNum = '[[${param.biNum}]]';						//보드뷰에서 넘어올 시 저장 및 활용될 biNum
+		window.addEventListener('load', async function () {
+			document.querySelector(".section").style.height = (window.innerHeight - 100) + "px";
+			//채팅방 목록 정보 가져오기
+			await fetch('/get-chat-room-list')
+				.then(async (response) => {chatRoomList = await response.json()});
+			let html = '';		//
+			index = 0;			//첫 목록의 경우 인덱스는 0
+
+			//채팅방이 없을 경우
+			if (chatRoomList.length <= 0) {
+				html += "<span style='margin-left:10px;font-size:18px;'>생성된 채팅방이 없습니다.</span>";
+			}
+
+			//채팅방 리스트 그리기
+			for (chatRoom of chatRoomList) {
+				html += `<div class="chatRoom" id="chatRoom${index}" onclick="startChat(${index})">`;
+				html += `<div id="chatRoomThumb"><img id="chatRoomThumbImg" src='${chatRoom.fiPath}'></img></div>`
+				html += `<span id="earlyMessage">최근 메세지</span>`;
+				//채팅방에 한번 이상 입장했던 경우(입장할 때 생성되는 체크타임 인포가 있을 경우)
+				if (chatRoom.checkTime != null) {
+					//채팅방에 입장한 마지막 시간 이후의 메세지가 있을 경우 'newMessage' id 추가
+					if (chatRoom.checkTime.lmodat < chatRoom.checkTime.credat) {
+						html += `<div class="chatTitle" id="newMessage"'>${chatRoom.biTitle}</div>`;
+					} else if (chatRoom.checkTime.lmodat == chatRoom.checkTime.credat &&
+						chatRoom.checkTime.lmotim < chatRoom.checkTime.cretim) {
+						html += `<div class="chatTitle" id="newMessage"'>${chatRoom.biTitle}</div>`;
+					} else { //없을경우 id 없이 div 생성
+						html += `<div class="chatTitle"'>${chatRoom.biTitle}</div>`;
+					}
+					//체크타임 인포가 없는 경우(메세지 생성 시간이 전혀 없는 경우)
+				} else { //div만 생성
+					html += `<div class="chatTitle"'>${chatRoom.biTitle}</div>`;
+				}
+				//채팅하는 상대방 이름
+				html += `<div id="chatOp">${chatRoom.opUiName}</div>`;
+				html += '</div>';
+				index++;
+			}
+			document.querySelector('#chatRoomListBody').innerHTML = html;
+			if (window.innerWidth <= 991 && (ws === undefined || ws.readyState >= 2)) {
+				document.querySelector('#Chat-Container').style.display = 'none';
+			}
+			scrollTable();
+			//board-view에서 채팅방으로 진입시 binum전달
+			//binum이 있을경우 해당하는 채팅방을 바로 열어준다.
+			if (biNum > 0) {//정상적인 binum은 1부터 시작
+				startChat(chatRoomList.findIndex(chatRoom => chatRoom.biNum == biNum));
+			}
+		});
+		//채팅 시작 =====================
+		async function startChat(idx) {
+			//웹소캣이 열려있을 경우 닫는다
+			if (ws && ws.readyState < 2) {
+				await endChat();
+			}
+
+			//넘겨받은 idx를 다른 함수에서 사용하기 위해 index로 저장
+			index = idx;
+			//선택된 채팅방의 배경색(chatRoomList.css에 선언되어 있다)
+			const selectedChatRoomColor = getComputedStyle(document.documentElement).getPropertyValue("--selected-chat-room-color");
+
+			if (window.innerWidth <= 991) {
+				document.querySelector('#Chat-Container').style.display = 'block';
+			}
+
+			//선택된 채팅방의 css를 변경
+			document.querySelector(`#chatRoom${index}`).style.backgroundColor = selectedChatRoomColor;
+			document.querySelector(`#chatRoom${index}`).style.color = 'white';
+			document.querySelector(`#chatRoom${index} #earlyMessage`).style.color = 'white';
+			//채팅창 윗쪽에 채팅방 정보 추가
+			document.querySelector('#chatAreaInfo').innerHTML =
+				`<div id="infoAreaMenu"></div><div id="chatThumb">
+		<img id="chatThumbImg" src='${chatRoomList[index].fiPath}'></img></div>
+		<span class="headInfoTitle">${chatRoomList[index].biTitle}</span>
+		<span class="headInfoPrice">${chatRoomList[index].biPrice}원</span>
+		<a class="headInfoName" href="/html/profile/profile?uiNum=${chatRoomList[index].opUiNum}">
+		${chatRoomList[index].opUiName}(☆ ${chatRoomList[index].opUiRank.toFixed(1)})</a>`;
+			//로그인 되어있는 사용자가 판매자이고, 상품 상태가 '판매중'인 경우 판매확정 버튼 생성
+			let menuHtml = `<button onclick="location.href='/html/board/board-view?biNum=${chatRoomList[index].biNum}'">게시글로</button>`;
+			if (chatRoomList[index].uiNum === chatRoomList[index].sellerUiNum
+				&& chatRoomList[index].biStat === '판매중') {
+				menuHtml += '<button id"requestOrderBtn" onclick="order()">거래 요청</button><span>ㆍㆍㆍ</span>';
+			} else {
+				menuHtml += `<span>ㆍㆍㆍ</span>`
+			}
+			document.querySelector('#infoAreaMenu').innerHTML = menuHtml;
+			console.log(chatRoomList[index]);
+			//선택된 채팅방의 메세지 정보 가져오기
+			const messageDatares = await fetch(`/get-message-list/${chatRoomList[index].ciNum}`)
+				.then((response) => response.text())
+				.then((result) => {getMessageData = result});
+			const messageData = JSON.parse(getMessageData)
+
+			document.querySelector('#chatArea').style.display = 'block';
+			scrollEnd();
+
+			//웹소켓 열기 ====================
+			if (!ws || ws.readyState >= 2) {
+				ws = new WebSocket(`${protocol}://${location.host}/chat/${chatRoomList[index].uiName}/${chatRoomList[index].ciNum}`);
+			}
+			//채팅창 그리기 ===================			
+			//판매확정 버튼에 가려질 첫번째 채팅을 아래로 밀어주는 용도의 div
+			document.querySelector('#chatDiv').innerHTML += '<div id="chatSpace"></div>'
+			//메세지가 있을 경우 div 형태로 html 추가
+			if (messageData.length > 0) {
+				//메세지가 작성된 시간을 비교하기 위한 변수
+				let msgDate = substrDate(messageData[0].credat);
+				//우선 첫번째 메세지가 작성된 날짜 표시
+				document.querySelector('#chatDiv').innerHTML +=
+					`<div id=alterMsg>(${msgDate[0]}년 ${msgDate[1]}월 ${msgDate[2]}일)</div>`;
+				for (const idx in messageData) {
+					//직전 메세지와 비교하여 날짜가 다를 경우 인덱스 메세지의 날짜 표시
+					if (idx > 0) {
+						if (messageData[idx].credat != messageData[idx - 1].credat) {
+							let msgDate = substrDate(messageData[idx].credat);
+							document.querySelector('#chatDiv').innerHTML +=
+								`<div id=alterMsg>(${msgDate[0]}년 ${msgDate[1]}월 ${msgDate[2]}일)</div>`;
+						}
+					}
+					//본인이 작성한 메세지일 경우(로그인된 사용자가 메세지를 입력한 사용자와 uiNum이 동일한 경우)
+					if (messageData[idx].senderUiNum === chatRoomList[index].uiNum) {
+						document.querySelector('#chatDiv').innerHTML +=
+							`<div id="myMsg"><div id="alterTime">(${messageData[idx].cretim.substr(0, 5)})</div>
+					<b>${chatRoomList[index].uiName}</b><br>
+					<div id="myMsgValue">${messageData[idx].miContent}</div></div>`;
+					} else {//다른경우(상대방 채팅)
+						document.querySelector('#chatDiv').innerHTML +=
+							`<div id="artMsg"><b><a href='/html/profile/profile?uiNum=${chatRoomList[index].opUiNum}'>
+						${chatRoomList[index].opUiName}</a></b>
+					<div id="alterTime">(${messageData[idx].cretim.substr(0, 5)})</div><br>
+					<div id="artMsgValue">${messageData[idx].miContent}</div></div>`;
+					}
+				}
+				//채팅방의 스크롤을 끝으로
+				scrollEnd();
+			}
+
+			//메세지를 확인했다고 간주하여
+			//새로운 메세지가 있음을 표시해주는 id 제거
+			if (document.querySelector(`#chatRoom${index}:has(#newMessage)`) != null) {
+				document.querySelector(`#chatRoom${index} #newMessage`).removeAttribute('id');
+			}
+
+			//마지막으로 채팅방을 확인한(열어놓은) 시간을 저장
+			const param = {
+				ciNum: chatRoomList[index].ciNum,
+				uiNum: chatRoomList[index].uiNum,
+			};
+			const updateCheckTime = await fetch('/update-check-time', {
+				method: 'POST',
+				body: JSON.stringify(param),
+				headers: {
+					'Content-Type': 'application/json;charset=UTF-8'
+				}
+			});
+
+			//웹소켓으로 메세지가 왔을때===========			
+			ws.onmessage = async function (res) {
+				let time = new Date();	//실시간 시간 정보
+				const data = JSON.parse(res.data);	//웹소캣으로 받은 메세지
+				if (data.msg) {	//메세지가 있을경우
+					console.log(data.name);
+					console.log(chatRoomList[index].opUiName);
+					if (data.name === chatRoomList[index].opUiName) {//상대방 정보와 동일할 경우
+						document.querySelector('#chatDiv').innerHTML +=
+							`<div id="artMsg"><b>${data.name}</b>
+						<div id="alterTime">(${time.getHours()}:${time.getMinutes()})</div><br>
+						<div id="artMsgValue">${data.msg}</div>
+						</div>`;
+						//채팅방의 스크롤을 끝으로
+						scrollEnd();
+					}else{
+						console.log('a');
+					}
+				}
+
+				//채팅을 확인한 시간을 갱신(웹소캣이 열려있을 때 실행되는 함수이므로 확인했다고 간주)
+				const param = {
+					ciNum: chatRoomList[index].ciNum,
+					uiNum: chatRoomList[index].uiNum,
+				};
+				const updateCheckTime = await fetch('/update-check-time', {
+					method: 'POST',
+					body: JSON.stringify(param),
+					headers: {
+						'Content-Type': 'application/json;charset=UTF-8'
+					}
+				});
+			}
+		}
+		//메세지 전송=====================		
+		async function sendMsg() {
+			if (!(window.event.keyCode == 13 || window.event.keyCode == null)) {
+				return;
+			}
+			let time = new Date();	//내 화면에 내 채팅을 그리기 위해 실시간 시간 정보 저장
+			//최대 글자 수 제한
+			if (document.querySelector('#msg').value.length > 1000) {
+				alert('최대 1000자를 넘을 수 없습니다.');
+				return;
+			}
+			//메세지가 비어있지 않을 경우
+			if (ws.readyState == 1 && document.querySelector('#msg').value.trim()) {
+				//'#msg'의 값을 웹소캣으로 전송
+				const msg = document.querySelector('#msg');
+				ws.send(msg.value);
+				const targetUiNum = chatRoomList[index].uiNum == chatRoomList[index].sellerUiNum ?
+					chatRoomList[index].buyerUiNum : chatRoomList[index].sellerUiNum;
+				const messageInfo = {
+					senderUiNum: chatRoomList[index].uiNum,
+					miContent: msg.value,
+					targetUiNum: targetUiNum
+				}
+				sendMessage(messageInfo);
+				//내가 작성한 채팅을 내 화면에 표시
+				document.querySelector('#chatDiv').innerHTML +=
+					`<div id="myMsg"><div id="alterTime">(${time.getHours()}:${time.getMinutes()})</div>
+					<b>${chatRoomList[index].uiName}</b><br>
+					<div id="myMsgValue">${msg.value}</div></div>`;
+				//채팅방의 스크롤을 끝으로
+				scrollEnd();
+
+				//메세지를 데이터베이스에 저장
+				//상대방의 메세지는 상대방의 컴퓨터에서 DB에 저장한다
+				const miContent = msg.value;
+				const senderUiNum = chatRoomList[index].uiNum;
+				const ciNum = chatRoomList[index].ciNum;
+				const messageData = {
+					miContent,
+					senderUiNum,
+					ciNum
+				}
+				await fetch('/save-message', {
+					method: 'POST',
+					body: JSON.stringify(messageData),
+					headers: {
+						'Content-Type': 'application/json;charset=UTF-8'
+					}
+				});
+				//메세지 입력창을 비운다.
+				msg.value = '';
+			}
+
+			//메세지를 보낼 때에도 확인한 시간 갱신
+			const param = {
+				ciNum: chatRoomList[index].ciNum,
+				uiNum: chatRoomList[index].uiNum,
+			};
+			const updateCheckTime = await fetch('/update-check-time', {
+				method: 'POST',
+				body: JSON.stringify(param),
+				headers: {
+					'Content-Type': 'application/json;charset=UTF-8'
+				}
+			});
+		}
+
+		//새로운 채팅방을 열 때, 열려있던 채팅방을 닫아주는 함수
+		function endChat() {
+			if (ws && ws.readyState < 2) {
+				ws.close();
+			}
+			//채팅방을 그려줄 div의 자식요소 삭제, 선택된 채팅방을 표시해주던 css요소 제거(채팅방 초기화)
+			document.querySelector('#chatAreaInfo').replaceChildren();
+			document.querySelector('#chatDiv').replaceChildren();
+			document.querySelector('#chatArea').style.display = 'none';
+			document.querySelector(`#chatRoom${index}`).style.removeProperty("background-color");
+			document.querySelector(`#chatRoom${index}`).style.removeProperty("color");
+			document.querySelector(`#chatRoom${index} #earlyMessage`).style.removeProperty("color");
+			document.querySelector(`#chatRoom${index}`).style.removeProperty("border");
+			if (window.innerWidth <= 991) {
+				document.querySelector('#Chat-Container').style.display = 'none';
+			}
+		}
+
+		//X버튼을 눌러 직접 채팅방을 닫을 때
+		function endChatToBtn() {
+			if (ws && ws.readyState < 2) {
+				ws.close();
+			}
+			document.querySelector('#chatAreaInfo').replaceChildren();
+			document.querySelector('#chatDiv').replaceChildren();
+			document.querySelector('#chatArea').style.display = 'none';
+			document.querySelector(`#chatRoom${index}`).style.removeProperty("background-color");
+			document.querySelector(`#chatRoom${index}`).style.removeProperty("color");
+			document.querySelector(`#chatRoom${index} #earlyMessage`).style.removeProperty("color");
+			document.querySelector(`#chatRoom${index}`).style.removeProperty("border");
+			if (window.innerWidth <= 991) {
+				document.querySelector('#Chat-Container').style.display = 'none';
+			}
+		}
+
+		//채팅 스크롤 맨아래로 내리는 함수
+		function scrollEnd() {
+			document.querySelector('#chatDiv').scrollTop =
+				document.querySelector('#chatDiv').scrollHeight;
+		}
+
+		//날짜를 년,월,일로 잘라주는 함수
+		function substrDate(Date) {
+			let resDate = [Date.substr(0, 4), Date.substr(4, 2), Date.substr(6, 2)];
+			return resDate;
+		}
+
+		//판매 확정 함수
+		async function order() {
+			//거래 대상 확인 (취소 선택시 false 반환)
+			if (window.confirm(`${chatRoomList[index].opUiName}님과 거래 하셨나요?`)) {
+				//게시글의 상태를 '판매중'에서 '판매완료'로 변경
+				const responseUpdateBiStat = await fetch(`/board-infos/update-bi-stat/${chatRoomList[index].biNum}`, {
+					method: 'PATCH',
+				});
+
+				//오류 발생시 리턴
+				if (!responseUpdateBiStat.ok) {
+					console.error('updateBiStat에 실패했습니다.');
+					return;
+				}
+
+				//새로운 dealInfo 생성 (구매자와 판매자, 거래확인 상태)
+				const responseDeal = await fetch(`/insert-deal-info?&ciNum=${chatRoomList[index].ciNum}`, {
+					method: 'POST',
+				});
+
+				//dealInfo 생성 성공시
+				if (responseDeal.ok) {
+					const {diNum} = await responseDeal.json();
+
+					const orderInfo = {
+						diNum: diNum,
+					};
+
+					//orderInfo 생성 (최종적으로 거래된 가격을 저장)
+					//사용자(구매자)가 추후에 입력 (현재 시점에선 null)
+					const responseOrder = await fetch('/add-order-info', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(orderInfo),
+					});
+
+					//생성 성공시
+					if (responseOrder.ok) {
+						alert('거래 및 주문이 성공적으로 완료되었습니다.');
+						console.log(diNum);
+						//페이지 이동
+						fetchbuyerUiNumAndRedirect(diNum);
+					} else {
+						alert('거래 또는 주문에 실패했습니다.');
+						console.log(diNum);
+					}
+				} else {
+					alert('거래에 실패했습니다.');
+				}
+			}
+		}
+
+		//DealInfo와 OrderInfo생성 성공시 페이지 이동
+		async function fetchbuyerUiNumAndRedirect(diNum) {
+			//해당하는 OrderInfo의 정보 조회
+			const oiNumRes = await fetch(`/fetch-buyer-num?diNum=${diNum}`);
+
+			if (oiNumRes.ok) {
+				const oiNumData = await oiNumRes.json();
+
+				const oiNum = oiNumData.oiNum;
+				const diNumFromServer = oiNumData.diNum;
+				const buyerUiNum = oiNumData.buyerUiNum;
+
+				//OrderInfo의 정보를 가지고 페이지 이동
+				window.location.href = `/html/rank/rank-add-buyer?oiNum=${oiNum}&diNum=${diNumFromServer}&buyerUiNum=${buyerUiNum}`;
+			} else {
+				alert("서버에서 데이터를 가져오는 중 오류가 발생했습니다.");
+			}
+			console.log("oiNum:", oiNum);
+			console.log("diNumFromServer:", diNumFromServer);
+			console.log("buyerUiNum:", buyerUiNum);
+		}
+
+		window.addEventListener('resize', function () {
+			if (window.innerWidth <= 991) {
+				if (ws === undefined || ws.readyState >= 2) {
+					document.querySelector('#Chat-Container').style.display = 'none';
+				}
+				document.querySelector(".bodyDiv").style.height = (window.innerHeight - 101) + "px";
+				document.documentElement.style.setProperty('--mobile-body-div-height', window.innerHeight - 100 + "px");
+			}
+			if (window.innerWidth > 991) {
+				document.querySelector('#Chat-Container').style.display = 'block';
+				document.querySelector(".bodyDiv").style.height = document.documentElement.style.getPropertyValue('--desktop-body-div-height');
+			}
+		})
+
+		function scrollTable() {
+			const chatTItleList = document.querySelectorAll(".chatTitle");
+			chatTItleList.forEach((nod) => {
+				setInterval(() => {
+					nod.scrollLeft = nod.scrollLeft + 100;
+
+					if (nod.offsetWidth + nod.scrollLeft >= nod.scrollWidth) {
+						nod.scrollLeft = 0;
+					}
+				}, 1200);
+			});
+			const chatOpList = document.querySelectorAll("#chatOp");
+			chatOpList.forEach((nod) => {
+				setInterval(() => {
+					nod.scrollLeft = nod.scrollLeft + 100;
+
+					if (nod.offsetWidth + nod.scrollLeft >= nod.scrollWidth) {
+						nod.scrollLeft = 0;
+					}
+				}, 1200);
+			});
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.secu.team2.board.mapper.BoardInfoMapper">
+
+	<select id="selectUiNumByBiNum" resultType="int">
+	    SELECT UI_NUM FROM BOARD_INFO WHERE BI_NUM = #{biNum}
+	</select>
+
+	<!-- 게시물 등록 -->
+	<!-- insertBoardInfo 쿼리 수정 -->
+	<insert id="insertBoardInfo" useGeneratedKeys="true" keyColumn="BI_NUM" keyProperty="biNum">
+	    INSERT INTO BOARD_INFO(
+	        UI_NUM, BI_TITLE, BI_NAME, BI_PRICE,
+	        BI_CONTENT, BI_LOCA, BI_ADDR, BI_SORT
+	    ) VALUES (
+	        #{uiNum}, #{biTitle}, #{biName}, #{biPrice},
+	        #{biContent}, #{biLoca}, #{biAddr}, (SELECT MAX(BI_SORT) + 1)
+	    )
+	</insert>
+
+	
+	<!-- 게시물 리스트 -->
+	<select id="selectBoardInfos" resultType="com.secu.team2.board.vo.BoardInfoVO">
+		SELECT BI.BI_NUM, BI.UI_NUM, BI.BI_TITLE, BI.BI_NAME, 
+		BI.BI_PRICE, BI.BI_CONTENT, BI.BI_LOCA, BI.BI_ADDR, 
+		BI.BI_STAT, BI.BI_VIEWS, BI.CREDAT, BI.CRETIM, 
+		BI.LMODAT, BI.LMOTIM, BI.BI_SORT, UI.UI_NAME, UI.UI_NUM
+		FROM BOARD_INFO BI 
+		INNER JOIN USER_INFO UI ON BI.UI_NUM=UI.UI_NUM
+		<where>
+			BI.ACTIVE=1
+			<if test='search != null and search != ""'>
+				AND (BI_TITLE LIKE CONCAT('%', #{search}, '%')
+				OR BI_NAME LIKE CONCAT('%', #{search}, '%')
+				OR BI_ADDR LIKE CONCAT('%', #{search}, '%'))
+			</if>
+			<if test='searchNum != null and searchNum!= ""'>
+				AND BI.UI_NUM = #{searchNum}
+			</if>
+			<if test='sido != null and sido != "전체 지역"'>
+				AND BI_ADDR LIKE CONCAT('%', #{sido}, '%')
+			</if>
+			<if test='gungu != null and gungu != "전체 지역"'>
+				AND BI_ADDR LIKE CONCAT('%', #{gungu}, '%')
+			</if>
+			<if test='biStat != null and biStat != "전체"'>
+				AND BI_STAT=#{biStat}
+			</if>
+		</where>
+		<if test='sorting != null and sorting == "최신순"'>
+			ORDER BY BI.BI_SORT DESC
+		</if>
+		<if test='sorting != null and sorting == "인기순"'>
+			ORDER BY BI.BI_VIEWS DESC, BI.LMOTIM DESC
+		</if>
+		<if test='sorting != null and sorting == "가격 낮은 순"'>
+			ORDER BY BI.BI_PRICE ASC, BI.LMOTIM DESC
+		</if>
+		<if test='sorting != null and sorting == "가격 높은 순"'>
+			ORDER BY BI.BI_PRICE DESC, BI.LMOTIM DESC
+		</if>
+		<if test='end != 0'>
+			LIMIT #{start}, #{end}
+		</if>
+	</select>
+	
+	<!-- 전체 게시물 개수 -->
+	<select id="selectBoardInfoCnt" resultType="int">
+		SELECT COUNT(*) FROM BOARD_INFO BI
+		INNER JOIN USER_INFO UI ON BI.UI_NUM=UI.UI_NUM
+		<where>
+			BI.ACTIVE=1
+			<if test='search != null and search != ""'>
+				AND BI_TITLE LIKE CONCAT('%', #{search}, '%')
+				OR BI_NAME LIKE CONCAT('%', #{search}, '%')
+				OR BI_ADDR LIKE CONCAT('%', #{search}, '%')
+			</if>
+			<if test='searchNum != null and searchNum!= ""'>
+				AND BI.UI_NUM = #{searchNum}
+			</if>
+			<if test='sido != null and sido != "전체 지역"'>
+				AND BI_ADDR LIKE CONCAT('%', #{sido}, '%')
+			</if>
+			<if test='gungu != null and gungu != "전체 지역"'>
+				AND BI_ADDR LIKE CONCAT('%', #{gungu}, '%')
+			</if>
+			<if test='biStat != null and biStat != "전체"'>
+				AND BI_STAT=#{biStat}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 게시물 뷰 -->
+	<select id="selectBoardInfo">
+		SELECT BI.BI_NUM, BI.UI_NUM, BI.BI_TITLE, BI.BI_NAME, 
+		BI.BI_PRICE, BI.BI_CONTENT, BI.BI_LOCA, BI.BI_ADDR, 
+		BI.BI_STAT, BI.BI_VIEWS, BI.CREDAT, BI.CRETIM, 
+		BI.LMODAT, BI.LMOTIM, BI.BI_COUNT, BI.BI_SORT, 
+		UI.UI_NAME, UI.UI_NUM, UI.UI_IMG_NAME, UI.UI_IMG_PATH,
+		SUBSTRING(UI.CREDAT, 1, 4) AS USER_YEAR, SUBSTRING(UI.CREDAT, 5, 2) AS USER_MONTH 
+		FROM BOARD_INFO BI 
+		INNER JOIN USER_INFO UI ON BI.UI_NUM=UI.UI_NUM
+		WHERE BI.BI_NUM=#{biNum};
+	</select>
+	
+	<select id="selectBiTitleByBiNum">
+		SELECT BI_TITLE FROM BOARD_INFO WHERE BI_NUM = #{biNum}
+	</select>
+	
+	<!-- 게시물 수정 -->
+	<update id="updateBoardInfo">
+		UPDATE BOARD_INFO SET 
+		BI_TITLE=#{biTitle}, 
+		BI_NAME=#{biName}, 
+		BI_PRICE=#{biPrice}, 
+		BI_CONTENT=#{biContent}, 
+		BI_LOCA=#{biLoca}, 
+		BI_ADDR=#{biAddr}
+		WHERE BI_NUM=#{biNum};
+	</update>
+	
+	<!-- 상품상태 수정 -->
+	<update id="updateBiStat">
+		UPDATE BOARD_INFO SET
+		BI_STAT='판매완료'
+		WHERE BI_NUM=#{biNum}
+	</update>
+	
+	<!-- 상품 active 수정 -->
+	<update id="updateBoardActive">
+		UPDATE BOARD_INFO SET
+		ACTIVE='0'
+		WHERE BI_NUM=#{biNum}
+	</update>
+	
+	<update id="updateBoardPrice">
+		UPDATE BOARD_INFO
+        SET BI_PRICE = #{oiPrice}
+        WHERE BI_NUM = #{biNum};
+	</update>
+		
+	
+	<!-- 게시물 삭제 -->
+	<delete id="deleteBoardInfo">
+		DELETE FROM BOARD_INFO WHERE BI_NUM=#{biNum};
+	</delete>
+	
+	<select id="selectBoardInfoList" resultType="com.secu.team2.board.vo.BoardInfoVO">
+		SELECT BI.BI_NUM, BI.UI_NUM, BI.BI_TITLE, BI.BI_NAME, 
+		BI.BI_PRICE, BI.BI_CONTENT, BI.BI_LOCA, BI.BI_ADDR, 
+		BI.BI_STAT, BI.BI_VIEWS, BI.ACTIVE, BI.CREDAT, 
+		BI.CRETIM, BI.LMODAT, BI.LMOTIM, UI.UI_NAME, 
+		UI.UI_NUM 
+		FROM BOARD_INFO BI 
+		INNER JOIN USER_INFO UI ON BI.UI_NUM=UI.UI_NUM
+		ORDER BY BI.BI_NUM ASC;
+	</select>
+	
+	<!-- 조회수 늘리기 -->
+	<update id="updateBoardInfoViewsCnt">
+		UPDATE BOARD_INFO SET 
+		BI_VIEWS=(SELECT BI_VIEWS FROM BOARD_INFO WHERE BI_NUM=#{biNum})+1
+		WHERE BI_NUM=#{biNum}
+	</update>
+	
+	<!-- 인기 상품 리스트 -->
+	<select id="selectBoardInfosByViews" resultType="com.secu.team2.board.vo.BoardInfoVO">
+		SELECT BI.BI_NUM, BI.UI_NUM, BI.BI_TITLE, BI.BI_NAME, 
+		BI.BI_PRICE, BI.BI_CONTENT, BI.BI_LOCA, BI.BI_ADDR, 
+		BI.BI_STAT, BI.BI_VIEWS, BI.CREDAT, BI.CRETIM, 
+		BI.LMODAT, BI.LMOTIM
+		FROM BOARD_INFO BI
+		<where>
+			BI.ACTIVE=1
+			<if test='biStat != null and biStat != "전체"'>
+				AND BI_STAT=#{biStat}
+			</if>
+		</where>
+		ORDER BY BI_VIEWS DESC LIMIT 9
+	</select>
+	
+	<update id="updateBiSort">
+		UPDATE BOARD_INFO 
+		SET BI_SORT = (SELECT MAX(BI_SORT) + 1 FROM BOARD_INFO)
+		WHERE BI_NUM = #{biNum}
+	</update>
+	
+	<update id="updateBoardInfoList">
+    	UPDATE BOARD_INFO
+    	SET 
+    	BI_PRICE = #{biPrice}, 
+        BI_SORT = (SELECT MAX(BI_SORT) + 1 FROM BOARD_INFO),
+        BI_COUNT = CASE WHEN BI_COUNT > 0 THEN BI_COUNT - 1 ELSE BI_COUNT END,
+        LMOTIM = DATE_FORMAT(NOW(), '%H%i%s'),
+        LMODAT = DATE_FORMAT(NOW(), '%Y%m%d')
+    	WHERE 
+        BI_NUM = #{biNum};
+	</update>
+
+</mapper>

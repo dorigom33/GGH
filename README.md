@@ -1,0 +1,17 @@
+지중해 바로가기 : <https://ggh.today/>
+
+![2차_프로젝트_발표자료_2팀_page-0001](https://github.com/birdheee/secu-team2/assets/101247583/ac0ed2a2-c3cd-4635-9cb7-d5241092ce6b)
+![2차_프로젝트_발표자료_2팀_page-0002](https://github.com/birdheee/secu-team2/assets/101247583/c740a74e-a68f-450d-abb0-05848b3ec4e4)
+![2차_프로젝트_발표자료_2팀_page-0003](https://github.com/birdheee/secu-team2/assets/101247583/7fc7eb7c-2622-4073-a228-09d9a83071d0)
+![2차_프로젝트_발표자료_2팀_page-0004](https://github.com/birdheee/secu-team2/assets/101247583/4c45e63a-bdfd-42f3-bfaf-833a37476d5a)
+![2차_프로젝트_발표자료_2팀_page-0005](https://github.com/birdheee/secu-team2/assets/101247583/fe496a0e-4e87-4d38-bc45-87f251080fa5)
+![2차_프로젝트_발표자료_2팀_page-0006](https://github.com/birdheee/secu-team2/assets/101247583/9f90e107-3c92-46b1-9284-26730e8683d5)
+![2차_프로젝트_발표자료_2팀_page-0007](https://github.com/birdheee/secu-team2/assets/101247583/e9b3828b-d6dc-4ed6-ab2d-1d7994a843f2)
+![2차_프로젝트_발표자료_2팀_page-0008](https://github.com/birdheee/secu-team2/assets/101247583/356a2153-90cd-4a9b-8fa5-738dd16162ca)
+![2차_프로젝트_발표자료_2팀_page-0009](https://github.com/birdheee/secu-team2/assets/101247583/aeb24e32-56a1-49ba-a4ed-fc15123e49bb)
+![2차_프로젝트_발표자료_2팀_page-0010](https://github.com/birdheee/secu-team2/assets/101247583/5daed909-6601-4f18-9106-20a9a015539b)
+![2차_프로젝트_발표자료_2팀_page-0011](https://github.com/birdheee/secu-team2/assets/101247583/9340d2e2-38bf-415b-a26a-c1725c59ce5a)
+![2차_프로젝트_발표자료_2팀_page-0012](https://github.com/birdheee/secu-team2/assets/101247583/795b233b-89b5-4445-be86-360720aec02e)
+![2차_프로젝트_발표자료_2팀_page-0013](https://github.com/birdheee/secu-team2/assets/101247583/7859f3ab-c870-441c-8908-72599c6ad2f7)
+![2차_프로젝트_발표자료_2팀_page-0014](https://github.com/birdheee/secu-team2/assets/101247583/10547c1d-eae1-43d1-bf65-3aa2004354e2)
+![2차_프로젝트_발표자료_2팀_page-0015](https://github.com/birdheee/secu-team2/assets/101247583/8f2a47d9-8267-4f95-9830-80b869ab8118)

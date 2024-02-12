@@ -1,0 +1,70 @@
+<!-- Header Fragment 입니다 -->
+<section th:fragment="header-fragment" id="header-bar">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<nav class="navbar navbar-expand-lg navbar-light navigation">
+					<a class="navbar-brand" href="/">
+						<img src="/assets/images/logo2.png" href="/">
+					</a>
+					<button class="navbar-toggler" type="button" data-toggle="collapse"
+						data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+						aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+						<ul class="navbar-nav ml-auto main-nav">
+							<!-- Authenticated User -->
+							<li sec:authorize="isAuthenticated()" class="nav-item dropdown dropdown-slide">
+								<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"
+									aria-haspopup="true" aria-expanded="false">
+									중고 거래 <span><i class="fa fa-angle-down"></i></span>
+								</a>
+								<!-- Dropdown list -->
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="/html/board/board-list">상품 검색</a>
+									<a class="dropdown-item" href="/html/board/board-add">상품 판매</a>
+								</div>
+							</li>
+							<li sec:authorize="isAuthenticated()" class="nav-item">
+								<a class="nav-link" href="/html/chat/chat-room-list"><div id="chatAlertCnt"></div>채팅방</a>
+							</li>
+							<li sec:authorize="isAuthenticated()" class="nav-item dropdown dropdown-slide">
+								<a class="nav-link dropdown-toggle" href="/html/mypage" data-toggle="dropdown"
+									aria-haspopup="true" aria-expanded="false">
+									마이 페이지 <span><i class="fa fa-angle-down"></i></span>
+								</a>
+								<!-- Dropdown list -->
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="/html/myPage?enterType=board">내 게시물</a>
+									<a class="dropdown-item" href="/html/myPage?enterType=like">관심 목록</a>
+									<a class="dropdown-item" href="/html/myPage?enterType=order">거래 내역</a>
+									<a class="dropdown-item" href="/html/rank/rank-chart">내 평점</a>
+								</div>
+							</li>
+							<!-- Admin -->
+							<li sec:authorize="hasRole('ADMIN')" class="nav-item">
+								<a class="nav-link" href="/html/admin/manager">관리자 페이지</a>
+							</li>
+						</ul>
+						<ul class="navbar-nav ml-auto mt-10 login-or-logout">
+							<!-- Anonymous User -->
+							<li sec:authorize="isAnonymous()" class="nav-item">
+								<a class="nav-link add-button" id="login-of-logout" href="/html/login">로그인</a>
+							</li>
+							<li sec:authorize="isAnonymous()" class="nav-item">
+								<a class="nav-link add-button" id="product" href="/html/board/board-list">상품 검색</a>
+							</li>
+							<li sec:authorize="isAuthenticated()" class="nav-item">
+								<a class="nav-link add-button" id="login-of-logout" href="/logout">로그아웃</a>
+							</li>
+							<li sec:authorize="isAuthenticated()" class="nav-item">
+								<a class="nav-link add-button" id="product" href="/html/board/board-add">상품 판매</a>
+							</li>
+						</ul>
+					</div>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>

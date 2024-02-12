@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<link rel="stylesheet" href="/css/profile.css">
+	<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+	<script src="/js/report.js"></script>
+	<title>지중해</title>
+</head>
+
+<body>
+	<div id="profileArea">
+		<img id="reportIcon" src="/imgs/siren.png" onclick="report()">
+		<span id="userName"></span>
+		<img id="uiImg" src="/imgs/user.png" alt="user-image">
+		<div id="star"></div><span id="userRank"></span><br>
+		<span id="userDesc"></span><br>
+		<span id="goOpBoard" onclick="goOpBoard()">게시물 보러가기 ></span>
+
+		<div id="rankComment">
+			<div class="checkClickbtn" id="good" onclick="checkClickCnt(4, goodComments, 'good')"><img
+					src="/imgs/good.png" id="goodImg"></div>
+			<div class="checkClickbtn" id="normal" onclick="checkClickCnt(8, normalComments, 'normal')"><img
+					src="/imgs/normal.png" id="normalImg"></div>
+			<div class="checkClickbtn" id="bad" onclick="checkClickCnt(10, badComments, 'bad')"><img src="/imgs/bad.png"
+					id="badImg"></div>
+		</div>
+		<div id="goodComments"></div>
+		<div id="normalComments"></div>
+		<div id="badComments"></div>
+
+		<span id="userCredat"></span><br>
+		<span id="userAddr"></span>
+	</div>
+	<script>
+		const goodComments = ['제가 있는 곳까지 와서 거래했어요.',
+			'친절하고 매너가 좋아요.',
+			'시간 약속을 잘 지켜요.',
+			'응답이 빨라요.'];
+
+		const normalComments = ['무료로 나눠주셨어요.',
+			'상품 상태가 설명한 것과 같아요.',
+			'상품설명이 자세해요.',
+			'좋은 상품을 저렴하게 판매해요.',
+			'반갑게 인사 해주셨어요.',
+			'구매 의사 없이 계속 찔러봐요.',
+			'채팅을 너무 늦게 확인해요',
+			'네고를 너무 심하게 원해요'];
+
+		const badComments = ['상품 가치없는 물건을 팔아요.',
+			'시간약속을 안 지켜요.',
+			'상품 상태가 설명과 달라요.',
+			'불친절해요.',
+			'상품 설명에 중요한 정보가 누락됐어요.',
+			'너무 늦은 시간에 연락해요',
+			'시간 약속을 안 지켜요',
+			'차에서 내리지 않고 창문만 열고 거래하려고 해요',
+			'불친절해요',
+			'무리하게 가격을 깎아요'];
+		let profile;
+		let uiNum;
+		window.addEventListener('load', async function () {
+			uiNum = '[[${param.uiNum}]]';
+			const profileRes = await fetch(`/get-user-profile/${uiNum}`);
+			profile = await profileRes.json();
+
+			const credat = [profile.credat.substr(0, 4), profile.credat.substr(4, 2), profile.credat.substr(6, 2)];
+			document.querySelector('#userName').innerText = `${profile.uiName}`;
+			document.querySelector('#userRank').innerText = `(${profile.riRank.toFixed(1)}점)`;
+			if (profile.uiDesc != null) {
+				document.querySelector('#userDesc').innerText = `"${profile.uiDesc}"`;
+			} else {
+				document.querySelector('#userDesc').innerText = '"지구를 위한 중고거래 해결책"';
+			}
+			document.querySelector('#userCredat').innerText = `가입일 : ${credat[0]}년 ${credat[1]}월 ${credat[2]}일`;
+			if (profile.uiRoadaddr != null) {
+				document.querySelector('#userAddr').innerText = `거주지 : ${profile.uiRoadaddr}`;
+			} else {
+				document.querySelector('#userAddr').innerText = '지중해';
+			}
+			let html = '';
+
+			if (profile.riRank != null) {
+				let starsToDisplay = 0;
+				if (profile.riRank >= 0 && profile.riRank < 0.5) {
+					starsToDisplay = 0; // 0에서 0.4 사이의 평점은 0개의 별을 표시합니다.
+				} else if (profile.riRank >= 0.5 && profile.riRank < 1.5) {
+					starsToDisplay = 1; // 0.5에서 1.4 사이의 평점은 1개의 별을 표시합니다.
+				} else if (profile.riRank >= 1.5 && profile.riRank < 2.5) {
+					starsToDisplay = 2; // 1.5에서 2.4 사이의 평점은 2개의 별을 표시합니다.
+				} else if (profile.riRank >= 2.5 && profile.riRank < 3.5) {
+					starsToDisplay = 3; // 2.5에서 3.4 사이의 평점은 3개의 별을 표시합니다.
+				} else if (profile.riRank >= 3.5 && profile.riRank < 4.5) {
+					starsToDisplay = 4; // 3.5에서 4.4 사이의 평점은 4개의 별을 표시합니다.
+				} else if (profile.riRank >= 4.5 && profile.riRank <= 5.0) {
+					starsToDisplay = 5; // 4.5에서 5.0 사이의 평점은 5개의 별을 표시합니다.
+				}
+				html += '<div class="rate">'; // 별이 표시될 부분
+				for (let i = 0; i < starsToDisplay; i++) {
+					html += '<input type="radio" id="riRank' + (i + 1) + '" name="rating" value="' + (i + 1) + '" checked>';
+					html += '<label for="riRank' + (i + 1) + '" title="' + (i + 1) + '점"></label>';
+				}
+				html += '</div>';
+			} else {
+				html = '<div class="rate">'; // 별이 표시될 부분
+				for (let i = 0; i < 5; i++) { // 기본적으로 5개의 빈 별을 표시
+					html += '<input type="radio" id="riRank' + (i + 1) + '" name="rating" value="' + (i + 1) + '">';
+					html += '<label for="riRank' + (i + 1) + '" title="' + (i + 1) + '점"></label>';
+				}
+				html += '</div>';
+			}
+			document.querySelector('#star').innerHTML = html;
+
+
+			for (const comment of profile.riComment) {
+				if (comment != null) {
+					html += `<span>${comment.riComment}</span><br>`;
+					console.log(comment.riComment);
+				}
+			}
+			
+			// 유저 프로필 사진
+			if(!(profile.uiImgName.trim() === '' && profile.uiImgPath.trim() === '')){
+				document.querySelector('#uiImg').src = profile.uiImgPath;
+			}
+		})
+
+		function checkClickCnt(length, comments, keyword) {
+    if (document.querySelector(`#${keyword}Comments`).firstElementChild) {
+        document.querySelector(`#${keyword}Comments`).replaceChildren();
+        document.querySelector(`#${keyword}Comments`).style.display = 'none';
+        return;
+    }
+    const docs = document.querySelectorAll(`[id$="Comments"]`);
+    for (doc of docs) {
+        doc.replaceChildren();
+        doc.style.display = 'none';
+    }
+    document.querySelector(`#${keyword}Comments`).style.display = 'block';
+    let cnt = new Array(length).fill(0);
+
+    for (const comment of profile.riComment) {
+        for (let i = 0; i < length; i++) {
+            if (comment !== null && comment.riComment === comments[i]) {
+                cnt[i]++;
+            }
+        }
+    }
+
+    let commentsExist = false;
+    for (let i = 0; i < length; i++) {
+        if (cnt[i] > 0) {
+            let span = document.createElement('span');
+            span.setAttribute('id', 'msg');
+            span.innerHTML = `${comments[i]} (${cnt[i]})`;
+            document.querySelector(`#${keyword}Comments`).appendChild(span);
+            commentsExist = true;
+        }
+    }
+
+    if (!commentsExist) {
+        let span = document.createElement('span');
+        span.setAttribute('id', 'msg');
+        span.innerHTML = '해당하는 평가가 없습니다.';
+        document.querySelector(`#${keyword}Comments`).appendChild(span);
+    }
+}
+
+
+		function goOpBoard() {
+			location.href = `/html/board/board-list?searchNum=${uiNum}&listStyle=${profile.uiName}님의 게시물&biStat=판매완료`;
+		}
+
+		function report() {
+			reportUser(uiNum);
+		}
+	</script>
+</body>
+
+</html>

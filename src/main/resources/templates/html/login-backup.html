@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+<title>지중해</title>
+<link rel="stylesheet" href="/css/login.css">
+<div th:replace="html/fragment/header.html :: header-head"></div>
+</head>
+<body>
+    <div th:replace="html/fragment/header.html :: header-container"></div>
+	<div class="login-container">
+		<h1 id="login-title">로그인</h1>
+		<form method="post" action="/login">
+			<input class="text-field" type="text" id="uiId" name="uiId" placeholder="아이디"><br>
+			<input class="text-field" type="password" id="uiPwd" name="uiPwd" placeholder="비밀번호"><br>
+			<button id="login-btn" onclick="login()">로그인</button>
+		</form>
+		<div id="errMsg" style="visibility: hidden">아이디 또는 비밀번호를 잘못 입력했습니다</div>
+		<p id="recommand-join">가입한 계정이 없으신가요? <a id="join-link" href="/html/join">회원가입</a></p>
+	</div>
+    <script>
+		async function login() {
+            const json = JSON.stringify({
+                uiId: document.querySelector('#uiId').value,
+                uiPwd: document.querySelector('#uiPwd').value
+            });
+
+            const res = await fetch('/login', {
+                method: 'POST',
+                body: json,
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                }
+            })
+            
+            const msg = await res.json();
+            alert(msg.msg);
+            if (msg.url) {
+                location.href = msg.url;
+            }
+        }
+        
+        // 로그인 틀렸으면 에러메시지가 보이게
+		if('[[${param.error}]]'){
+			document.querySelector('#errMsg').style.visibility = 'visible';
+		}
+    </script>
+</body>
+</html>

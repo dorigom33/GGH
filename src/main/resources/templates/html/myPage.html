@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+	<!-- head 태그 -->
+	<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+
+	<!-- ** Mobile Specific Metas ** -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Agency HTML Template">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+	<meta name="author" content="Themefisher">
+	<meta name="generator" content="Themefisher Classified Marketplace Template v1.0">
+
+	<style>
+		.user-dashboard-menu li:hover {
+			background-color: rgb(0, 0, 0, 0.05);
+		}
+
+		.user-dashboard-menu li img {
+			width: 22px;
+			margin-right: 5px;
+		}
+		
+		.form-check{
+			margin-bottom: 1.5rem;
+		}
+		
+		.form-check-label{
+			margin-left: 10px;
+		}
+		
+		.sideList{
+			cursor: pointer;
+		}
+		
+		#update-password, #delete-password, #price{
+			width: 200px;
+			padding: 2%;
+			margin: 0 auto;
+			display: block;
+		}
+		
+		#won{
+			margin-left: 10px;
+			margin-top: 10px;
+		}
+		
+		.board-img{
+			width: 80px;
+			height: 80px;
+			object-fit: cover;
+		}
+		
+		.productTableBody td {
+		    white-space: nowrap;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		  }
+		
+		  .productTableBody img {
+		    max-width: 150px;
+		    margin-right: 10px;
+		    height: auto;
+		    display: block;
+		  }
+		  
+		  
+		  @media (max-width: 767px) {
+		    thead {
+		      display: none;
+		    }
+		
+		    .productTableBody td:first-child {
+		      display: table-cell;
+		    }
+		  }
+		  
+	</style>
+
+	<body class="body-wrapper">
+		<!-- Top으로 가는 버튼 -->
+		<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+		
+		<!-- Header 및 Nav -->
+		<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+		
+		<section class="content-container">
+		
+			<section class="page-search"></section>
+		
+			<section class="dashboard section">
+				<div class="container">
+					<div class="row">
+						<div class="col-lg-4">
+							<div class="sidebar">
+								<div class="widget user-dashboard-profile">
+									<div class="profile-thumb">
+										<img class="rounded-circle">
+									</div>
+									<h5 class="uiName"></h5>
+									<p class="rank"></p>
+									<p class="uiDesc"></p>
+									<p class="credat"></p>
+									<a href="/html/rank/rank-chart" class="btn btn-main-sm">내 평점</a>
+									<a href="#!" class="btn btn-main-sm" data-toggle="modal" data-target="#edit-user" style="color: white;">회원 정보 수정</a>
+								</div>
+								<div class="widget user-dashboard-menu">
+									<ul>
+										<li class="boardList">
+											<a onclick="drawBoard()" class="sideList"><img src="/imgs/profileBoard.png"></img> 내 게시물<span class="boardListCount"></span></a>
+										</li>
+										<li class="likeList">
+											<a onclick="drawLike()" class="sideList"><img src="/imgs/profileLike.png"></img> 관심 목록<span class="likeListCount"></span></a>
+										</li>
+										<li class="orderList">
+											<a onclick="drawOrder()" class="sideList"><img src="/imgs/profileOrder.png"></img> 거래 내역<span class="orderListCount"></span></a>
+										</li>
+										<li>
+											<a onclick="location.href='/html/chat/chat-room-list'" class="sideList"><img src="/imgs/profileChat.png"></img> 채팅방<span>0</span></a>
+										</li>
+										<li>
+											<a href="#!" data-toggle="modal" data-target="#delete-account" style="color:red !important;" class="sideList"><img src="/imgs/profileDelete.png"></img>회원 탈퇴</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-8">
+							<!-- Recently Favorited -->
+							<div class="widget dashboard-container my-adslist">
+								<h3 class="widget-header">나의 관심 상품</h3>
+								<form id="search-form" style="display: none;">
+									<div class="form-check">
+										<label class="form-check-label" for="all">
+											<input class="form-check-input" type="radio" id="all" name="check-stat" value="전체" checked>
+											전체
+										</label>
+										<label class="form-check-label" for="sale">
+											<input class="form-check-input" type="radio" id="sale" name="check-stat" value="판매중">
+											판매중
+										</label>
+										<label class="form-check-label" for="soldOut">
+											<input class="form-check-input" type="radio" id="soldOut" name="check-stat" value="판매완료">
+											판매완료
+										</label>
+									</div>
+								</form>
+								<form id="search-form2" style="display: none;">
+									<div class="form-check">
+										<label class="form-check-label" for="all2">
+											<input class="form-check-input" type="radio" id="all2" name="check-stat" value="전체" checked>
+											전체
+										</label>
+										<label class="form-check-label" for="buy">
+											<input class="form-check-input" type="radio" id="buy" name="check-stat" value="구매">
+											구매
+										</label>
+										<label class="form-check-label" for="sell">
+											<input class="form-check-input" type="radio" id="sell" name="check-stat" value="판매">
+											판매
+										</label>
+									</div>
+								</form>
+								<table class="table table-responsive product-dashboard-table">
+									<div id="null-message"></div>
+									<thead>
+										<tr>
+											<th class="tableHead"></th>
+											<th class="tableHead"></th>
+											<th class="tableHead text-center" style="width:100px;"></th>
+											<th class="tableHead text-center"></th>
+										</tr>
+									</thead>
+									<tbody class="productTableBody">
+									</tbody>
+								</table>
+							</div>
+							<div class="pagination justify-content-center">
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+									</ul>
+								</nav>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			
+			<!-- 회원 정보 수정 모달 -->
+			<div class="modal fade" id="edit-user" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header border-bottom-0">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body text-center">
+							<h6 class="py-2">회원 정보 수정</h6>
+							<p>현재 비밀번호를 입력해주세요.</p>
+							<input type="password" class="form-control" id="update-password" required>
+						</div>
+						<div class="modal-footer border-top-0 mb-3 mx-5 justify-content-center">
+							<button type="button" class="btn btn-danger" data-dismiss="modal">취소</button>
+							<button type="button" class="btn btn-primary" onclick="confirmPasswordforUpdate()">확인</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- 회원 탈퇴 모달 -->
+			<div class="modal fade" id="delete-account" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header border-bottom-0">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body text-center">
+							<h6 class="py-2">정말 탈퇴하시겠어요?</h6>
+							<p>현재 비밀번호를 입력해주세요.</p>
+							<input type="password" class="form-control" id="delete-password" required>
+						</div>
+						<div class="modal-footer border-top-0 mb-3 mx-5 justify-content-center">
+							<button type="button" class="btn btn-danger" data-dismiss="modal">취소</button>
+							<button type="button" class="btn btn-primary" onclick="confirmPasswordforDelete()">확인</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 가격 입력 모달 -->
+			<div class="modal fade" id="set-price" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header border-bottom-0">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body text-center">
+							<h6 class="py-2">판매자가 거래를 확정했어요!</h6>
+							<p>구매한 가격을 입력해주세요.</p>
+							<form class="form-group" id="price" style="display: flex;">
+								<input type="hidden" id="diNum">
+								<input type="text" class="form-control" required onkeyup="inputNumberFormat(this)" style="text-align: right" id="oiPrice"><p id="won">원</p>
+							</form>
+						</div>
+						<div class="modal-footer border-top-0 mb-3 mx-5 justify-content-center">
+							<button type="button" class="btn btn-danger" data-dismiss="modal">취소</button>
+							<button type="button" class="btn btn-primary" onclick="setPrice()">구매 확정</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Footer  -->
+			<th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+		</section>
+		<script>
+			let total = 0;
+			const pageSize = 5;
+			const blockSize = 5;
+			let userJson;
+			let board;
+			let order;
+			let like;
+			let enterType = '[[${param.enterType}]]'
+			if (enterType === '' || (enterType !== 'board'
+				&& enterType !== 'like' && enterType !== 'order')) {
+				enterType = 'board';
+			}
+			window.addEventListener('load', async function () {
+				const responsUser = await fetch('/select-user-info');
+				userJson = await responsUser.json();
+				const boardRes = await fetch(`/board-infos?searchNum=${userJson.uiNum}&sorting=최신순`);
+				board = await boardRes.json();
+				const orderRes = await fetch(`/get-deal-info-list-by-uinum/${userJson.uiNum}`);
+				order = await orderRes.json();
+				const likeRes = await fetch('/like-infos');
+				like = await likeRes.json();
+				const rankRes = await fetch(`/select/${userJson.uiNum}`);
+				rank = await rankRes.json();
+				const numAverageRank = rank.toFixed(1);
+				console.log(numAverageRank);
+				if(numAverageRank == 0.0){
+					document.querySelector('.rank').innerText = '평가가 없습니다.';
+				}else{
+					document.querySelector('.rank').innerHTML = `(☆${numAverageRank}/5)`;
+				}
+				
+	
+	
+				document.querySelector(`.user-dashboard-menu .${enterType}List`).className += " active";
+				document.querySelector('.boardListCount').innerHTML = board.totalCnt;
+				document.querySelector('.orderListCount').innerHTML = order.length;
+				document.querySelector('.likeListCount').innerHTML = like.totalCnt;
+	
+				document.querySelector('.uiName').innerText = `${userJson.uiName}`;
+				if (userJson.uiDesc != null) {
+					document.querySelector('.uiDesc').innerText = `${userJson.uiDesc}`;
+				} else {
+					document.querySelector('.uiDesc').innerText = '지구를 생각하는 중고거래 해결책';
+				}
+				const subDate = subStr(userJson.credat);
+				document.querySelector('.credat').innerText = `가입 ${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일`;
+				if (userJson.uiImgPath === '') {
+					document.querySelector('.profile-thumb img').src = '/assets/images/profile-thumb.jpg';
+				} else {
+					document.querySelector('.profile-thumb img').src = `${userJson.uiImgPath}`;
+				}
+	
+				switch (enterType) {
+					case 'board':
+						drawBoard();
+						return;
+					case 'like':
+						drawLike();
+						return;
+					case 'order':
+						drawOrder();
+						return;
+					default:
+						alert('잘못된 접근입니다.');
+						location.href = "/";
+				}
+			});
+	
+			function drawBoard(page, evt) {
+			    if (!page) {
+			        page = 1;
+			    }
+			    let startIdx = (page - 1) * pageSize;
+			    active('boardList');
+			    document.querySelector('.productTableBody').innerHTML = '';
+			    document.querySelector('.widget-header').innerHTML = '내 게시물';
+			    drawTableHead(['이미지', '물품 정보', '거래 상태', '상세 보기']);
+			
+			    const checkedRadio = document.querySelector('#search-form input[name="check-stat"]:checked');
+			    const selectedStatus = checkedRadio ? checkedRadio.value : '전체';
+			    document.querySelector('#search-form').style.display = 'block';
+			    document.querySelector('#search-form2').style.display = 'none';
+			    let hasProducts = false;
+			
+			    let filteredBoards = [];
+			
+			    if (selectedStatus === '전체') {
+			        filteredBoards = board.list;
+			    } else {
+			        filteredBoards = board.list.filter(item => item.biStat.trim() === selectedStatus);
+			    }
+			
+			    filteredBoards.sort((a, b) => {
+				  if (b.credat === a.credat) {
+				    return b.cretim - a.cretim;
+				  }
+				  return b.credat - a.credat;
+				});
+
+			    let totalBoards = filteredBoards.length;
+			
+			    for (let i = startIdx; i < startIdx + pageSize; i++) {
+			        if (i < filteredBoards.length) {
+			            console.log(filteredBoards[i]);
+			            subDate = subStr(filteredBoards[i].credat);
+			            let html = `<tr><td class="product-thumb">
+			                <img width="80px" height="auto" src="${filteredBoards[i].files[0].fiPath}" alt="${filteredBoards[i].files[0].fiName}" class="board-img"></td>
+			                <td class="product-details">
+			                    <h3 class="title">${filteredBoards[i].biTitle}</h3>
+			                    <span class="add-id"><strong>상품 ID:</strong>${filteredBoards[i].biNum}</span>
+			                    <span><strong>게시일 : </strong><time>${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일</time> </span>
+			                    <span class="location"><strong>거래 장소</strong>${filteredBoards[i].biAddr}</span>
+			                </td>
+			                <td class="product-category">
+			                    <span class="categories" style="color:${filteredBoards[i].biStat === '판매중' ? 'rgb(0, 183, 0)' : 'gray'}; font-weight:500;">
+			                        ${filteredBoards[i].biStat}
+			                    </span>
+			                </td>
+			                <td class="action" data-title="Action">
+			                    <div class="">
+			                        <ul class="list-inline justify-content-center">
+			                            <li class="list-inline-item">
+			                                <a data-toggle="tooltip" data-placement="top" title="View" class="view" href="/html/board/board-view?biNum=${filteredBoards[i].biNum}">
+			                                    <i class="fa fa-eye"></i>
+			                                </a>
+			                            </li>
+			                        </ul>
+			                    </div>
+			                </td>
+			            </tr>`;
+			            document.querySelector('.productTableBody').innerHTML += html;
+			            hasProducts = true;
+			        }
+			    }
+			
+			    if (!hasProducts) {
+			        document.querySelector('.productTableBody').innerHTML = ''; // 상품 목록 초기화
+			        document.querySelector('#null-message').innerHTML = '게시글이 없습니다.';
+			    } else {
+			        document.querySelector('#null-message').innerHTML = ''; // 메시지 초기화
+			    }
+			
+			    // 선택된 상태에 따라 조정된 전체 개수를 전달
+			    drawPage(totalBoards, page, selectedStatus, 'drawBoard');
+			}
+			
+			async function fetchSellerNum(diNum) {
+			    return new Promise((resolve, reject) => {
+			        $.ajax({
+			            url: `/fetch-seller-num?diNum=${diNum}`,
+			            type: 'GET',
+			            dataType: 'json',
+			            success: function (sellerInfo) {
+			                resolve(sellerInfo);
+			            },
+			            error: function (error) {
+			                reject(error);
+			            }
+			        });
+			    });
+			}
+			
+			function onAddOrderInfo(diNum, oiNum, sellerUiNum, oiPrice) {
+			    console.log('data :', diNum, oiNum, sellerUiNum, oiPrice);
+			}
+			
+			function drawOrder(page, evt) {
+			    if (!page) {
+			        page = 1;
+			    }
+			    let startIdx = (page - 1) * pageSize;
+			    active('orderList');
+			    document.querySelector('.productTableBody').innerHTML = '';
+			    document.querySelector('.widget-header').innerHTML = '거래 내역';
+			    drawTableHead(['이미지', '거래 정보', '거래 형태', '받은 별점']);
+			
+			    const checkedRadio = document.querySelector('#search-form2 input[name="check-stat"]:checked');
+			    const selectedStatus = checkedRadio ? checkedRadio.value : '전체';
+			    document.querySelector('#search-form').style.display = 'none';
+			    document.querySelector('#search-form2').style.display = 'block';
+			    let hasProducts = false;
+			
+			    let filteredOrders = [];
+			
+			    if (selectedStatus === '전체') {
+			        filteredOrders = order;
+			    } else if (selectedStatus === '판매') {
+			        filteredOrders = order.filter(item => item.buyerUiNum != userJson.uiNum);
+			    } else if (selectedStatus === '구매') {
+			        filteredOrders = order.filter(item => item.buyerUiNum == userJson.uiNum);
+			    }
+			
+			    filteredOrders.sort((a, b) => {
+					  if (b.credat === a.credat) {
+					    return b.cretim - a.cretim;
+					  }
+					  return b.credat - a.credat;
+					});
+
+			    let totalOrders = filteredOrders.length;
+			
+			    for (let i = startIdx; i < startIdx + pageSize && i < filteredOrders.length; i++) {
+			        subDate = subStr(filteredOrders[i].credat);
+			        let priceDisplay = '';
+			        let transactionType = '';
+			
+			        if (filteredOrders[i].buyerUiNum == userJson.uiNum) {
+			            transactionType = '구매';
+			        } else if (filteredOrders[i].sellerUiNum == userJson.uiNum) {
+			            transactionType = '판매';
+			        }
+			
+			        let oiPrice = filteredOrders[i].oiPrice;
+			
+			        if (transactionType === '구매') {
+			           priceDisplay = `<span><strong>상품 가격 : </strong>${oiPrice ? Number(oiPrice).toLocaleString() + '원' : `<a href="#!" data-toggle="modal" data-target="#set-price" onclick="openModal(${filteredOrders[i].diNum})" id="input-price-link-${i}" style="color: red;">가격을 입력해주세요.</a>`}</span>`;
+
+						console.log('oiPrice:', oiPrice);
+			        } else {
+			            priceDisplay += `<span><strong>상품 가격 : </strong>${oiPrice !== 0 ? Number(oiPrice).toLocaleString() + '원' : '구매자가 가격을 입력하지 않았습니다'}</span>`;
+						console.log('oiPrice:', oiPrice);
+
+			        }
+			
+			        let html = `<tr><td class="product-thumb">
+			            <img width="80px" height="auto" src="${filteredOrders[i].files[0].fiPath}" alt="${filteredOrders[i].files[0].fiName}" class="board-img"></td>
+			            <td class="product-details">
+			            <h3 class="title">${filteredOrders[i].biTitle}</h3>
+			            <span><strong>상품 ID :</strong>${filteredOrders[i].biNum}</span>
+			            <span><strong>게시일 : </strong><time>${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일</time> </span>
+			            ${priceDisplay}
+			            <span><strong>받은 코멘트 : </strong>${filteredOrders[i].riComment !== null ? filteredOrders[i].riComment:'미입력'}</span></td>
+			            <td class="product-category"><span class="categories" style="color:${transactionType === '구매' ? 'rgb(0, 183, 0)' : 'gray'}; font-weight:500;">${transactionType}</span></td>
+			            <td class="action" data-title="Action" style="font-weight:800; font-size:18px; color:${getRankColor(filteredOrders[i].riRank)};">${filteredOrders[i].riRank !== null ? filteredOrders[i].riRank:'미입력'}</td></tr>`;
+			
+			        document.querySelector('.productTableBody').innerHTML += html;
+			        hasProducts = true;
+			    }
+			
+			    if (!hasProducts) {
+			        document.querySelector('.productTableBody').innerHTML = ''; // 상품 목록 초기화
+			        document.querySelector('#null-message').innerHTML = '상품이 없습니다.';
+			    } else {
+			        document.querySelector('#null-message').innerHTML = ''; // 메시지 초기화
+			    }
+			
+			    // 선택된 상태에 따라 조정된 전체 개수를 전달
+			    drawPage(totalOrders, page, selectedStatus, 'drawOrder');
+			}
+			
+			async function deleteLikeList(biNum){
+						const deleteLikeList = await fetch(`/like-infos/${biNum}`,{
+							method : 'DELETE',
+							headers:{
+								'Content-Type': 'application/json;charset=UTF-8'
+							}
+						});
+						const result = await deleteLikeList.text();
+						if(result == 1){
+							alert('삭제가 완료되었습니다.');
+							const likeRes2 = await fetch('/like-infos');
+							like = await likeRes2.json();
+							drawLike();
+						}else{
+							alert('삭제가 실패하였습니다.');
+						}
+					}
+
+			function drawLike(page, evt) {
+				if (!page) {
+					page = 1;
+				}
+				let startIdx = (page - 1) * pageSize;
+				active('likeList');
+				document.querySelector('.productTableBody').innerHTML = '';
+				document.querySelector('.widget-header').innerHTML = '관심 목록';
+				drawTableHead(['이미지', '게시물', '거래 형태', '관리']);
+	
+				const selectedStatusRadio = document.querySelector('#search-form input[name="check-stat"]:checked');
+				const selectedStatus = selectedStatusRadio ? selectedStatusRadio.value : '전체';
+	
+				document.querySelector('#search-form').style.display = 'block';
+				document.querySelector('#search-form2').style.display = 'none';
+				console.log('drawLike - selectedStatus:', selectedStatus);
+	
+				let hasProducts = false;
+				let totalProducts = like.list.length;
+				if (selectedStatus !== '전체') {
+					// '전체'가 아닌 경우, 선택된 상태에 맞게 상품 갯수를 필터링
+					totalProducts = like.list.filter(item => item.biStat === selectedStatus).length;
+				}
+	
+				for (let i = startIdx; i < startIdx + pageSize; i++) {
+					if (i < like.list.length && (selectedStatus === '전체' || like.list[i].biStat === selectedStatus)) {
+						subDate = subStr(like.list[i].credat);
+						let html = `<tr><td class="product-thumb">
+	                <img width="80px" height="auto" src="${like.list[i].files[0].fiPath}" alt="${like.list[i].files[0].fiName}" class="board-img"></td>
+	                <td class="product-details">
+	                <h3 class="title">${like.list[i].biTitle}</h3>
+	                <span><strong>상품 ID:</strong>${like.list[i].biNum}</span>
+	                <span><strong>게시일 : </strong><time>${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일</time> </span>
+	                <span><strong>제시 가격</strong>${like.list[i].biPrice}</span>
+	                <span><strong>거래 장소</strong>${like.list[i].biAddr}</span></td>
+	                <td class="product-category"><span class="categories" style="color:${like.list[i].biStat === '판매중' ? 'rgb(0, 183, 0)' : 'gray'}; font-weight:500;">${like.list[i].biStat}</span></td>
+	                <td class="action" data-title="Action"><div class="">
+	                <ul class="list-inline justify-content-center">
+	                <li class="list-inline-item">
+	                <a data-toggle="tooltip" data-placement="top" title="View" class="view" href="/html/board/board-view?biNum=${like.list[i].biNum}">
+	                <i class="fa fa-eye"></i></a></li>
+	                <li class="list-inline-item">
+	                <a data-toggle="tooltip" data-placement="top" title="Delete" class="delete" onclick="deleteLikeList(${like.list[i].biNum})" style="cursor: pointer;">
+	                <i class="fa fa-trash"></i>
+	                </a></li></ul></div></td>`;
+						document.querySelector('.productTableBody').innerHTML += html;
+						hasProducts = true;
+					}
+					
+				}
+				if (!hasProducts) {
+					document.querySelector('.productTableBody').innerHTML = ''; // 상품 목록 초기화
+					document.querySelector('#null-message').innerHTML = '상품이 없습니다.';
+				} else {
+					document.querySelector('#null-message').innerHTML = ''; // 메시지 초기화
+				}
+	
+				drawPage(totalProducts, page, selectedStatus, 'drawLike');
+			}
+	
+			function drawTableHead(arr) {
+				let i = 0;
+				const tableHead = document.querySelectorAll('.product-dashboard-table .tableHead');
+				for (const head of tableHead) {
+					head.innerHTML = `${arr[i++]}`;
+				}
+			}
+	
+	
+	
+			function drawPage(totalCnt, page, selectedStatus, draw) {
+				console.log(totalCnt);
+				const pageBlock = Math.ceil(totalCnt / pageSize);
+				const startBlock = (Math.ceil(page / blockSize) - 1) * blockSize + 1;
+				let endBlock = startBlock + blockSize - 1;
+				let pageHtml = '';
+				if (endBlock > pageBlock) {
+					endBlock = pageBlock;
+				}
+	
+	
+				if (startBlock !== 1) {
+					pageHtml += `<li class="page-item">
+	                       <a onclick="${draw}(${startBlock - 1})" class="page-link" href="javascript:void(0)" aria-label="Previous">
+	                          <span aria-hidden="true">&laquo;</span>
+	                          <span class="sr-only">Previous</span>
+	                       </a>
+	                     </li>`;
+				}
+	
+				for (let i = startBlock; i <= endBlock; i++) {
+					if (i === page) {
+						pageHtml += `<li class="page-item active"><a onclick="${draw}(${i})" class="page-link" href="javascript:void(0)">${i}</a></li>`;
+					} else {
+						pageHtml += `<li class="page-item"><a onclick="${draw}(${i})" class="page-link" href="javascript:void(0)">${i}</a></li>`;
+					}
+				}
+	
+				if (endBlock < pageBlock) {
+					pageHtml += `<li class="page-item">
+	                       <a onclick="${draw}(${endBlock + 1})" class="page-link" href="javascript:void(0)" aria-label="Next">
+	                         <span aria-hidden="true">&raquo;</span>
+	                         <span class="sr-only">Next</span>
+	                       </a>
+	                     </li>`;
+				}
+	
+				document.querySelector('.pagination').innerHTML = pageHtml;
+			}
+	
+			function getRankColor(rank) {
+				switch (rank) {
+					case "1":
+						return '#ff0000';
+					case "2":
+						return '#FF7143';
+					case "3":
+						return '#FFBB50';
+					case "4":
+						return '#B6D12A';
+					case "5":
+						return '#0db01f';
+				}
+			}
+	
+			function subStr(date) {
+				return subDate = [date.substr(0, 4), date.substr(4, 2), date.substr(6, 2)];
+			}
+	
+			function active(dom) {
+				document.querySelector('.user-dashboard-menu .active').classList.remove('active');
+				document.querySelector(`.user-dashboard-menu .${dom}`).className += " active";
+			}
+	
+			document.querySelector('#search-form').addEventListener('change', function (event) {
+				const target = event.target;
+				if (target.tagName === 'INPUT' && target.type === 'radio') {
+					const activeMenu = document.querySelector('.user-dashboard-menu .active').classList[0];
+					const selectedStatus = target.value;
+	
+					switch (activeMenu) {
+						case 'boardList':
+							drawBoard(1, selectedStatus);
+							break;
+						case 'likeList':
+							drawLike(1, selectedStatus);
+							break;
+					}
+				}
+			});
+	
+			document.querySelector('#search-form2').addEventListener('change', function (event) {
+				const target = event.target;
+	
+				if (target.tagName === 'INPUT' && target.type === 'radio') {
+					const activeMenuElement = document.querySelector('.user-dashboard-menu .active');
+					const activeMenu = activeMenuElement.classList[0];
+					const selectedStatus = target.value;
+	
+					if (activeMenu === 'orderList') {
+						drawOrder(1, selectedStatus);
+					}
+				}
+			});
+			
+			// 가격 입력하는 모달을 열었을 때, diNum을 hidden input 값으로 넣기
+			function openModal(diNum){
+				document.querySelector('#diNum').value = diNum;
+			}
+			
+			// 가격 입력 후 거래 확정
+			async function setPrice(){
+				const diNum = document.querySelector('#diNum').value;
+				const oiPrice = document.querySelector('#oiPrice').value.trim().replace(/,/g, '');
+				
+				const fetchBiNumAndBiPrice = async (diNum) => {
+					const response = await fetch(`/get-bi-num-and-bi-price/${diNum}`);
+					const data = await response.json();
+					return data;
+				};
+				
+				const {biNum, biPrice} = await fetchBiNumAndBiPrice(diNum);
+
+				var orderInfo = {
+					diNum: diNum,
+					oiPrice: oiPrice,
+					biNum: biNum
+				};
+				
+				const xhr = new XMLHttpRequest();
+				xhr.open("POST", "/update-order-info", true);
+				xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+				
+				xhr.onreadystatechange = async function () {
+					if (xhr.readyState === XMLHttpRequest.DONE) {
+						if (xhr.status === 200) {
+							await updateBoardPrice(biNum, oiPrice);
+		
+							const diStatRes = await fetch(`/update-buyer-di-stat/${diNum}`, {
+								method: 'POST'
+							});
+							const diStat = await diStatRes.json();
+							if (diStat == 1) {
+								alert("구매정보를 갱신했습니다");
+								fetchSellerUiNumAndRedirect(diNum);
+							}
+						} else {
+							alert("구매정보 갱신에 실패했습니다");
+						}
+					}
+				};
+				xhr.send(JSON.stringify(orderInfo)); 
+			}
+			
+			async function fetchSellerUiNumAndRedirect(diNum) {
+				const oiNumRes = await fetch(`/fetch-seller-num?diNum=${diNum}`);
+		
+				if (oiNumRes.ok) {
+					const oiNumData = await oiNumRes.json();
+		
+					const oiNum = oiNumData.oiNum;
+					const diNumFromServer = oiNumData.diNum;
+					const sellerUiNum = oiNumData.sellerUiNum;
+					window.location.href = `/html/rank/rank-add-seller?oiNum=${oiNum}&diNum=${diNumFromServer}&sellerUiNum=${sellerUiNum}`;
+				} else {
+					alert("서버에서 데이터를 가져오는 중 오류가 발생했습니다");
+				}
+			}
+			
+			// 구매자가 입력한 가격으로 업데이트하는 함수
+			async function updateBoardPrice(biNum, oiPrice) {
+				const response = await fetch(`/board-infos/update-bi-price/${biNum}/${oiPrice}`, {
+					method: 'PATCH'
+				});
+				return response.json();
+			}
+	
+			// 회원 정보 수정 전 비밀번호 확인
+			async function confirmPasswordforUpdate() {
+		        const passwordInput = document.querySelector('#update-password');
+		        const password = passwordInput.value;
+		
+		        const response = await fetch('/check-password', {
+		            method: 'POST',
+		            headers: {
+		                'Content-Type': 'application/json;charset=UTF-8'
+		            },
+		            body: JSON.stringify({ password: password })
+		
+		        });
+		
+		        if (response.ok) {
+		            const result = await response.json();
+		
+		            if (result.success) {
+		                window.location.href = '/html/update';
+		            } else {
+		                alert('비밀번호가 일치하지 않습니다.');
+		                passwordInput.value = '';
+		            }
+		        } else {
+		            alert('비밀번호 확인 오류:', response.status);
+		        }
+		    }
+		    
+		    // 회원 탈퇴
+		    async function confirmPasswordforDelete() {
+			    const passwordInput = document.querySelector('#delete-password');
+			    const password = passwordInput.value;
+			
+			    // Send password to the server for validation
+			    const response = await fetch('/check-password', {
+			        method: 'POST',
+			        headers: {
+			            'Content-Type': 'application/json;charset=UTF-8'
+			        },
+			        body: JSON.stringify({ password: password })
+			        
+			    });
+			    console.log(password);
+			
+			    if (response.ok) {
+			        const result = await response.json();
+			
+			        if (result.success) {
+			            const response = await fetch('/update-user-active', {
+				            method: 'PUT',
+				            headers: {
+				                'Content-Type': 'application/json'
+				            }
+				        });
+				        if (response.ok) {
+				            const result = await response.json();
+				            alert(result.msg);
+				
+				            if (result.success) {
+				                window.location.href = '/';
+				            }
+				        } else {
+				            alert('사용자 정보 삭제 오류:', response.status);
+				        }
+			        } else {
+			            alert('비밀번호가 일치하지 않습니다.');
+			            passwordInput.value = '';
+			        }
+			    } else {
+			        alert('비밀번호 확인 오류:', response.status);
+			    }
+			}
+		    
+		    // 스크롤 이벤트 리스너
+			window.addEventListener('scroll', () => {
+				// 스크롤 위치가 100px 이상일 때 위로 가기 버튼을 보이게 함
+				if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+					document.querySelector('#btn-back-to-top').style.display = 'block';
+				} else {
+					document.querySelector('#btn-back-to-top').style.display = 'none';
+				}
+			});
+		</script>
+	</body>
+</html>

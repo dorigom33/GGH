@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.secu.team2.chat.mapper.CheckedTimeInfoMapper">
+	<select id="selectCheckedTimeInfo" resultType="com.secu.team2.chat.vo.CheckedTimeInfoVO">
+		SELECT * FROM CHECKED_TIME_INFO WHERE CI_NUM = #{ciNum} AND UI_NUM = #{uiNum}
+	</select>
+	
+	<select id="countNewMessage" resultType="int">
+		SELECT COUNT(1)
+		FROM CHECKED_TIME_INFO CH
+		INNER JOIN MESSAGE_INFO MS
+		ON CH.CI_NUM = MS.CI_NUM
+		WHERE <![CDATA[(CH.CI_NUM = #{ciNum} AND CH.UI_NUM = #{uiNum})
+		AND (CH.LMODAT < MS.CREDAT
+		OR (CH.LMODAT = MS.CREDAT AND CH.LMOTIM < MS.CRETIM))]]>
+	</select>
+	
+	<select id="selectChatRoomList" resultType="com.secu.team2.chat.vo.LmotimCretimMapVO">
+		SELECT
+		CREDAT, CRETIM, LMODAT, LMOTIM, CTI.CI_NUM
+		FROM CHECKED_TIME_INFO CTI
+		INNER JOIN MESSAGE_INFO MI ON MI.CI_NUM = CTI.CI_NUM
+		WHERE UI_NUM = #{uiNum} AND CTI.CI_NUM = #{ciNum}
+		ORDER BY MI.MI_NUM DESC
+		LIMIT 1;
+	</select>
+	
+	<insert id="insertCheckedTimeInfo">
+		INSERT INTO CHECKED_TIME_INFO(
+			CI_NUM, UI_NUM)
+		VALUES(
+			#{ciNum}, #{uiNum})
+	</insert>
+	
+	<update id="updateCheckedTimeInfo">
+		UPDATE CHECKED_TIME_INFO SET 
+		LMODAT = date_format(current_timestamp(),'%Y%m%d'), 
+		LMOTIM = date_format(current_timestamp(),'%H%i%s')
+		WHERE CI_NUM = #{ciNum} AND UI_NUM = #{uiNum};
+	</update>
+</mapper>

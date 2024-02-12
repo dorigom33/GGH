@@ -1,0 +1,85 @@
+<head th:fragment="head-fragment">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>지중해</title>
+	<script th:src="@{/js/sigungu.js}"></script>
+	<link rel="stylesheet" th:href="@{/css/common.css}">
+	<link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script th:src="@{/js/postcode.v2.js}"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/animejs"></script>
+	<!-- PLUGINS CSS STYLE -->
+	<link th:href="@{/assets/plugins/jquery-ui/jquery-ui.min.css}" rel="stylesheet">
+	<!-- Bootstrap -->
+	<link th:href="@{/assets/plugins/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link th:href="@{/assets/plugins/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+	<!-- Owl Carousel -->
+	<link th:href="@{/assets/plugins/slick-carousel/slick/slick.css}" rel="stylesheet">
+	<link th:href="@{/assets/plugins/slick-carousel/slick/slick-theme.css}" rel="stylesheet">
+	<!-- Fancy Box -->
+	<link th:href="@{/assets/plugins/fancybox/jquery.fancybox.pack.css}" rel="stylesheet">
+	<link th:href="@{/assets/plugins/jquery-nice-select/css/nice-select.css}" rel="stylesheet">
+	<link th:href="@{/assets/plugins/seiyria-bootstrap-slider/dist/css/bootstrap-slider.min.css}" rel="stylesheet">
+	<!-- CUSTOM CSS -->
+	<link rel="stylesheet" th:href="@{/assets/css/style.css}">
+	<link rel="stylesheet" th:href="@{/css/headerAlert.css}">
+	<!-- FAVICON -->
+	<link th:href="@{/imgs/favicon.ico}" rel="shortcut icon">
+
+	<!-- JAVASCRIPTS -->
+	<script th:src="@{/assets/plugins/jquery/dist/jquery.min.js}"></script>
+	<script th:src="@{/assets/plugins/jquery-ui/jquery-ui.min.js}"></script>
+	<script th:src="@{/assets/plugins/raty/jquery.raty-fa.js}"></script>
+	<script th:src="@{/assets/plugins/jquery-nice-select/js/jquery.nice-select.min.js}"></script>
+	<script th:src="@{/assets/plugins/tether/js/tether.min.js}"></script>
+	<script th:src="@{/assets/plugins/bootstrap/dist/js/popper.min.js}"></script>
+	<script th:src="@{/assets/plugins/bootstrap/dist/js/bootstrap.min.js}"></script>
+	<script th:src="@{/assets/plugins/seiyria-bootstrap-slider/dist/bootstrap-slider.min.js}"></script>
+	<script th:src="@{/assets/plugins/slick-carousel/slick/slick.min.js}"></script>
+	<script th:src="@{/assets/plugins/fancybox/jquery.fancybox.pack.js}"></script>
+	<script th:src="@{/assets/plugins/smoothscroll/SmoothScroll.min.js}"></script>
+	<!-- <script src="@{/assets/https://maps.googleapis.com/maps/api/js?key=AIzaSyCC72vZw-6tGqFyRhhg5CkF2fqfILn2Tsw"></script> -->
+	<script th:src="@{/assets/js/scripts.js}"></script>
+	<script th:src="@{/js/report.js}"></script>
+	<script th:src="@{/js/data-processing.js}"></script>
+	<script th:src="@{/js/headerAlert.js}"></script>
+	<script th:src="@{/js/stomp.umd.min.js}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"
+		integrity="sha512-iKDtgDyTHjAitUDdLljGhenhPwrbBfqTKWO1mkhSFH3A7blITC9MhYon6SjnMhp4o0rADGw9yAC6EW4t5a4K3g=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script sec:authorize="isAuthenticated()">
+		const socketUiNum = '[[${#authentication.principal.uiNum}]]';
+		const protocol = location.protocol === 'http:' ? 'ws' : 'wss';
+		const brokerURL = `${protocol}://${location.host}/chat`;
+		let stompClient = new StompJs.Client({
+			brokerURL: brokerURL,
+			debug: function (data) {
+				console.log(data);
+			},
+			reconnectDelay: 5000,
+			heartbeatIncoming: 4000,
+			heartbeatOutgoing: 4000,
+		});
+		stompClient.activate();
+
+		stompClient.onConnect = function (frame) {
+			stompClient.subscribe(`/queue/chat/${socketUiNum}`,async function (data) {
+				await load();
+			});			
+		};
+
+		function sendMessage(messageInfo) {
+			const publishInfo = {
+				destination: `/publication/chat/${messageInfo.targetUiNum}`,
+				body : JSON.stringify(messageInfo)
+			}
+			stompClient.publish(publishInfo);
+		}
+	</script>
+</head>

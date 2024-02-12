@@ -1,0 +1,17 @@
+@charset "EUC-KR";
+.nav-item .nav-link:has(div){
+	position:relative;
+}.nav-item .nav-link #chatAlertCnt{
+	display:none;
+	position: absolute;
+	text-align: center;
+	font-size: 15px;
+	line-height: 20px;
+	width: 22px;
+	height: 22px;
+	border-radius: 100%;
+	background-color: red;
+	color: white;
+	bottom:0;
+	right:0;
+}

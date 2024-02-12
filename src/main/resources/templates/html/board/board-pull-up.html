@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<style>
+	body {
+		    color: #333;
+		    background: #fafafa;
+		}
+		.form-control{
+			background-color: #FFF;
+		}
+		.contact-form {
+		    padding: 50px;
+		    margin: 30px 0;
+		}
+		.contact-form h3 {
+			font-size: 1.5em;
+			font-weight: 500;
+		    color: #000;
+		    margin: 0 0 15px;
+		}
+		.contact-form .form-control, .contact-form .btn {
+		    min-height: 38px;
+		    border-radius: 2px;
+		}
+		.contact-form .form-control:focus {
+		    border-color: #10AEDB;
+		}
+		.contact-form .btn-primary, .contact-form .btn-primary:active {
+		    color: #fff;
+		    font-size: 16px;
+		    background: #10AEDB !important;
+		    border: none;
+		}
+		.contact-form .btn-primary:hover {
+		    background: #15a487 !important; 
+		}
+		.contact-form .btn i {
+		    margin-right: 5px;
+		}
+		.contact-form label {
+		    opacity: 0.7;
+		}
+		.contact-form textarea {
+		    resize: vertical;
+		}
+		
+		#search-form{
+			display: inline-flex;
+			text-align: center;
+		}
+		
+		#search-form input[type=radio]{
+		    display: none;
+		}
+		
+		.form-check-label{
+			padding: 15%;
+			width: 150px;
+			border: 2px solid #aaaaaa;
+			border-radius: 2px;
+			font-size: 1.2em;
+			color: #000;
+			margin-right: 10px;
+		}
+		
+		.form-check-label:hover{
+		    color: #15a487;
+			border: 2px solid #15a487;
+		}
+</style>
+<!-- 헤더 -->
+<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+<body class="body-wrapper">
+	<!-- Top으로 가는 버튼 -->
+	<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+	
+	<!-- Header 및 Nav -->
+	<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+	
+	<section class="content-container">
+		
+		<section class="page-search"></section>
+		
+		<div class="container-lg">
+			    <div class="row">
+			        <div class="col-md-10 mx-auto">
+			            <div class="contact-form">
+			                <h3>끌어올리기 - <span id="biName"></span></h3>
+			                <p class="hint-text"><span id="uiName"></span>님, 끌어올리기 전에 가격을 낮춰보세요. 판매 확률이 올라간답니다.</p>
+			                <form>
+			                    <div class="row">
+			                        <div class="col-sm-8" id="search-form">
+			                            <div class="form-check">
+										  <label class="form-check-label" for="no-percent">
+										    <input class="form-check-input" name="check-stat" type="radio" id="no-percent" value="0">
+										    안 할래요
+										  </label>
+										</div>
+			                            <div class="form-check">
+										  <label class="form-check-label" for="five-percent">
+										    <input class="form-check-input" name="check-stat" type="radio" id="five-percent" value="5">
+										    -5%
+										  </label>
+										</div>
+			                            <div class="form-check">
+										  <label class="form-check-label" for="ten-percent">
+										    <input class="form-check-input" name="check-stat" type="radio" id="ten-percent" value="10">
+										    -10%
+										  </label>
+										</div>
+			                            <div class="form-check">
+										  <label class="form-check-label" for="fif-percent">
+										    <input class="form-check-input" name="check-stat" type="radio" id="fif-percent" value="15">
+										    -15%
+										  </label>
+										</div>
+			                        </div>    
+			                        <div class="col-sm-4">
+			                            <div class="form-group">
+			                                <div class="widget price text-center">
+												<p><span id="price"></span>원</p>
+											</div>
+			                            </div>
+			                        </div>
+			                    </div>
+			                    <button onclick="pullUp()" type="button" class="btn btn-primary"><i class="fa fa-plus-circle"></i> 끌올하기</button>
+			                </form>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+			<!-- 푸터 -->
+			<th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+		
+	</section>
+	<script>
+		const biNum = '[[${param.biNum}]]';
+		const uiNum = '[[${param.uiNum}]]';
+		let price;
+		let board;
+		
+		window.addEventListener('load', async function(){
+			res = await fetch(`/board-infos/${biNum}`);
+			board = await res.json();
+			console.log(board);
+			price = board.biPrice;
+			
+			document.querySelector('#price').innerText = priceToString(price);
+			
+			// 다른 키 값
+			for(let key in board){
+				if(document.querySelector('#' + key)){
+					document.querySelector('#' + key).innerText = board[key];
+				}
+			}
+		});
+		
+		document.querySelector('#search-form').addEventListener('change', function(event) {
+            getPrice();
+        });
+        
+        // 할인율을 적용한 가격 불러오기
+        function getPrice(){
+			const percent = document.querySelector('input[name="check-stat"]:checked').value;
+			const roundedPrice = Math.round((price - price * (percent / 100)) / 100) * 100; // 백의 자리까지 반올림
+			document.querySelector('#price').innerText = priceToString(roundedPrice);
+		}
+		
+		// 끌어올리기
+		async function pullUp(){
+			const formData = new FormData();
+			formData.append('biNum', biNum);
+			formData.append('biPrice', document.querySelector('#price').textContent);
+			
+			const response = await fetch(`/board-info-update-BoardInfoList/${biNum}`, {
+				method: 'PATCH',
+				body: formData
+			});
+			if (response.ok) {
+				alert(`끌어올리기 성공! ${board.biCount - 1}번 남았어요.`);
+				location.href = '/html/board/board-list';
+			}
+		}
+	</script>
+</body>
+</html>

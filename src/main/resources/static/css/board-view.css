@@ -1,0 +1,297 @@
+@charset "UTF-8";
+
+.body-container{
+	width: 70%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 22em;
+	height: 10vh;
+}
+
+.seller #board, #deal{
+	float: right;
+}
+
+.buyer #chatting, #likeIt{
+	float: right;
+}
+
+#chatting button, #board button, #deal button{
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+    color: #000;
+	font-size: 0.9rem;
+	padding: 7px 10px 7px;
+	width: 90px;
+	font-weight: 600;
+	margin-left: auto;
+	margin-right: 0.5em;
+	margin-top: 20px;
+	display: block;
+	border-radius: 0.4rem;
+	cursor: pointer;
+}
+
+#chatting button:hover, #board button:hover, 
+#deal button:hover, #modal-btn button:hover{
+	border: 2px solid #4C9ACC;
+    background-color: #4C9ACC;
+    color: #FFF;
+}
+
+#board button, #deal button{
+	display: inline;
+}
+
+#deal{
+	margin-right: 5px;
+}
+
+#likeIt button{
+	cursor: pointer;
+	border: none;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 25px;
+	margin-right: 20px;
+	background-color: #FFF;
+}
+
+#likeIt img{
+	width: 25px;
+	height: 25px;
+}
+
+#head{
+	color: #000;
+}
+
+#head h1{
+	font-size: 2em;
+	margin-bottom: 15px;
+}
+
+#price-field p{
+	font-size: 2em;
+	float: right;
+	margin-top : -20px;
+	margin-right: 20px;
+	font-weight: bold;
+} 
+
+#ago{
+	font-size: 1em;
+}
+
+#biStat{
+	font-size: 1em;
+	margin-left: 5px;
+}
+
+#info{
+	font-size: 0.8em;
+	color: #607274;
+}
+
+#profile{
+	margin-top: 1em;
+}
+
+#goProfile{
+	text-decoration: none;
+	color: #000;
+}
+
+#profile img{
+	width: 25px;
+	height: 25px;
+	vertical-align: middle;
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+#profile p{
+	vertical-align: middle;
+	margin-left: 3px;
+}
+
+hr{
+	margin-top: 22px;
+	background-color: #87C4EF;
+	border-top: 2px solid #87C4EF;
+}
+
+.board-form{
+	float: left;
+}
+
+#content{
+	width: 50%;
+	padding-right: 3.5%;
+}
+
+#content p{
+	display: block;
+	font-size: 0.95em;
+}
+
+#biName{
+	font-weight: 500;
+}
+
+#desc-field{
+	font-size: 0.9em;
+	border: 2px solid #87C4EF;
+    background-color: #E5F2FA;
+	padding: 15px 15px 15px;
+    border-radius: 0.4em;
+}
+
+#mapDiv{
+	width: 100%;
+	align-items: center;
+}
+
+#mapDiv p{
+	display: inline;
+}
+
+#map{
+	margin-top: 1em;
+	border: 2px solid #87C4EF;
+}
+
+p{
+	display: inline;
+}
+
+/* 슬라이더 스타일 */
+
+#file-images{
+    position: relative;
+    overflow: hidden;
+    bottom: 4rem;
+	width: 46%;
+}
+
+#file-slider {
+	display: flex;
+    transition: transform 0.5s ease-in-out;
+    margin-top: 5rem;
+}
+
+.file-slide {
+	flex: 0 0 100%;
+}
+
+.file-slide img{
+	height: 500px;
+	width: 500px;
+	object-fit: cover;
+}
+
+/* 버튼 스타일링 */
+.prev-button,
+.next-button {
+    position: absolute;
+    top: 60%;
+    transform: translateY(-50%);
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    padding: 10px 20px;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+}
+
+.prev-button {
+    left: 5px;
+}
+
+.next-button {
+    right: 5px;
+}
+
+.prev-button:hover,
+.next-button:hover {
+    background-color: #E5F2FA;
+}
+
+/* 채팅 선택 모달창 */
+
+.modal{
+	position:absolute;
+    display:none;
+    justify-content: center;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color: rgba(0,0,0,0.4);
+	z-index: 9;
+}
+
+.chat-modal{
+	position:absolute;
+    top:50%;
+    width:400px;
+    height:300px; 
+    padding:40px;  
+    text-align: center;
+    background-color: #E5F2FA;
+	border: 2px solid #87C4EF;
+    border-radius:10px;
+    box-shadow:0 2px 3px 0 rgba(34,36,38,0.15);
+    transform:translateY(-50%);
+}
+
+.chat-modal #modal-desc{
+	font-size: 1.2em;
+	margin-top: 2em;
+}
+
+#chatRoomBody{
+	margin-top: 2em;
+}
+
+#modal-btn{
+	position: absolute;
+	bottom: 4em;
+	left: 10%;
+	right: 10%;
+}
+
+.chat-modal #cancel-btn{
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+    color: #000;
+	font-size: 14px;
+	padding: 7px;
+	width: 60px;
+	font-weight: bold;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 20px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.chat-modal #endSell-btn{
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+    color: #000;
+	font-size: 14px;
+	padding: 7px;
+	width: 160px;
+	font-weight: bold;
+	margin-left: 0.5em;
+	margin-right: auto;
+	margin-top: 20px;
+	border-radius: 5px;
+	cursor: pointer;
+}

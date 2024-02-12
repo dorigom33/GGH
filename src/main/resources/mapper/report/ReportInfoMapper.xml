@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.secu.team2.report.mapper.ReportInfoMapper">
+	<select id="getReportInfo" resultType="com.secu.team2.report.vo.ReportUserInfoVO">
+		SELECT RUI_NUM, COMPL_UI_NUM, TARGET_UI_NUM, RUI_DESC, RUI_STAT,
+		DATE_FORMAT(CREDAT, '%Y-%m-%d') CREDAT, TIME_FORMAT(CRETIM, '%H:%i:%S') CRETIM
+		FROM REPORT_USER_INFO
+	</select>
+	
+	<insert id="insertReportInfo">
+		INSERT INTO REPORT_USER_INFO (
+		COMPL_UI_NUM, TARGET_UI_NUM, RUI_DESC)
+		VALUES(#{complUiNum}, #{targetUiNum}, #{ruiDesc})
+	</insert>
+	
+	<update id="updateReportInfoStatus">
+		UPDATE REPORT_USER_INFO
+		SET RUI_STAT = #{ruiStat}
+		WHERE RUI_NUM = #{ruiNum};
+	</update>
+</mapper>

@@ -1,0 +1,12 @@
+#tdTable{
+	margin-left: 15%
+}
+
+#deleteBtn,#testBtn,#endBtn,#resetBtn{
+    margin-bottom: 5%;
+    width: 30%;
+    border: none;
+    background-color: white;
+}
+
+

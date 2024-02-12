@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+<title>지중해</title>
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/css/common.css">
+<div th:replace="html/fragment/header.html :: header-head"></div>
+<script src="/js/data-processing.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/animejs"></script>
+</head>
+<body>
+	<div th:replace="html/fragment/header.html :: header-container"></div>
+	<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+	<div class="banner-container">
+		<div id="banner-img" class="dir-alternate">
+			<img src="/imgs/banner/ocean2.jpg" alt="Banner Image">
+		</div>
+		<div id="alert-container"></div>
+	</div>
+	<div class="body-container">
+		<h3 id="board-main-title">현재 인기 상품</h3>
+		<form id="search-form">
+			<input type="radio" id="all" name="check-stat" value="전체"><label for="all">전체</label>
+			<input type="radio" id="sale" name="check-stat" value="판매중"><label for="sale">판매중</label>
+			<input type="radio" id="soldOut" name="check-stat" value="판매완료"><label for="soldOut">판매완료</label>
+		</form>
+		<div id="board-list"></div>
+	</div>
+	<script>
+		//배너 사진 나오는 함수
+		const bannerImages = [
+    '/imgs/banner/ocean2.jpg',
+    '/imgs/banner/ocean1.jpg',
+    '/imgs/banner/ocean3.jpg',
+    '/imgs/banner/ocean4.jpg',
+    '/imgs/banner/ocean5.jpg'
+];
+
+let currentImageIndex = 0;
+const bannerImageElement = document.querySelector('#banner-img img');
+
+function changeBannerImage() {
+    currentImageIndex = (currentImageIndex + 1) % bannerImages.length;
+    anime({
+        targets: bannerImageElement,
+        opacity: 0,
+        duration: 1000,
+        easing: 'linear',
+        complete: function() {
+            bannerImageElement.src = bannerImages[currentImageIndex];
+            anime({
+                targets: bannerImageElement,
+                opacity: 1,
+                duration: 1000,
+                easing: 'linear'
+            });
+        }
+    });
+}
+
+        // 일정 간격으로 배너 이미지 변경 (예: 3초마다)
+        setInterval(changeBannerImage, 3000);
+		const getBoards = async function(evt){
+			let url = '/board-infos-hot';
+			if(document.querySelector('input[name="check-stat"]:checked')){
+				url += `?biStat=${document.querySelector('input[name="check-stat"]:checked').value}`;
+			}
+			const res = await fetch(url);
+			const json = await res.json();
+			console.log(json);
+			document.querySelector('#board-list').innerHTML = ''; // 내용 지우기
+			let boardHtml = '';
+			for(let i=0; i<json.length; i++){
+				const board = json[i];
+				const boardFile = board.files[0];
+				const price = Number(board.biPrice);
+				boardHtml = 
+				`<div class="board">
+					<div id="img${i+1}">
+						<a href="/html/board/board-view?biNum=${board.biNum}&uiNum=${board.uiNum}">
+							<img src="${boardFile.fiPath}" alt="${boardFile.fiName}">
+						</a>
+					</div>
+					<div id="board-title"><a href="/html/board/board-view?biNum=${board.biNum}&uiNum=${board.uiNum}">${board.biTitle}</a></div>
+					<div id="board-stat">${board.biStat}</div>
+					<div id="board-addr">${findDong(board.biAddr)}</div>
+					<div id="board-price">${priceToString(price)}원</div>
+					<div id="board-ago">${calculateTime(board.lmodat, board.lmotim)}</div>
+				</div>`
+				document.querySelector('#board-list').insertAdjacentHTML('beforeend', boardHtml);
+			}
+		}
+		window.addEventListener('load', getBoards);
+		
+		// 라디오 버튼 선택 시마다 결과 호출
+		document.querySelector('#search-form').addEventListener('change', function(event){
+			getBoards();
+		});
+		
+		// 스크롤 이벤트 리스너
+		window.addEventListener('scroll', () => {
+			// 스크롤 위치가 100px 이상일 때 위로 가기 버튼을 보이게 함
+			if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+				document.getElementById('btn-back-to-top').style.display = 'block';
+			} else {
+				document.getElementById('btn-back-to-top').style.display = 'none';
+			}
+		});
+	</script>
+</body>
+
+</html>

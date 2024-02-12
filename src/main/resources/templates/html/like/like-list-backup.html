@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+<title>지중해</title>
+<link rel="stylesheet" href="/css/like-list.css">
+<script src="/js/data-processing.js"></script>
+</head>
+<body>
+	<div class="body-container">
+		<h1 id="title">내 관심 목록 </h1>
+		<form id="search-form">
+			<input type="radio" id="all" name="check-stat" value="전체"><label for="all">전체</label>
+			<input type="radio" id="sale" name="check-stat" value="판매중"><label for="sale">판매중</label>
+			<input type="radio" id="soldOut" name="check-stat" value="판매완료"><label for="soldOut">판매완료</label>
+		</form>
+		<div class="result-container">
+			<div id="board-list"></div>
+			<div id="null-message"></div>
+			<div id="pageDiv">
+				<ul class="pagination"></ul>
+			</div>
+		</div>
+	</div>
+	<script>
+		let total = 0;
+		let pageSize = 12; // 한번에 12개씩 보여줌
+		const blockSize = 10; // 페이지 블록 크기는 10
+		const getBoards = async function(evt, page){
+			// 현재 페이지가 undefined면 맨 처음 페이지로
+			if(!page){
+				page = 1;
+			}
+			let url = `/like-infos?page=${page}&pageSize=${pageSize}`;
+			const selectedStatus = document.querySelector('input[name="check-stat"]:checked');
+            const statusQueryParam = selectedStatus ? selectedStatus.value : '전체';  
+            if (statusQueryParam) {
+                url += `&biStat=${statusQueryParam}`;
+            }
+			const res = await fetch(url);
+			const json = await res.json();
+			console.log(json);
+			if(json.list.length === 0){
+				document.querySelector('#null-message').innerHTML = '<p id="nullMsg">등록된 관심상품이 없어요.</p>';
+			}
+			const totalCnt = json.totalCnt; // 전체 게시물 개수
+			const pageBlock = Math.ceil(totalCnt/pageSize); // 페이지 블록의 개수 (몇 페이지까지 있는지)
+			const startBlock = (Math.ceil(page/blockSize)-1)*blockSize+1;
+			let endBlock = startBlock + blockSize - 1;
+			let pageHtml = '';
+			if(endBlock > pageBlock){
+				endBlock = pageBlock
+			}
+			if(startBlock != 1){
+				pageHtml += `<li><a href="javascript:void(0)" class="page" onclick="getBoards(event, ${startBlock-1})">◀</a></li>`;
+			}
+			for(let i=startBlock; i<=endBlock; i++){ // 10개 만들어짐
+				pageHtml += `<li><a href="javascript:void(0)" class="page" onclick="getBoards(event, ${i})"><p> ${i} </p></a></li>`;
+			}
+			if(endBlock<pageBlock){
+				pageHtml += `<li><a href="javascript:void(0)" class="page" onclick="getBoards(event, ${endBlock+1})">▶</a></li>`;
+			}
+			document.querySelector('.pagination').innerHTML = pageHtml;
+			document.querySelector('#board-list').innerHTML = ''; // 내용 지우기
+			document.querySelector('#null-message').innerHTML = '';
+			let tableHtml = '';
+			let biAddr = '';
+			if(json.list.length === 0){
+				boardHtml = `<p id="nullMsg">관심 목록 중에 ${document.querySelector('input[name="check-stat"]:checked').value}인 상품이 없어요.</p>`;
+				document.querySelector('#null-message').innerHTML = boardHtml;
+			}else{
+				for(let i=0; i<json.list.length; i++){
+				const like = json.list[i];
+				const likeFile = like.files[0];
+				const price = Number(like.biPrice);
+				boardHtml = 
+				`<div class="board">
+					<div id="img${i+1}">
+						<a href="/html/board/board-view?biNum=${like.biNum}&uiNum=${like.uiNum}">
+							<img src="${likeFile.fiPath}" alt="${likeFile.fiName}">
+						</a>
+					</div>
+					<div id="board-title"><a href="/html/board/board-view?biNum=${like.biNum}&uiNum=${like.uiNum}">${like.biTitle}</a></div>
+					<div id="board-addr">${findDong(like.biAddr)}</div>
+					<div id="board-price">${priceToString(price)}원</div>
+					<div id="board-stat">${like.biStat}</div>
+				</div>`;
+				document.querySelector('#board-list').insertAdjacentHTML('beforeend',boardHtml);
+			}
+			
+			}
+		}
+		window.addEventListener('load', getBoards); // 로딩 시 호출
+		
+		// 라디오 버튼 선택 시마다 결과 호출
+		document.querySelector('#search-form').addEventListener('change', function(event){
+			getBoards();
+		});
+	</script>
+</body>
+</html>

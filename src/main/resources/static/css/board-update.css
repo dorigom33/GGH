@@ -1,0 +1,286 @@
+@charset "UTF-8";
+
+body, html{
+	padding-bottom: 0 !important;
+}
+
+.body-container{
+	width: 80%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 530px;
+	height: 1000px;
+}
+
+.body-container h1{
+	font-size: 1.5rem;
+	font-weight: 500;
+	color: #000;
+	display: block;
+  	margin-bottom: 2em;
+}
+
+#form1{
+	float: left;
+	width: 30%;
+}
+
+#form1 input{
+	padding: 7px;
+	
+}
+
+#form2{
+	margin-top: -40px;
+	float: right;
+	width: 70%;
+}
+
+.form-label{
+	font-size: 0.9rem;
+	color: #0A60AF;
+	font-weight: 500;
+}
+
+.text-field{
+	margin-top: 6px;
+	padding: 5px;
+	border: none;
+	width: 80%;
+	margin-bottom: 1em;
+	border-radius: 0.4em;
+	font-size: 0.8rem;
+	border: 2px solid #DDE6ED;
+}
+
+textarea::placeholder{
+	font-size: 0.8rem;
+	padding: 3px;
+	font-family: 'Noto Sans KR', sans-serif;
+}
+
+textarea{
+	font-family: 'Noto Sans KR', sans-serif;
+  	resize: none;
+  	height: 10em;
+}
+
+#biPrice{
+	width: 30%;
+	text-align: right;
+}
+
+#update-button{
+	position: absolute;
+	right: 0;
+	bottom: 50px;
+}
+
+/* type number 오른쪽에 위아래 화살표 없애주는 거 */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#keyword{
+	width: 200px;
+}
+
+#keyword-btn{
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+    color: #000;
+	padding: 4.5px 10px 4.5px;
+	width: 60px;
+	font-size: 0.9rem;
+	font-weight: bold;
+	border-radius: 0.4em;
+	cursor: pointer;
+}
+
+#keyword-btn:hover{
+	border: 2px solid #4C9ACC;
+    background-color: #4C9ACC;
+    color: #FFF;	
+}
+
+#map-desc{
+	color: #000;
+	display: inline;
+	margin-left: 1em;
+	font-size: 0.9rem;
+}
+
+#map-addr{
+	font-weight: bold;
+	color: #0A60AF;
+}
+
+.map_wrap{
+	margin-bottom: 0.7em;
+	border: 2px solid #DDE6ED;
+}
+
+#biLoca{
+	width: 50%;
+	margin-top: 5px;
+}
+
+.file-container{
+	width: 100%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 110px;
+	bottom: 0;
+}
+
+#file-desc{
+	margin-top: 0.4em;
+}
+
+.file-container #file-add-btn{
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+	padding: 7px 10px 7px;
+	text-align: center;
+	width: 100px;
+	color: #000;
+	font-size: 0.9rem;
+	font-weight: bold;
+	border-radius: 0.4em;
+	cursor: pointer;
+	margin-top: -0.5em;
+	float: right;
+}
+
+.file-container #file-add-btn:hover{
+	border: 2px solid #4C9ACC;
+    background-color: #4C9ACC;
+    color: #FFF;
+}
+
+.file-container li{
+	float: left;
+	background-color: #FFF;
+}
+
+.files{
+	border: 2px solid #DDE6ED;
+	background-color: #FFF;
+	padding: 1%;
+	height: 14.5em;
+	width: 97.5%;
+	list-style: none;
+	border-radius: 0.4em;
+}
+
+.ui-state-default{
+	width: 170px;
+	text-align: center;
+}
+
+.sort{
+	float: left;
+	padding: 3%;
+	width: 15px;
+	height: 15px;
+	color: #0A60AF;
+	border-radius: 100%;
+	margin-left: 0.3em;
+	font-weight: bold;
+}
+
+.find-btn{
+	float: right;
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+    color: #000;
+	cursor: pointer;
+	text-align: center;
+	width: 65px;
+	padding: 3%;
+	border-radius: 0.4em;
+	margin-bottom: 0.5em;
+	margin-right: 0.3em;
+	font-size: 0.9rem;
+	font-weight: 500;
+}
+
+.find-btn:hover{
+	border: 2px solid #4C9ACC;
+    background-color: #4C9ACC;
+    color: #FFF;
+}
+
+.ui-state-default img{
+	position: relative;
+	width: 160px;
+	height: 160px;
+	object-fit: cover;
+}
+
+
+.del-btn{
+	text-align: center;
+	align-items: center;
+	width: 44px;
+	height: 35px;
+	border: none;
+	background: none;
+}
+
+.del-btn img{
+	width: 25px;
+	height: 25px;
+	cursor: pointer;
+}
+
+p{
+	color: #000;
+	font-size: 0.9rem;
+	margin-bottom: 0.2em;
+}
+
+#update-button{
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+    color: #000;
+	padding: 7px 10px 7px;
+	text-align: center;
+	width: 120px;
+	font-size: 0.9em;
+	font-weight: bold;
+  	float: right;
+	border-radius: 0.6em;
+	cursor: pointer;
+	margin-top: 330px;
+}
+
+#update-button:hover{
+	border: 2px solid #4C9ACC;
+    background-color: #4C9ACC;
+    color: #FFF;
+}
+
+label.form-label.required-label::after,
+p.required-label::after{
+    content: ' *';
+    color: red;
+}
+
+.required-text::before {
+    content: '* ';
+    color: red;
+    display: inline-block;
+    margin-right: 3px; 
+}
+
+.required-text {
+    font-size: 0.8rem;
+    right: 1em;
+    top: 1em;
+    position: absolute;
+}

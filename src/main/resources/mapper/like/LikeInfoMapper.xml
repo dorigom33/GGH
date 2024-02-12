@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.secu.team2.like.mapper.LikeInfoMapper">
+	<!-- 관심 누르면 -->
+	<insert id="insertLikeInfo">
+		INSERT INTO LIKE_INFO(UI_NUM, BI_NUM)
+		VALUES(#{uiNum}, #{biNum}) ON DUPLICATE KEY UPDATE 
+		CREDAT=DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d'),
+		CRETIM=DATE_FORMAT(CURRENT_TIMESTAMP(), '%H%i%s')
+	</insert>
+
+	<!-- 관심 취소하면 -->
+	<delete id="deleteLikeInfo">
+		DELETE FROM LIKE_INFO
+		WHERE UI_NUM=#{uiNum} AND BI_NUM=#{biNum}
+	</delete>
+
+	<!-- 관심 목록 리스트 -->
+	<select id="selectLikeInfos">
+		SELECT LI.LI_NUM, LI.UI_NUM, LI.BI_NUM, LI.CREDAT, LI.CRETIM,
+		BI.BI_TITLE, BI.BI_PRICE, BI.BI_ADDR, BI.BI_STAT, UI.UI_NAME, UI.UI_DESC
+		FROM LIKE_INFO LI
+		INNER JOIN BOARD_INFO BI ON LI.BI_NUM = BI.BI_NUM
+		INNER JOIN USER_INFO UI ON LI.UI_NUM = UI.UI_NUM
+		<where>
+			LI.UI_NUM=#{uiNum}
+			<if test='biStat != null and biStat != "전체"'>
+				AND BI_STAT=#{biStat}
+			</if>
+		</where>
+		ORDER BY BI.BI_SORT DESC
+		<if test='end != 0'>
+			LIMIT #{start}, #{end}
+		</if>
+	</select>
+
+	<!-- 관심 목록 게시물 개수 -->
+	<select id="selectLikeInfoCnt" resultType="int">
+		SELECT COUNT(*) FROM LIKE_INFO LI
+		INNER JOIN BOARD_INFO BI
+		ON LI.BI_NUM=BI.BI_NUM
+		<where>
+			LI.UI_NUM=#{uiNum}
+			<if test='biStat != null and biStat != "전체"'>
+				AND BI_STAT=#{biStat}
+			</if>
+		</where>
+	</select>
+
+	<!-- 게시글이 관심 목록에 있는지 있는지 확인 -->
+	<select id="selectLikeInfoByBiNum">
+		SELECT COUNT(*) FROM LIKE_INFO
+		WHERE UI_NUM=#{uiNum}
+		AND BI_NUM=#{biNum};
+	</select>
+
+	<!-- 해당 게시물의 관심 목록 개수 -->
+	<select id="selectLikeInfoCntByBiNum" resultType="int">
+		SELECT COUNT(*)
+		FROM LIKE_INFO WHERE BI_NUM=#{biNum};
+	</select>
+</mapper>

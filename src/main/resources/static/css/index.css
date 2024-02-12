@@ -1,0 +1,158 @@
+@charset "UTF-8";
+
+.banner-container{
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	display: grid;
+	top: 0;
+	width: 100%;
+	margin: 0 auto;
+}
+
+#banner-img{
+	image-rendering:-webkit-optimize-contrast;
+  	transform:translateZ(0);
+  	backface-visibility:hidden;	
+}
+
+#banner-img img{
+	width: 100%;
+	top: 0;
+	height: 25em;
+	object-fit: cover;
+}
+
+.body-container{
+	width: 80%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 30em;
+	height: 60vh;
+}
+
+a{
+	text-decoration: none;
+	color: black;
+}
+
+#alert-container{
+	position: absolute;
+	top:100px;
+	left:0;
+}
+
+#alert-container div{
+	background-color: #FFF;
+	border-radius: 8px;
+	padding:6px 12px;
+	margin: 10px 14px;
+	text-align: center;
+}
+
+h3#board-main-title{
+	font-size: 1.7rem;
+	font-weight: 500;
+	color: #000;
+  	margin-top: 17em;
+	text-align: center;
+}
+
+#board-list{
+	margin-top: 3em;
+	display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 반응형 그리드 설정 */
+    grid-gap: 20px; /* 간격조정 */
+}
+
+.board{
+	height: 380px;
+	width: 280px;
+	padding: 5px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.board img{
+	height: 280px;
+	width: 280px;
+	object-fit: cover;
+	filter: brightness(1);
+	border-radius: 3%;
+}
+
+.board img:hover{
+	filter: brightness(0.7);
+	-webkit-transform: scale(1.01);
+  	transform: scale(1.01);
+}
+
+div#board-title a{
+	text-decoration-line: none;	
+	color: #000;
+	font-weight: bold;
+	font-size: 1rem;
+	margin-top: 5px;
+}
+
+div#board-stat{
+	float: right;
+	margin-top: 2.2em;
+	padding: 2%;
+	width: 4em;
+	text-align: center;
+	background-color: #0A60AF;
+	color: #FFF;
+	border-radius: 6px;
+}
+
+div#board-addr{
+	color: #000;
+	font-size: 0.8rem;
+	margin-top: 5px;
+}
+
+div#board-price{
+	color: #0A60AF;
+	font-weight: bold;
+	font-size: 1rem;
+	margin-top: 5px;
+}
+
+div #board-ago{
+	margin-top: 5px;
+	font-size: 0.7rem;
+}
+
+/* 판매중, 판매완료 라디오 버튼 */
+
+#search-form {
+    margin-top: -1em;
+    position: absolute;
+    right: 0;
+}
+#search-form input[type=radio]{
+    display: none;
+}
+#search-form input[type=radio]+label{
+    display: inline;
+    cursor: pointer;
+    line-height: 24px;
+    text-align: center;
+    font-size: 1em;
+    font-weight: 500;
+    margin-right: 22px;
+	position: relative;
+}
+
+#search-form input[type=radio]+label{
+    color: #222;
+}
+#search-form input[type=radio]:checked+label{
+    color: #0A60AF;
+}
+
+#search-form input[type=radio]+label:hover{
+    color: #0A60AF;
+}

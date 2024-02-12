@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.secu.team2.order.mapper.OrderInfoMapper">
+	<resultMap id="orderInfoResultMap"
+		type="com.secu.team2.order.vo.OrderInfoVO">
+		<result property="diNum" column="DI_NUM" />
+		<result property="biName" column="BI_NAME" />
+		<result property="oiPrice" column="OI_PRICE" />
+		<result property="credat" column="CREDAT" />
+		<result property="cretim" column="CRETIM" />
+	</resultMap>
+
+	<!-- 판매자 번호로 주문정보 조회 -->
+	<select id="selectOrderInfoBySellerUiNum"
+		resultMap="orderInfoResultMap">
+		SELECT
+		DI.DI_NUM,
+		BI.BI_NAME,
+		OI.OI_PRICE,
+		DI.CREDAT,
+		DI.CRETIM
+		FROM ORDER_INFO OI
+		JOIN DEAL_INFO DI ON OI.DI_NUM = DI.DI_NUM
+		JOIN BOARD_INFO BI ON DI.BI_NUM = BI.BI_NUM
+		WHERE DI.SELLER_UI_NUM = #{sellerUiNum}
+	</select>
+
+	<!-- 구매자 번호로 주문정보 조회 -->
+	<select id="selectOrderInfoByBuyerUiNum"
+		resultMap="orderInfoResultMap">
+		SELECT
+		DI.DI_NUM,
+		BI.BI_NAME,
+		OI.OI_PRICE,
+		DI.CREDAT,
+		DI.CRETIM
+		FROM ORDER_INFO OI
+		JOIN DEAL_INFO DI ON OI.DI_NUM = DI.DI_NUM
+		JOIN BOARD_INFO BI ON DI.BI_NUM = BI.BI_NUM
+		WHERE DI.BUYER_UI_NUM = #{buyerUiNum}
+	</select>
+
+	<!-- 거래번호, 주문전호, 판매자 번호 조회 -->
+	<select id="selectSellerUiNumByDiNum"
+		resultType="com.secu.team2.order.vo.OrderInfoVO">
+		SELECT OI.OI_NUM, DI.DI_NUM, DI.SELLER_UI_NUM
+		FROM ORDER_INFO OI
+		JOIN DEAL_INFO DI ON OI.DI_NUM = DI.DI_NUM
+		WHERE DI.DI_NUM = #{diNum}
+	</select>
+
+	<!-- 거래번호, 주문번호, 구매자 번호 조회 -->
+	<select id="selectBuyerUiNumByDiNum"
+		resultType="com.secu.team2.order.vo.OrderInfoVO">
+		SELECT OI.OI_NUM, DI.DI_NUM, DI.BUYER_UI_NUM
+		FROM ORDER_INFO OI
+		JOIN DEAL_INFO DI ON OI.DI_NUM = DI.DI_NUM
+		WHERE DI.DI_NUM = #{diNum}
+	</select>
+
+	<!-- 주문정보 입력 -->
+	<insert id="insertOrderInfo">
+		INSERT INTO ORDER_INFO (DI_NUM, OI_PRICE)
+		VALUES
+		(#{diNum}, #{oiPrice});
+	</insert>
+
+	<!-- 구매한 가격 입력 -->
+	<update id="updateOrderInfo">
+		UPDATE ORDER_INFO
+		SET OI_PRICE = #{oiPrice}
+		WHERE DI_NUM = #{diNum};
+	</update>
+</mapper>

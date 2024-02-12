@@ -1,0 +1,77 @@
+@charset "UTF-8";
+
+
+.login-container{
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 50em;
+	padding: 50px 50px 50px;
+	background-color: #E5F6FE;
+	border: 2px solid #87C4EF;
+	border-radius: 0.8rem;
+	position: fixed
+}
+
+h1#login-title{
+	font-size: 1.5rem;
+	color: #000;
+	display: block;
+  	text-align: center;
+  	margin-bottom: 30px;
+}
+
+form#login-form{
+	width: 200px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 30px;
+    padding: 20px;
+    border: none;
+    text-align: center;
+    
+}
+
+.text-field{
+	font-size: 0.9rem;
+	padding: 10px;
+	border: none;
+	width: 219px;
+	margin-bottom: 10px;
+	border-radius: 0.5rem;
+	background-color: #FFF;
+}
+
+#errMsg{
+    margin-right: auto;
+    margin-left: auto;
+	text-align: center;
+	width: 100%;
+  	color: #FC2947;
+	font-size: 0.8rem;
+}
+
+button#login-btn{
+	font-size: 1rem;
+	font-weight: bold;
+	border: none;
+	padding: 10px;
+	width: 240px;
+	background-color: #0A60AF;
+	color: white;
+	border-radius: 0.5rem;
+	cursor: pointer;
+}
+
+p#recommand-join{
+    text-align: center;
+	margin-bottom: 25px;
+	font-size: 0.9rem;
+}
+
+a#join-link{
+	color: #0A60AF;
+	text-decoration-line: none;
+	font-weight: bold;
+}
+

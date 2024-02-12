@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head th:fragment="header-head">
+	<link rel="stylesheet" href="/css/header.css">
+	<script src="https://cdn.jsdelivr.net/npm/animejs"></script>
+	<script>
+		let checkChatInfo;
+		let checkDealInfo;
+		window.addEventListener('load', async function(){
+			const checkChatInfoRes = await fetch('/count-new-message-chat-room');
+			checkChatInfo = await checkChatInfoRes.json();
+			const checkDealInfoRes = await fetch('/count-deal-info-by-di-stat');
+			checkDealInfo = await checkDealInfoRes.json();
+			if(checkChatInfo > 0 || checkDealInfo > 0){
+				document.querySelector('#sumAlert').style.display = 'block';
+			}
+			if(document.querySelector('#alertCnt') != undefined){
+				if(checkChatInfo+checkDealInfo<100){
+					document.querySelector('#alertCnt').innerHTML = checkChatInfo+checkDealInfo;
+				}else{
+					document.querySelector('#alertCnt').innerHTML = '99';
+				}
+			}
+		})
+		function showAlert(){
+			const newDeal = document.querySelector('#newDeal');
+			const newChat = document.querySelector('#newChat');
+			if(newDeal != undefined || newChat != undefined){
+				if(newDeal != undefined){
+					newDeal.remove();
+				}
+				if(newChat != undefined){
+					newChat.remove();
+				}
+				return;
+			}
+			if(checkDealInfo > 0){
+				const creNewDeal = document.createElement('div');
+				creNewDeal.setAttribute('id', 'newDeal');
+				creNewDeal.innerHTML = `<a href='/html/deal/deal'>(${checkDealInfo}) 남기지 않은 후기가 있습니다 ></a>`;
+				document.body.appendChild(creNewDeal);
+			}
+			if(checkChatInfo > 0){
+				const creNewChat = document.createElement('div');
+				creNewChat.setAttribute('id', 'newChat');
+				creNewChat.innerHTML = `<a href='/html/chat/chatRoomList'>(${checkChatInfo}) 새로운 채팅이 있습니다 ></a>`;
+				document.body.appendChild(creNewChat);
+				if(document.querySelector('#newDeal') != undefined){
+					document.querySelector('#newChat').style = "top: 115px;";
+				}
+			}
+		}
+	</script>
+</head>
+<div class="header-container" th:fragment="header-container">
+	<div class="header">
+		<div id="logo">
+		</div>
+			<img src="/imgs/logo.png" id="blue-logo" onclick="location.href='/'">
+
+		<!-- 로그인 상태 확인 -->
+<div sec:authorize="isAuthenticated()">
+    <a href="/logout" id="login-and-logout">로그아웃</a>
+    <a href="/html/myPage">마이페이지</a>
+    <a href="/html/chat/chatRoomList">채팅방</a>
+    <a href="/html/board/board-add">판매하기</a>
+    <a href="/html/board/board-list">상품 검색</a>
+    <div id="sumAlert" onclick="showAlert()"><img src="/imgs/alert.png"><div id="alertCnt"></div></div>
+
+    <!-- ROLE_ADMIN 권한을 가진 사용자만 보임 -->
+    <div sec:authorize="hasRole('ADMIN')">
+        <a href="/html/admin/manager">관리자페이지</a>
+    </div>
+</div>
+<!-- 로그인 안한 사용자-->
+<div sec:authorize="isAnonymous()">
+    <a href="/html/login" id="login-and-logout">로그인</a>
+    <a href="/html/board/board-list">상품 검색</a>
+</div>
+
+	</div>
+</div>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+<title>지중해</title>
+</head>
+<body>
+	<h3>최근 방문한 게시물</h3>
+	<table border="1">
+		<tr>
+			<th>제목</th>
+			<th>지역</th>
+			<th>상태</th>
+		</tr>
+		<tBody id="tBody"></tBody>
+	</table>
+	<script>
+		window.addEventListener('load', async function(){
+			const res = await fetch('/viewed-infos');
+			console.log(res);
+			const json = await res.json();
+			let tableHtml = '';
+			let biAddr = '';
+			for(const viewed of json){
+				tableHtml += `<tr>`;
+				tableHtml += `<td><a href="/html/board/board-view?biNum=${viewed.biNum}">${viewed.biTitle}</a></td>`;
+				biAddr = `${viewed.biAddr}`;
+				let index = `${viewed.biAddr}`.indexOf('동 '); // '동'이 처음으로 나오는 위치를 찾음
+				if(index !== -1){
+					biAddr = biAddr.substring(0, index + 1);
+				}
+				tableHtml += `<td>${biAddr}</td>`;
+				tableHtml += `<td>${viewed.biStat}</td>`;
+				tableHtml += `</tr>`;
+			}
+			document.querySelector('#tBody').innerHTML = tableHtml;
+		});
+	</script>
+</body>
+</html>

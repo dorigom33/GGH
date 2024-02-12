@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8"><!--구매자가 판매자에 대한 평가!-->
+	<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+	<title>지중해</title>
+	<link rel="stylesheet" href="/css/mypage.css">
+	<link rel="stylesheet" href="/css/rank-add.css">
+
+	
+</head>
+
+<body>
+
+	<div class="body-container">
+		<div id="excuese">
+			<div id="userName"></div><br>
+		</div>
+    <fieldset class="rate">
+        <input type="radio" id="riRank5" name="rating" value="5"><label for="riRank5" title="5점"></label>
+        <input type="radio" id="riRank4" name="rating" value="4"><label for="riRank4" title="4점"></label>
+        <input type="radio" id="riRank3" name="rating" value="3"><label for="riRank3" title="3점"></label>
+        <input type="radio" id="riRank2" name="rating" value="2"><label for="riRank2" title="2점"></label>
+        <input type="radio" id="riRank1" name="rating" value="1"><label for="riRank1" title="1점"></label>
+    </fieldset><br>
+    <br>
+    
+     <img src="/imgs/bad.png" id="image1">
+	<img src="/imgs/normal.png" id="image2">
+	<img src="/imgs/good.png" id="image3">
+
+	<div class="select-field">
+		<select id="select1" style="display: none;">
+		    <option value="상품 가치없는 물건을 팔아요." selected>상품 가치없는 물건을 팔아요.</option>
+		    <option value="시간약속을 안 지켜요.">시간약속을 안 지켜요.</option>
+		    <option value="상품 상태가 설명과 달라요.">상품 상태가 설명과 달라요.</option>
+		    <option value="불친절해요.">불친절해요.</option>
+		    <option value="상품 설명에 중요한 정보가 누락됐어요.">상품 설명에 중요한 정보가 누락됐어요.</option>
+		</select>
+		
+		<select id="select2" style="display: none;">
+		    <option value="무료로 나눠주셨어요." selected>무료로 나눠주셨어요.</option>
+		    <option value="상품 상태가 설명한 것과 같아요.">상품 상태가 설명한 것과 같아요.</option>
+		    <option value="상품설명이 자세해요.">상품설명이 자세해요.</option>
+		    <option value="좋은 상품을 저렴하게 판매해요.">좋은 상품을 저렴하게 판매해요.</option>
+		</select>
+		
+		<select id="select3" style="display: none;">
+		    <option value="제가 있는 곳까지 와서 거래했어요." selected>제가 있는 곳까지 와서 거래했어요.</option>
+		    <option value="친절하고 매너가 좋아요.">친절하고 매너가 좋아요.</option>
+		    <option value="시간 약속을 잘 지켜요.">시간 약속을 잘 지켜요.</option>
+		    <option value="응답이 빨라요.">응답이 빨라요.</option>
+		</select><br><br><br>
+	</div>
+
+    <button type="button" id="rank-btn" onclick="addStar()">별점 남기기</button>
+    </div>
+
+    <script>
+		document.querySelectorAll('select').forEach(select => {
+    select.addEventListener('change', function() {
+        selectedOption = this.value; // 옵션 선택 시 selectedOption에 해당 값을 할당
+    });
+});
+
+document.querySelector('#image1').addEventListener('click', function() {
+    hideAllSelects();
+    document.querySelector('#select1').style.display = 'block';
+    document.querySelector('#select2').style.display = 'none';
+    document.querySelector('#select3').style.display = 'none';
+    selectedOption = null; // 이미지를 클릭할 때 selectedOption을 초기화
+});
+
+document.querySelector('#image2').addEventListener('click', function() {
+    hideAllSelects();
+    document.querySelector('#select1').style.display = 'none';
+    document.querySelector('#select2').style.display = 'block';
+    document.querySelector('#select3').style.display = 'none';
+    selectedOption = null; // 이미지를 클릭할 때 selectedOption을 초기화
+});
+
+document.querySelector('#image3').addEventListener('click', function() {
+    hideAllSelects();
+    document.querySelector('#select1').style.display = 'none';
+    document.querySelector('#select2').style.display = 'none';
+    document.querySelector('#select3').style.display = 'block';
+    selectedOption = null; // 이미지를 클릭할 때 selectedOption을 초기화
+});
+
+// 모든 select 박스 숨기기
+function hideAllSelects() {
+    const selects = document.querySelectorAll('select');
+    selects.forEach(select => {
+        select.style.display = 'none';
+    });
+}
+let diNum;
+let oiNum;
+let sellerUiNum;
+let selectedOption;
+
+	document.addEventListener("DOMContentLoaded", async function(){
+    const urlParams = new URLSearchParams(window.location.href);
+    const diNumParams = urlParams.get('diNum');
+    const uiNum = urlParams.get('sellerUiNum');
+    console.log(uiNum);
+    const uiRes = await fetch(`/selected-user-info/${uiNum}`);
+    const user = await uiRes.json();
+    document.querySelector('#userName').innerHTML = `${user.uiName}님의 평가를 남겨주세요`;
+    
+    try {
+        const orderInfoRes = await fetch(`/fetch-seller-num?diNum=${diNumParams}`);
+        if (orderInfoRes.ok) {
+            const orderInfoData = await orderInfoRes.json();
+            oiNum = orderInfoData.oiNum;
+            sellerUiNum = orderInfoData.sellerUiNum;
+
+            // const diNumElement = document.querySelector("#diNum");
+            // if (diNumElement) {
+            //     diNumElement.value = diNumParam;
+            // } else {
+            //     console.error('Element with id "diNum" not found');
+            // }
+
+            // 수정된 부분: diNum 변수에 값 설정
+            diNum = diNumParams;
+        } else {
+            alert('에러');
+        }
+    } catch (error) {
+        alert('에러');
+    }
+});
+
+async function addStar() {
+    const selectedRating = document.querySelector('input[name="rating"]:checked');
+    // 이미지 별로 선택된 select 요소에서 옵션 값을 가져옴
+    if (document.querySelector('#image1').style.display === 'block') {
+        selectedOption = document.querySelector('#select1').value; // 선택된 옵션을 selectedOption에 저장
+    } else if (document.querySelector('#image2').style.display === 'block') {
+        selectedOption = document.querySelector('#select2').value; // 선택된 옵션을 selectedOption에 저장
+    } else if (document.querySelector('#image3').style.display === 'block') {
+        selectedOption = document.querySelector('#select3').value; // 선택된 옵션을 selectedOption에 저장
+    }
+
+        if (selectedRating && selectedOption) {
+            const json = JSON.stringify({
+                diNum: diNum,
+                oiNum: oiNum,
+                sellerUiNum: sellerUiNum,
+                riComment: selectedOption,
+                riRank: selectedRating.value
+            });
+
+            const res = await fetch(`/add-seller/${sellerUiNum}`, {
+                method: 'POST',
+                body: json,
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                }
+            });
+
+            if (res.ok) {
+                alert('평점이 등록되었습니다.');
+                location.href='/';
+            } else {
+                alert('평점 등록이 실패하였습니다.');
+            }
+        }
+    } 
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!-- head 태그 -->
+<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+
+<body class="body-wrapper">
+	<!-- Top으로 가는 버튼 -->
+	<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+	<!-- Header 및 Nav -->
+	<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+	
+	<section class="content-container">
+		<!-- 검색 -->
+		<th:block th:replace="html/fragments/search-fragment :: search-fragment"></th:block>
+		<section class="section-sm">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="search-result bg-gray">
+							<h2 id="result-title"></h2>
+							
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-3">
+						<div class="analysis-sidebar">
+							<div class="analysis" id="avg-analysis">평균 가격이에요<br>
+								<p class="average" style="color: green;">평균 <span id="avg-price"></span> 원</p>
+							</div>
+							<div class="analysis" id="lowest-analysis">가장 낮은 가격이에요<br>
+								<p class="lowest" style="color: blue;">최저 <span id="low-price"></span> 원</p>
+							</div>
+							<div class="analysis">가장 높은 가격이에요<br>
+								<p class="highest" style="color: red;">최고 <span id="high-price"></span> 원</p>
+							</div>
+						</div>
+						<div class="category-sidebar">
+						<div class="widget product-shorting">
+							<h4 class="widget-header">거래 상태</h4>
+							<form id="search-form">
+								<div class="form-check">
+								  <label class="form-check-label" for="all">
+								    <input class="form-check-input" name="check-stat" type="radio" id="all" value="전체">
+								    전체
+								  </label>
+								</div>
+								<div class="form-check">
+								  <label class="form-check-label" for="sale">
+								    <input class="form-check-input" name="check-stat" type="radio" id="sale" value="판매중">
+								    판매중
+								  </label>
+								</div>
+								<div class="form-check">
+								  <label class="form-check-label" for="soldOut">
+								    <input class="form-check-input" name="check-stat" type="radio" id="soldOut" value="판매완료">
+								    판매완료
+								  </label>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+					<div class="col-md-9">
+						<div class="category-search-filter">
+							<div class="row">
+								<div class="col-md-6">
+									<form id="sorting">
+										<strong>정렬</strong>
+										<select name="sorting">
+											<option>최신순</option>
+											<option value="1">인기순</option>
+											<option value="2">가격 낮은 순</option>
+											<option value="4">가격 높은 순</option>
+										</select>
+									</form>
+								</div>
+								<div class="col-md-6">
+									<div class="view">
+										<strong id="total-count"></strong>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="product-grid-list">
+							<div class="row mt-30" id="board-list"></div>
+						</div>
+						<div class="pagination justify-content-center">
+							<nav aria-label="Page navigation example">
+								<ul class="pagination"></ul>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!-- Footer  -->
+		<th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+	</section>
+
+	<script>
+		document.querySelector('#search-form').addEventListener('change', function(event) {
+            getBoards();
+        });
+        
+        document.querySelector('#sorting').addEventListener('change', function(event) {
+            getBoards();
+        });
+        
+		// 시도
+		const sidoBox = document.querySelector('select[name=sido]');
+		for (let i = 0; i < sidoArr.length; i++) {
+		    const option = document.createElement('option'); // 옵션 요소 생성
+		    option.text = sidoArr[i]; // 옵션의 텍스트 설정
+		    option.value = sidoArr[i]; // 옵션의 값 설정
+		    sidoBox.add(option); // 옵션을 select 요소에 추가
+		}
+		
+		// 시군구
+		const gunguBox = document.querySelector('select[name=gungu]');
+		gunguBox.style.display = "none";
+		
+		// 시도 선택에 따라 시군구 셀렉트 박스 내용 변경
+		function sidoChange(sido){
+			gunguBox.style.display = "";
+			let gunguArr = [];
+			if(sido.value == '전체 지역'){
+				gunguBox.style.display = "none";
+			}else if(sido.value == '서울'){
+				gunguArr = seoul;
+			}else if(sido.value == '경기'){
+				gunguArr = gyeonggi;
+			}else if(sido.value == '부산'){
+				gunguArr = busan;
+			}
+			gunguBox.options.length = 0;
+			
+			for(idx in gunguArr){
+				const option = document.createElement('option'); // 옵션 요소 생성
+				option.text = gunguArr[idx]; // 옵션의 텍스트 설정
+			    option.value = gunguArr[idx]; // 옵션의 값 설정
+			    gunguBox.add(option); // 옵션을 select 요소에 추가
+			}
+		}
+		
+		const keyword = document.querySelector('#inputtext4').value;
+		// 페이징
+		let totalCnt = 0;
+		let pageSize = 9; // 한번에 9개씩 보여줌
+		const blockSize = 5; // 페이지 블록 크기는 5
+		
+		const getBoards = async function(evt, page){
+			document.querySelector('#result-title').innerHTML = '검색 결과';
+			document.querySelector('.pagination').style.display = '';
+			listStyle = '[[${param.listStyle}]]';
+			if(listStyle != ""){
+				document.querySelector('#result-title').innerHTML = listStyle;
+			}
+			// 현재 페이지가 undefined면 맨 처음 페이지로
+			if(!page){
+				page = 1;
+			}
+			let url = `/board-infos?page=${page}&pageSize=${pageSize}`;
+			
+			// URL에서 검색어 매개변수 가져오기
+			const searchQuery = new URLSearchParams(window.location.search).get('search');
+			const searchValue = searchQuery && searchQuery.trim() !== '' ? searchQuery : document.querySelector('#inputtext4').value;
+			url += `&search=${searchValue}`;
+			
+			url += `&sido=${document.querySelector('select[name="sido"] > option:checked').innerText}`;
+			if(gunguBox.style.display != "none"){
+				url += `&gungu=${document.querySelector('select[name="gungu"] > option:checked').innerText}`;
+			}
+			if(`[[${param.searchNum}]]` != ''){
+				url += `&searchNum=[[${param.searchNum}]]`;
+			}
+			
+			const selectedStatus = document.querySelector('input[name="check-stat"]:checked');
+            const statusQueryParam = selectedStatus ? selectedStatus.value : '전체';  // 디폴트는 전체
+            if (statusQueryParam) {
+                url += `&biStat=${statusQueryParam}`;
+            }
+            url += `&sorting=${document.querySelector('select[name="sorting"] > option:checked').innerText}`;
+			const res = await fetch(url);
+			const json = await res.json();
+			totalCnt = json.list.length; // 전체 게시물 개수
+			document.querySelector('#board-list').innerHTML = ''; // 내용 지우기
+			
+			// 게시물이 없는 경우
+			if(totalCnt <= 0){
+				document.querySelector('#board-list').innerHTML = '등록된 상품이 없습니다';
+				document.querySelector('#total-count').innerText = `0개의 상품`;
+				document.querySelector('#low-price').textContent = 0;
+				document.querySelector('#high-price').textContent = 0;
+				document.querySelector('#avg-price').textContent = 0;
+				document.querySelector('.pagination').style.display = 'none';
+				return;
+			}
+			const pageBlock = Math.ceil(totalCnt/pageSize); // 페이지 블록의 개수 (몇 페이지까지 있는지)
+			const startBlock = (Math.ceil(page/blockSize)-1)*blockSize+1;
+			let endBlock = startBlock + blockSize - 1;
+			let pageHtml = '';
+			if(endBlock > pageBlock){
+				endBlock = pageBlock
+			}
+			if(startBlock != 1){
+				pageHtml += `<li class="page-item">
+								<a class="page-link" href="javascript:void(0)" aria-label="Previous" onclick="getBoards(event, ${startBlock-1})">
+									<span aria-hidden="true">&laquo;</span>
+									<span class="sr-only">Previous</span>
+								</a>
+							</li>`;
+			}
+			for(let i=startBlock; i<=endBlock; i++){
+				if(i === page){
+					pageHtml += `<li class="page-item active"><a class="page-link" href="javascript:void(0)" onclick="getBoards(event, ${i})">${i}</a></li>`;
+				}else{
+					pageHtml += `<li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="getBoards(event, ${i})">${i}</a></li>`;
+				} // 5개 만들어짐
+			}
+			if(endBlock<pageBlock){
+				pageHtml += `<li class="page-item">
+								<a class="page-link" href="javascript:void(0)" aria-label="Next" onclick="getBoards(event, ${endBlock+1})">
+										<span aria-hidden="true">&raquo;</span>
+										<span class="sr-only">Next</span>
+									</a>
+								</li>`;
+			}
+			document.querySelector('.pagination').innerHTML = pageHtml;
+			
+			// 전체 상품 개수
+			const boardSize = json.list.length;
+			if(boardSize != 0){
+				// 보드 채우기
+				for(let i=0; i<boardSize; i++){
+					const board = json.list[i];
+					const boardFile = board.files[0];
+					const price = Number(board.biPrice);
+					const statColor = board.biStat=='판매중' ? '#10AEDB' : '#888';
+					console.log(statColor);
+					boardHtml = 
+					`<div class="col-sm-12 col-lg-4 col-md-6">
+						<div class="product-item bg-light">
+							<div class="card">
+								<div class="thumb-content">
+									<div class="price" style="background:${statColor};"]>${board.biStat}</div>
+									<a href="/html/board/board-view?biNum=${board.biNum}&uiNum=${board.uiNum}">
+										<img class="card-img-top img-fluid" id="board-list-img" src="${boardFile.fiPath}" alt="${boardFile.fiName}">
+									</a>
+								</div>
+								<div class="card-body">
+								    <h4 class="card-title"><a href="/html/board/board-view?biNum=${board.biNum}&uiNum=${board.uiNum}" id="bititle">${board.biTitle}</a></h4>
+								    <ul class="list-inline product-meta">
+								    	<li class="list-inline-item">
+								    		<a href="">${findDong(board.biAddr)}</a>
+								    	</li><br>
+								    	<li class="list-inline-item">
+								    		<a href=""><i class="fa fa-calendar"></i>${calculateTime(board.lmodat, board.lmotim)}</a>
+								    	</li>
+								    </ul>
+								    <p class="card-text">채팅 <span id="chatCnt">${board.chatCnt}</span>  ∙ 관심 <span id="likeCnt">${board.likeCnt}</span>  ∙ 조회 <span id="biViews">${board.biViews}</span></p>
+								    <div class="product-ratings">
+								    	<p>${priceToString(price)}원</p>
+								    </div>
+								</div>
+							</div>
+						</div>
+					</div>`;
+					document.querySelector('#board-list').insertAdjacentHTML('beforeend',boardHtml);
+				}
+			}
+			// 전체 게시물 분석 결과 불러오기
+			console.log(totalCnt);
+			getAnalysis(url, totalCnt);
+		}
+		
+		window.addEventListener('load', getBoards); // 호출
+		
+		// 평균, 최고, 최저가 불러오는 함수
+		async function getAnalysis(url, totalCnt){
+			document.querySelector('.pagination').style.display = '';
+			document.querySelector('#total-count').innerText = `${totalCnt}개의 상품`;
+			url = `/board-infos?page=${1}&pageSize=${pageSize}`;
+			searchQuery = new URLSearchParams(window.location.search).get('search');
+			searchValue = searchQuery && searchQuery.trim() !== '' ? searchQuery : document.querySelector('#inputtext4').value;
+			url += `&search=${searchValue}`;
+			url += `&sido=${document.querySelector('select[name="sido"] > option:checked').innerText}`;
+			if(gunguBox.style.display != "none"){
+				url += `&gungu=${document.querySelector('select[name="gungu"] > option:checked').innerText}`;
+			}
+			if(`[[${param.searchNum}]]` != ''){
+				url += `&searchNum=[[${param.searchNum}]]`;
+			}
+			const selectedStatus = document.querySelector('input[name="check-stat"]:checked');
+            const statusQueryParam = selectedStatus ? selectedStatus.value : '전체';  // 디폴트는 전체
+            if (statusQueryParam) {
+                url += `&biStat=${statusQueryParam}`;
+            }
+            url += `&sorting=${document.querySelector('select[name="sorting"] > option:checked').innerText}`; 
+            
+			const res = await fetch(url);
+			const json = await res.json();
+			let avgPrice = 0; // 평균가
+			let sumPrice = 0; // 총합
+			let highPrice = json.list[0].biPrice; // 최고가
+			let lowPrice = json.list[0].biPrice; // 최저가
+			for(let i=0; i<totalCnt; i++){
+				const price = Number(json.list[i].biPrice);
+				// 최고가 찾기
+				if(highPrice<price){
+					highPrice = price;
+				}
+				// 최저가 찾기
+				if(lowPrice>price){
+					lowPrice = price;
+				}
+				sumPrice += price;
+			}
+			// 평균 구하기
+			avgPrice = Math.floor(sumPrice / totalCnt);
+			// 값 넣기
+			document.querySelector('#low-price').textContent = priceToString(lowPrice);
+			document.querySelector('#high-price').textContent = priceToString(highPrice);
+			document.querySelector('#avg-price').textContent = priceToString(avgPrice);
+		}
+		
+		// 스크롤 이벤트 리스너
+		window.addEventListener('scroll', () => {
+			// 스크롤 위치가 100px 이상일 때 위로 가기 버튼을 보이게 함
+			if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+				document.querySelector('#btn-back-to-top').style.display = 'block';
+			} else {
+				document.querySelector('#btn-back-to-top').style.display = 'none';
+			}
+		});
+		
+		// 엔터로 검색하는 이벤트 리스너
+		inputtext4.addEventListener('keydown', function(event){
+			if(event.key === 'Enter'){
+				getBoards();
+			}
+		});
+	</script>
+
+</body>
+
+</html>

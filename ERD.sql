@@ -1,0 +1,360 @@
+SET SESSION FOREIGN_KEY_CHECKS=0;
+
+/* Drop Tables */
+
+DROP TABLE IF EXISTS MESSAGE_INFO;
+DROP TABLE IF EXISTS CHAT_INFO;
+DROP TABLE IF EXISTS RANK_INFO;
+DROP TABLE IF EXISTS ORDER_INFO;
+DROP TABLE IF EXISTS DEAL_INFO;
+DROP TABLE IF EXISTS FILE_INFO;
+DROP TABLE IF EXISTS LIKE_INFO;
+DROP TABLE IF EXISTS BOARD_INFO;
+DROP TABLE IF EXISTS USER_INFO;
+
+
+
+
+/* Create Tables */
+
+CREATE TABLE BOARD_INFO
+(
+	BI_NUM int NOT NULL AUTO_INCREMENT,
+	UI_NUM int NOT NULL,
+	BI_TITLE varchar(100) NOT NULL,
+	BI_NAME varchar(50) NOT NULL,
+	BI_CONTENT text NOT NULL,
+<<<<<<< HEAD
+	BI_PRICE varchar(50) NOT NULL,
+=======
+<<<<<<< HEAD
+	BI_PRICE int NOT NULL,
+=======
+	BI_PRICE int(10) NOT NULL,
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+	BI_LOCA varchar(50) NOT NULL,
+	BI_ADDR varchar(50) NOT NULL,
+	-- 상품이 판매중인지, 판매가 완료되었는지
+	BI_STAT char(4) DEFAULT '판매중' NOT NULL COMMENT '상품이 판매중인지, 판매가 완료되었는지',
+	CREDAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	CRETIM char(8) DEFAULT 'date_format(current_timestamp(),''''%H%i%s'''')' NOT NULL,
+	LMODAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	LMOTIM char(8) DEFAULT 'date_format(current_timestamp(),''''%H%i%s'''')' NOT NULL,
+	PRIMARY KEY (BI_NUM),
+	UNIQUE (BI_NUM)
+);
+
+
+CREATE TABLE CHAT_INFO
+(
+	CI_NUM int NOT NULL AUTO_INCREMENT,
+	BI_NUM int NOT NULL,
+	SELLER_UI_NUM int NOT NULL,
+	BUYER_UI_NUM int NOT NULL,
+	CREDAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	CRETIM char(8) DEFAULT 'date_format(current_timestamp(),''''%H%i%s'''')' NOT NULL,
+	PRIMARY KEY (CI_NUM),
+	UNIQUE (CI_NUM),
+	UNIQUE (BI_NUM)
+);
+
+
+CREATE TABLE DEAL_INFO
+(
+<<<<<<< HEAD
+	DI_NUM int NOT NULL AUTO_INCREMENT,
+	BI_NUM int NOT NULL,
+	SELLER_UI_NUM int NOT NULL,
+	BUYER_UI_NUM int NOT NULL,
+	BUYER_DI_STAT char(1) DEFAULT '0' NOT NULL,
+	CREDAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	CRETIM char(8) DEFAULT 'date_format(current_timestamp(),''''%H%i%s'''')' NOT NULL,
+=======
+	DI_NUM int NOT NULL,
+	BI_NUM int NOT NULL,
+	SELLER_UI_NUM int NOT NULL,
+	BUYER_UI_NUM int NOT NULL,
+	BUYER_DI_STAT char(1) DEFAULT '0' NOT NULL,
+	CREDAT char(8) NOT NULL,
+	CRETIM char(8) NOT NULL,
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+	PRIMARY KEY (DI_NUM),
+	UNIQUE (DI_NUM),
+	UNIQUE (BI_NUM)
+);
+
+
+CREATE TABLE FILE_INFO
+(
+	FI_NUM int NOT NULL AUTO_INCREMENT,
+	BI_NUM int NOT NULL,
+	FI_PATH varchar(100) NOT NULL,
+	FI_NAME varchar(300) NOT NULL,
+<<<<<<< HEAD
+	FI_SEQUENCE tinyint(3) NOT NULL,
+=======
+<<<<<<< HEAD
+	FI_SEQ tinyint(3) NOT NULL,
+=======
+	FI_SORT tinyint(3) NOT NULL,
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+	PRIMARY KEY (FI_NUM),
+	UNIQUE (FI_NUM)
+);
+
+
+CREATE TABLE LIKE_INFO
+(
+	LI_NUM int NOT NULL AUTO_INCREMENT,
+	UI_NUM int NOT NULL,
+	BI_NUM int NOT NULL,
+	CREDAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	CRETIM char(8) DEFAULT 'date_format(current_timestamp(),''''%H%i%s'''')' NOT NULL,
+	PRIMARY KEY (LI_NUM),
+	UNIQUE (LI_NUM),
+	UNIQUE (BI_NUM)
+);
+
+
+CREATE TABLE LIKE_INFO
+(
+	LI_NUM  NOT NULL,
+	UI_NUM int NOT NULL,
+	BI_NUM int NOT NULL,
+	CREDAT char(8) NOT NULL,
+	CRETIM char(8) NOT NULL,
+	PRIMARY KEY (LI_NUM),
+	UNIQUE (LI_NUM),
+	UNIQUE (UI_NUM),
+	UNIQUE (BI_NUM)
+);
+
+
+CREATE TABLE MESSAGE_INFO
+(
+	-- 채팅 내용 정렬 용도
+	MI_NUM int NOT NULL AUTO_INCREMENT COMMENT '채팅 내용 정렬 용도',
+	CI_NUM int NOT NULL,
+	SENDER_UI_NUM int NOT NULL,
+	MI_CONTENT text NOT NULL,
+	CREDAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	CRETIM char(8) DEFAULT 'date_format(current_timestamp(),''''%H%i%s'''')' NOT NULL,
+	PRIMARY KEY (MI_NUM),
+	UNIQUE (MI_NUM),
+	UNIQUE (SENDER_UI_NUM)
+);
+
+
+CREATE TABLE ORDER_INFO
+(
+	OI_NUM int NOT NULL AUTO_INCREMENT,
+	DI_NUM int NOT NULL,
+<<<<<<< HEAD
+	OI_PRICE int NOT NULL,
+=======
+	OI_PRICE varchar(20),
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+	CREDAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+<<<<<<< HEAD
+	CRETIM char(8) DEFAULT 'date_format(current_timestamp(),''''%H%i%s'''')' NOT NULL,
+=======
+	CRETIM char(8) NOT NULL,
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+	PRIMARY KEY (OI_NUM),
+	UNIQUE (OI_NUM),
+	UNIQUE (DI_NUM)
+);
+
+
+CREATE TABLE RANK_INFO
+(
+	RI_NUM int NOT NULL AUTO_INCREMENT,
+	DI_NUM int NOT NULL,
+	OI_NUM int NOT NULL,
+<<<<<<< HEAD
+	RI_RANK char(5) NOT NULL,
+=======
+	RI_RANK char(5),
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+	RI_COMMENT char(30),
+	CREDAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	PRIMARY KEY (RI_NUM),
+	UNIQUE (RI_NUM),
+	UNIQUE (DI_NUM),
+	UNIQUE (OI_NUM)
+);
+
+
+CREATE TABLE USER_INFO
+(
+	UI_NUM int NOT NULL AUTO_INCREMENT,
+	UI_ID varchar(30) NOT NULL,
+	UI_PWD varchar(30) NOT NULL,
+	UI_NAME varchar(30) NOT NULL,
+	UI_EMAIL varchar(80) NOT NULL,
+	UI_MOBILE char(11) NOT NULL,
+<<<<<<< HEAD
+	UI_ADDR varchar(100) NOT NULL,
+=======
+<<<<<<< HEAD
+	UI_ZONECODE varchar(5) NOT NULL,
+	UI_ROADADDR varchar(80) NOT NULL,
+	UI_JIBUNADDR varchar(80) NOT NULL,
+	UI_DETAIL_ADDR varchar(80) NOT NULL,
+=======
+	UI_ADDR varchar(5) NOT NULL,
+	UI_ROADADDR varchar(80),
+	UI_JIBUNADDR varchar(80),
+	UI_DETAIL_ADDR varchar(80),
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+	UI_ROLE char(10) DEFAULT 'ROLE_USER' NOT NULL,
+	CREDAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	LMODAT char(8) DEFAULT 'date_format(current_timestamp(), ''%Y%m%d'')' NOT NULL,
+	ACTIVE char(1) DEFAULT '1' NOT NULL,
+	PRIMARY KEY (UI_NUM),
+	UNIQUE (UI_NUM),
+	UNIQUE (UI_ID),
+	UNIQUE (UI_EMAIL),
+	UNIQUE (UI_MOBILE)
+);
+
+
+
+/* Create Foreign Keys */
+
+ALTER TABLE CHAT_INFO
+	ADD FOREIGN KEY (BI_NUM)
+	REFERENCES BOARD_INFO (BI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE DEAL_INFO
+	ADD FOREIGN KEY (BI_NUM)
+	REFERENCES BOARD_INFO (BI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE FILE_INFO
+	ADD FOREIGN KEY (BI_NUM)
+	REFERENCES BOARD_INFO (BI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE LIKE_INFO
+	ADD FOREIGN KEY (BI_NUM)
+	REFERENCES BOARD_INFO (BI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE MESSAGE_INFO
+	ADD FOREIGN KEY (SENDER_UI_NUM)
+	REFERENCES CHAT_INFO (CI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE MESSAGE_INFO
+	ADD FOREIGN KEY (CI_NUM)
+	REFERENCES CHAT_INFO (CI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE ORDER_INFO
+	ADD FOREIGN KEY (DI_NUM)
+	REFERENCES DEAL_INFO (DI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE RANK_INFO
+	ADD FOREIGN KEY (DI_NUM)
+	REFERENCES DEAL_INFO (DI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE RANK_INFO
+	ADD FOREIGN KEY (OI_NUM)
+	REFERENCES ORDER_INFO (OI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE BOARD_INFO
+	ADD FOREIGN KEY (UI_NUM)
+	REFERENCES USER_INFO (UI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE CHAT_INFO
+	ADD FOREIGN KEY (BUYER_UI_NUM)
+	REFERENCES USER_INFO (UI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE CHAT_INFO
+	ADD FOREIGN KEY (SELLER_UI_NUM)
+	REFERENCES USER_INFO (UI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE DEAL_INFO
+<<<<<<< HEAD
+	ADD FOREIGN KEY (BUYER_UI_NUM)
+	REFERENCES USER_INFO (UI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE DEAL_INFO
+	ADD FOREIGN KEY (SELLER_UI_NUM)
+=======
+	ADD FOREIGN KEY (SELLER_UI_NUM)
+	REFERENCES USER_INFO (UI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE DEAL_INFO
+	ADD FOREIGN KEY (BUYER_UI_NUM)
+>>>>>>> branch 'master' of https://github.com/birdheee/secu-team2.git
+	REFERENCES USER_INFO (UI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE LIKE_INFO
+	ADD FOREIGN KEY (UI_NUM)
+	REFERENCES USER_INFO (UI_NUM)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+

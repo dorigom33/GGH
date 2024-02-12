@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.secu.team2.file.mapper.FileInfoMapper">
+	<!-- 파일 등록 -->
+	<insert id="insertFileInfo">
+		INSERT INTO FILE_INFO(BI_NUM, FI_PATH, FI_NAME, FI_SEQ)
+		VALUES(#{biNum}, #{fiPath}, #{fiName}, #{fiSeq})
+	</insert>
+	
+	<!-- 파일 전체 뷰 -->
+	<select id="selectFileInfos">
+		SELECT FI_NUM, BI_NUM, FI_PATH, FI_NAME, FI_SEQ
+		FROM FILE_INFO
+		WHERE BI_NUM=#{biNum}
+		ORDER BY FI_SEQ
+	</select>
+		
+	<!-- 파일 수정 -->
+	<update id="updateFileInfos">
+		UPDATE FILE_INFO
+		<set>
+			<if test='fiPath != null and fiPath != ""'>
+				FI_PATH=#{fiPath},
+			</if>
+			<if test='fiName != null and fiName != ""'>
+				FI_NAME=#{fiName},
+			</if>
+			<if test='fiSeq != null and fiSeq != ""'>
+				FI_SEQ=#{fiSeq}
+			</if>
+		</set>
+		WHERE FI_NUM=#{fiNum}
+	</update>
+	
+	<!-- 파일 삭제 -->
+	<delete id="deleteFileInfo">
+		DELETE FROM FILE_INFO WHERE FI_NUM=#{fiNum}
+	</delete>
+</mapper>

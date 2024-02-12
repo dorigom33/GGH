@@ -1,0 +1,162 @@
+/* 관심 목록 리스트 css입니다 */
+
+@charset "UTF-8";
+
+.body-container{
+	width: 80%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 48em;
+	height: 60vh;
+}
+
+.result-container{
+	width: 100%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5em;
+}
+
+h1{
+	font-size: 1.5rem;
+	font-weight: 500;
+	color: #000;
+	display: block;
+}
+
+#board-list{
+	margin-top: 1em;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 반응형 그리드 설정 */
+    grid-gap: 20px; /* 간격조정 */
+}
+
+.board{
+	height: 380px;
+	width: 280px;
+    padding: 5px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+img{
+	height: 280px;
+	width: 280px;
+	object-fit: cover;
+	filter: brightness(1);
+	border-radius: 3%;
+}
+
+.board img:hover{
+	filter: brightness(0.7);
+	-webkit-transform: scale(1.01);
+  	transform: scale(1.01);
+}
+
+div#board-title a{
+	text-decoration-line: none;	
+	color: #000;
+	font-weight: bold;
+	font-size: 1rem;
+	margin-top: 5px;
+}
+
+div#board-stat{
+	float: right;
+	margin-top: -1.5em;
+	padding: 2%;
+	width: 4em;
+	text-align: center;
+	background-color: #0A60AF;
+	color: white;
+	border-radius: 6px;
+}
+
+div#board-addr{
+	color: #000;
+	font-size: 0.8rem;
+	margin-top: 5px;
+}
+
+div#board-price{
+	color: #0A60AF;
+	font-weight: bold;
+	font-size: 1rem;
+	margin-top: 5px;
+}
+
+div #board-ago{
+	margin-top: 5px;
+	font-size: 0.7rem;
+}
+
+div#pageDiv{
+	text-align: center;
+	width: 100%;
+}
+
+.pagination{
+	list-style: none;
+	display: inline-block;
+	padding: 0;
+	margin-top: 20px;
+}
+
+.pagination li{
+	display: inline;
+	text-align: center;
+}
+
+.pagination a{
+	float: left;
+	display: block;
+	font-size: 17px;
+	text-decoration-line: none;
+	padding: 5px 12px;
+  	color: #000;
+  	line-height: 1.5;
+}
+
+.page{
+	text-decoration-line: none;
+  	color: #000;
+}
+
+#nullMsg{
+	margin-top: 100px;
+	text-align: center;
+	font-size: 1em;
+}
+
+/* 판매중, 판매완료 라디오 버튼 */
+
+#search-form {
+    position: absolute;
+    right: 0;
+}
+#search-form input[type=radio]{
+    display: none;
+}
+#search-form input[type=radio]+label{
+    display: inline;
+    cursor: pointer;
+    line-height: 24px;
+    text-align: center;
+    font-size: 1em;
+    font-weight: 500;
+    margin-right: 22px;
+	position: relative;
+}
+
+#search-form input[type=radio]+label{
+    color: #222;
+}
+#search-form input[type=radio]:checked+label{
+    color: #0A60AF;
+}
+
+#search-form input[type=radio]+label:hover{
+    color: #0A60AF;
+}

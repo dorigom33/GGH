@@ -1,0 +1,101 @@
+/* 마이페이지 css입니다 */
+
+@charset "UTF-8";
+
+.body-container{
+	background-color: #E5F6FE;
+	border: 2px solid #87C4EF;
+    text-align: center; 
+	width: 50%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 60em;
+	height: 90vh;
+    padding: 20px;
+	border-radius: 0.8rem;
+}
+
+#welcome h1{
+    font-size: 1.7em;
+    margin-top: 2.7em;
+    color: #000;
+    font-weight: 500;
+}
+
+#uiImg{
+	width: 100px;
+	height: 100px;
+	object-fit: cover;
+	border-radius: 50%;
+	margin: 0 auto;
+    display: block;
+    margin-bottom: 1.5em;
+}
+
+#count, #rank{
+	font-size: 1em;
+}
+
+#star, #rank{
+	vertical-align: middle;
+}
+
+#star{
+	margin-right: -10px;
+}
+
+#mypage-list{
+	margin-top: 3em;
+}
+
+.mypage{
+	border-radius: 0.7rem;
+	width: 50%;
+	float: left;
+}
+
+#deal, #user{
+	text-align: left;
+    padding: 1.5%;
+    margin-bottom: 10px;
+    font-size: 1em;
+    font-weight: 500;
+    margin-left: 15px;
+}
+
+.btn{
+    width: 90%;
+    height: 60px;
+    margin-bottom: 10px;
+	border: 2px solid #4C9ACC;
+	background-color: #D3EEFC;
+	border-radius: 0.4rem;
+	display:flex;
+	align-items:center;
+	vertical-align:middle;
+	margin-left: auto;
+	margin-right: auto;
+	cursor: pointer;
+}
+
+.btn:hover{
+    width: 91%;
+	border: 2px solid #4C9ACC;
+    background-color: #4C9ACC;
+	color: white;
+	font-weight: bold;
+}
+
+.btn span{
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-left: 5px;
+	padding: 10px;
+}
+
+.btn img{
+	padding: 2%;
+	width: 33px;
+	height: 33px;
+}

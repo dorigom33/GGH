@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.secu.team2.deal.mapper.DealInfoMapper">
+	<resultMap id="dealInfoResultMap" type="com.secu.team2.deal.vo.DealInfoVO">
+	    <id property="diNum" column="DI_NUM"/>
+	    <result property="biNum" column="BI_NUM"/>
+	    <result property="sellerUiNum" column="SELLER_UI_NUM"/>
+	    <result property="buyerUiNum" column="BUYER_UI_NUM"/>
+	    <result property="credat" column="CREDAT"/>
+	    <result property="cretim" column="CRETIM"/>
+	
+	    <!-- BOARD_INFO 테이블의 필드들 -->
+	    <result property="biTitle" column="BI_TITLE"/>
+	    <result property="biName" column="BI_NAME"/>
+	    <result property="biPrice" column="BI_PRICE"/>
+	    <result property="biLoca" column="BI_LOCA"/>
+	    <result property="lmodat" column="LMODAT"/>
+	    <result property="lmotim" column="LMOTIM"/>
+	</resultMap>
+	
+	<!-- 판매자 번호로 거래정보 조회 -->
+	<select id="SelectDealInfoBySeller" resultMap="dealInfoResultMap">
+	    SELECT D.DI_NUM, D.BI_NUM, D.SELLER_UI_NUM, D.BUYER_UI_NUM, D.CREDAT, D.CRETIM,
+	           B.BI_TITLE, B.BI_NAME, B.BI_PRICE, B.BI_LOCA, B.LMODAT, B.LMOTIM
+	    FROM DEAL_INFO D
+	    JOIN BOARD_INFO B ON D.BI_NUM = B.BI_NUM
+	    WHERE D.SELLER_UI_NUM = #{sellerUiNum};
+	</select>
+
+	<!-- 구매자 번호로 거래정보 조회 -->
+	<select id="SelectDealInfoByBuyer" resultType="com.secu.team2.deal.vo.DealInfoVO">
+		SELECT B.BI_NUM,B.BI_TITLE, B.BI_NAME, B.BI_PRICE, B.BI_LOCA, B.CREDAT, B.CRETIM, B.LMODAT, B.LMOTIM
+		FROM DEAL_INFO D
+		JOIN BOARD_INFO B ON D.BI_NUM = B.BI_NUM
+		WHERE D.BUYER_UI_NUM = #{buyerUiNum};
+	</select>
+	
+	<select id="countDealInfoByDiStat" resultType="int">
+		SELECT COUNT(*) FROM DEAL_INFO
+		WHERE BUYER_DI_STAT = 0
+		AND BUYER_UI_NUM = #{buyerUiNum};
+	</select>
+	
+	<select id="selectBiNumByDiNum" resultType="com.secu.team2.deal.vo.DealInfoVO">
+		SELECT BI_NUM
+		FROM DEAL_INFO
+		WHERE DI_NUM = #{diNum}
+	</select>
+	
+	<select id="getDealInfoListByUiNum" resultType="com.secu.team2.deal.vo.DealInfoRecordVO">
+		SELECT BI.BI_NUM, DI.DI_NUM, DI.BI_NUM, DI.SELLER_UI_NUM, DI.BUYER_UI_NUM, DI.BUYER_DI_STAT,
+		DI.CREDAT, DI.CRETIM, OI.OI_PRICE, BI.BI_TITLE FROM DEAL_INFO DI
+		INNER JOIN ORDER_INFO OI ON DI.DI_NUM = OI.DI_NUM
+		INNER JOIN BOARD_INFO BI ON BI.BI_NUM = DI.BI_NUM
+		WHERE DI.SELLER_UI_NUM = #{uiNum} OR DI.BUYER_UI_NUM = #{uiNum}
+	</select>
+	
+	<!-- 거래정보 입력 -->
+	<insert id="insertDealInfoWithChatInfo" parameterType="com.secu.team2.deal.vo.DealInfoVO" useGeneratedKeys="true" keyProperty="diNum">
+	    INSERT INTO DEAL_INFO(BI_NUM, SELLER_UI_NUM, BUYER_UI_NUM)
+	    VALUES (#{biNum}, #{sellerUiNum}, #{buyerUiNum})
+	</insert>
+	
+	<update id="updateBuyerDiStat">
+		UPDATE DEAL_INFO
+		SET BUYER_DI_STAT = 1
+		WHERE DI_NUM = #{diNum};
+	</update>
+	
+	
+</mapper>

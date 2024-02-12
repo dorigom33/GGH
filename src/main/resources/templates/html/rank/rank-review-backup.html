@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+	<title>지중해</title>
+	<link rel="stylesheet" href="/css/rank-review.css">
+	
+	<style>
+		@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+		.rate {
+			display: inline-block;
+			border: 0;
+			margin-right: 15px;
+		}
+
+		.rate>input {
+			display: none;
+		}
+
+		.rate>label {
+			float: right;
+			color: #0A60AF;
+		}
+
+		.rate>label:before {
+			display: inline-block;
+			font-size: 1rem;
+			padding: .3rem .2rem;
+			margin: 0;
+			cursor: pointer;
+			font-family: FontAwesome;
+			content: "\f005 ";
+
+		}
+
+		.rate .half:before {
+			content: "\f089 ";
+			position: absolute;
+			padding-right: 0;
+		}
+
+		.rate input:checked~label,
+		.rate label:hover,
+		.rate label:hover~label {
+			color: #0A60AF !important;
+		}
+
+		.rate input:checked+.rate label:hover,
+		.rate input input:checked~label:hover,
+		.rate input:checked~.rate label:hover~label,
+		.rate label:hover~input:checked~label {
+			color: #0A60AF !important;
+		}
+
+		#ContainDiv {
+			text-align: center;
+			position: absolute;
+			padding: 20px;
+			width: 30%;
+			height: 70%;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		/* 부모 요소 안에 #all을 꽉 차게 설정 */
+		#all {
+			flex: 1;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#all>div {
+			width: 100%;
+		}
+
+		img {
+			width: 50px;
+			height: 50px;
+			position: relative;
+		}
+
+		#goodImg {
+			filter: opacity(0.5) drop-shadow(0 0 0 green);
+		}
+
+		#normalImg {
+			filter: opacity(0.5) drop-shadow(0 0 0 yellow);
+		}
+
+		#badImg {
+			filter: opacity(0.5) drop-shadow(0 0 0 red);
+		}
+
+		[id$=Comments] {
+			width: 45%;
+			display: none;
+			margin-bottom: 20px;
+			padding: 20px;
+			border: none;
+			position: relative;
+			left: 180px;
+			transform: translate(-50%);
+		}
+		
+	</style>
+</head>
+
+<body>
+	
+	<div class="body-container">
+		<!--
+		<div id="excuse">
+			<div id="top-img">
+				<img src="/imgs/review.png">
+			</div>
+		</div>
+		-->
+		<div id="welcome">
+			<h1 id="user-name"></h1>
+			<div id="count"></div>
+			<div id="star" style="display: inline-block;"></div>
+			<div id="rank" style="display: inline-block;"></div>
+		</div>
+
+		<div class="review">
+			<div id="my-review">내가 받은 리뷰</div>
+			<div id="user-rank">
+				<div class="rank-container">
+					<div id="rankComment">
+						<div class="checkClickbtn" id="good" onclick="checkClickCnt(4, goodComments, 'good')"><img
+								src="/imgs/good.png" id="goodImg"></div>
+						<div class="checkClickbtn" id="normal" onclick="checkClickCnt(8, normalComments, 'normal')"><img
+								src="/imgs/normal.png" id="normalImg"></div>
+						<div class="checkClickbtn" id="bad" onclick="checkClickCnt(10, badComments, 'bad')"><img
+								src="/imgs/bad.png" id="badImg"></div>
+					</div>
+					<div id="goodComments"></div>
+					<div id="normalComments"></div>
+					<div id="badComments"></div>
+				</div>
+			</div>
+		</div>
+		<script>
+			const goodComments = ['제가 있는 곳까지 와서 거래했어요.',
+				'친절하고 매너가 좋아요.',
+				'시간 약속을 잘 지켜요.',
+				'응답이 빨라요.'];
+
+			const normalComments = ['무료로 나눠주셨어요.',
+				'상품 상태가 설명한 것과 같아요.',
+				'상품설명이 자세해요.',
+				'좋은 상품을 저렴하게 판매해요.',
+				'반갑게 인사 해주셨어요.',
+				'구매 의사 없이 계속 찔러봐요.',
+				'채팅을 너무 늦게 확인해요',
+				'네고를 너무 심하게 원해요'];
+
+			const badComments = ['상품 가치없는 물건을 팔아요.',
+				'시간약속을 안 지켜요.',
+				'상품 상태가 설명과 달라요.',
+				'불친절해요.',
+				'상품 설명에 중요한 정보가 누락됐어요.',
+				'너무 늦은 시간에 연락해요',
+				'시간 약속을 안 지켜요',
+				'차에서 내리지 않고 창문만 열고 거래하려고 해요',
+				'불친절해요',
+				'무리하게 가격을 깎아요'];
+
+			window.addEventListener('load', async function () {
+				const userInfoRes = await fetch('/num');
+				const userInfo = await userInfoRes.json();
+				const uiNum = userInfo.uiNum;
+				const res = await fetch(`/review/${uiNum}`);
+				ranks = await res.json();
+
+				let html = '';
+				for (const rank of ranks) {
+					if (rank !== null) {
+						html += `<span>${rank.riComment}</span><br>`;
+						console.log(rank.riComment);
+					}
+				}
+			})
+
+			function checkClickCnt(length, comments, keyword) {
+				const commentElement = document.querySelector(`#${keyword}Comments`);
+				if (commentElement.firstElementChild) {
+					commentElement.replaceChildren();
+					commentElement.style.display = 'none';
+					return;
+				}
+
+				const docs = document.querySelectorAll(`[id$="Comments"]`);
+				for (const doc of docs) {
+					doc.replaceChildren();
+					doc.style.display = 'none';
+				}
+
+				commentElement.style.display = 'block';
+
+				const countarray = {}; // 댓글 별로 카운트를 저장하기 위한
+				for (const comment of comments) {
+					countarray[comment] = 0; // 댓글 별 초기 카운트를 0으로 설정
+				}
+
+				// ranks 배열에서 rank.riComment와 comments 배열에 있는 값이 일치하는 것만 필터링
+				for (const rank of ranks) {
+					if (rank !== null && comments.includes(rank.riComment)) {
+						countarray[rank.riComment]++; // 해당 댓글에 대한 카운트 증가
+					}
+				}
+
+				// 필터링된 댓글들을 HTML로 생성하여 commentElement에 추가
+				let count = 1;
+				for (const comment of comments) {
+					if (countarray[comment] > 0) {
+						let span = document.createElement('span');
+						span.setAttribute('id', 'msg');
+						span.innerHTML = `${comment} (${countarray[comment]})`;
+						commentElement.appendChild(span);
+						count++;
+					}
+				}
+
+				// 평가가 없을 때 메시지 출력
+				if (count === 1) {
+					let span = document.createElement('span');
+					span.setAttribute('id', 'msg');
+					span.innerHTML = '해당하는 평가가 없습니다.';
+					commentElement.appendChild(span);
+				}
+			}
+			async function loadUserInfo() {
+				const response = await fetch('/select-user-info', {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json;charset=UTF-8'
+					}
+				});
+				if (response.ok) {
+					const userInfo = await response.json();
+					const uiNameDisplay = document.querySelector('#user-name');
+					uiNameDisplay.innerText = userInfo.uiName + '님의 평점';
+				} else {
+					alert('사용자 정보 가져오기 오류:', response.status);
+				}
+			}
+
+			window.addEventListener('load', async function () {
+				const userInfoRes = await fetch('/num');
+				const userInfo = await userInfoRes.json();
+				const uiNum = userInfo.uiNum;
+				const countRes = await fetch(`/count/${uiNum}`);
+				const rank = await countRes.json();
+				const countDisplay = document.querySelector('#count');
+				countDisplay.innerHTML = '나를 평가한 사용자는 ' + rank + '명 입니다';
+
+			})
+			window.addEventListener('load', async function () {
+				const userInfoRes = await fetch('/num');
+				const userInfo = await userInfoRes.json();
+				const uiNum = userInfo.uiNum;
+
+				const searchres = await fetch(`/select/${uiNum}`);
+				const averageRank = await searchres.json();
+				const numAverageRank = averageRank.toFixed(1);
+				const rankDisplay = document.querySelector('#rank');
+				let html = '';
+
+				if (averageRank !== null) {
+					rankDisplay.innerHTML = `(${numAverageRank}점)`;
+
+					let starsToDisplay = 0;
+					if (averageRank >= 0 && averageRank < 0.5) {
+						starsToDisplay = 0; // 0에서 0.4 사이의 평점은 0개의 별을 표시합니다.
+					} else if (averageRank >= 0.5 && averageRank < 1.5) {
+						starsToDisplay = 1; // 0.5에서 1.4 사이의 평점은 1개의 별을 표시합니다.
+					} else if (averageRank >= 1.5 && averageRank < 2.5) {
+						starsToDisplay = 2; // 1.5에서 2.4 사이의 평점은 2개의 별을 표시합니다.
+					} else if (averageRank >= 2.5 && averageRank < 3.5) {
+						starsToDisplay = 3; // 2.5에서 3.4 사이의 평점은 3개의 별을 표시합니다.
+					} else if (averageRank >= 3.5 && averageRank < 4.5) {
+						starsToDisplay = 4; // 3.5에서 4.4 사이의 평점은 4개의 별을 표시합니다.
+					} else if (averageRank >= 4.5 && averageRank <= 5.0) {
+						starsToDisplay = 5; // 4.5에서 5.0 사이의 평점은 5개의 별을 표시합니다.
+					}
+
+					// 정수 부분을 기준으로 별의 개수를 결정
+					html += '<div class="rate">'; // 별이 표시될 부분
+					for (let i = 0; i < starsToDisplay; i++) {
+						html += '<input type="radio" id="riRank' + (i + 1) + '" name="rating" value="' + (i + 1) + '" checked>';
+						html += '<label for="riRank' + (i + 1) + '" title="' + (i + 1) + '점"></label>';
+					}
+					html += '</div>';
+				} else {
+					html = '<div class="rate">'; // 별이 표시될 부분
+					for (let i = 0; i < 5; i++) { // 기본적으로 5개의 빈 별을 표시
+						html += '<input type="radio" id="riRank' + (i + 1) + '" name="rating" value="' + (i + 1) + '">';
+						html += '<label for="riRank' + (i + 1) + '" title="' + (i + 1) + '점"></label>';
+					}
+					html += '</div>';
+				}
+
+				document.querySelector('#star').innerHTML = html;
+			})
+			window.addEventListener('load', loadUserInfo);
+		</script>
+</body>
+
+</html>

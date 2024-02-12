@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- head 태그 -->
+<link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<style>
+	body {
+	    color: #333;
+	    background: #fafafa;
+	}
+	.contact-form {
+	    padding: 50px;
+	    margin: 30px 0;
+	}
+	.contact-form h3 {
+		font-size: 1.5em;
+		font-weight: 500;
+	    color: #000;
+	    margin: 0 0 15px;
+	}
+	.contact-form .form-control, .contact-form .btn {
+	    min-height: 38px;
+	    border-radius: 2px;
+	}
+	.contact-form .form-control:focus {
+	    border-color: #10AEDB;
+	}
+	.contact-form .btn-primary, .contact-form .btn-primary:active {
+	    color: #fff;
+	    font-size: 16px;
+	    background: #10AEDB !important;
+	    border: none;
+	}
+	.contact-form .btn-primary:hover {
+	    background: #15a487 !important; 
+	}
+	.contact-form .btn i {
+	    margin-right: 5px;
+	}
+	.contact-form label {
+	    opacity: 0.7;
+	}
+	.contact-form textarea {
+	    resize: vertical;
+	}
+	.hint-text {
+	    font-size: 15px;
+	    padding-bottom: 20px;
+	    opacity: 0.6;
+	}
+	
+	#won{
+		margin-left: 10px;
+		margin-top: 10px;
+	}
+	
+	label.form-label.required-label::after,
+	p.required-label::after{
+	    content: ' *';
+	    color: red;
+	}
+	
+	.hint-text::before {
+	    content: '* ';
+	    color: red;
+	    display: inline-block;
+	    margin-right: 3px; 
+	}
+	
+	.map_wrap{
+		margin-bottom: 0.7em;
+		border: 1px solid lightgray;
+	}
+	
+	#biContent::placeholder{
+	font-size: 0.9rem;
+	font-family: 'Noto Sans KR', sans-serif;
+	}
+
+	#biContent{
+		font-family: 'Noto Sans KR', sans-serif;
+	  	resize: none;
+	  	height: 10em;
+	}
+	
+	.sort{
+		float: left;
+		padding: 3%;
+		width: 15px;
+		height: 15px;
+		color: #0A60AF;
+		border-radius: 100%;
+		margin-left: 0.3em;
+		font-weight: bold;
+	}
+	
+	.file-container li{
+		float: left;
+		background-color: #FFF;
+	}
+	
+	.files{
+		border: 1px solid #DDE6ED;
+		padding: 1%;
+		height: 15em;
+		list-style: none;
+		border-radius: 0.2em;
+	}
+	
+	.ui-state-default{
+		width: 170px;
+		text-align: center;
+	}
+	
+	.ui-state-default img{
+		position: relative;
+		width: 160px;
+		height: 160px;
+		object-fit: cover;
+	}
+	
+	.del-btn{
+		text-align: center;
+		align-items: center;
+		width: 44px;
+		height: 35px;
+		border: none;
+		background: none;
+	}
+	
+	.del-btn img{
+		width: 25px;
+		height: 25px;
+		cursor: pointer;
+	}
+</style>
+
+<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=abb76285215945e8b22290d7759dcd17&libraries=services"></script>
+<body class="body-wrapper">
+	<!-- Top으로 가는 버튼 -->
+	<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+	
+	<!-- Header 및 Nav -->
+	<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+	
+	<section class="content-container">
+
+		<!-- 검색 -->
+		<th:block th:replace="html/fragments/search-fragment :: search-fragment"></th:block>
+		
+		<div class="container-lg">
+		    <div class="row">
+		        <div class="col-md-10 mx-auto">
+		            <div class="contact-form">
+		                <h3>상품 수정</h3>
+		                <p class="hint-text">는 필수입력 사항입니다.</p>       
+		                <form action="/examples/actions/confirmation.php" method="post">
+		                    <div class="row" style="margin-bottom: 20px;">
+								<div class="col-sm-12">
+									<div class="file-container">
+										<button class="btn btn-primary" id="file-add-btn" onclick="addFileInput(this, event)" style="float: right;">파일 추가</button>
+										<p id="file-desc">최소 1장, 최대 6장의 이미지 파일 업로드가 가능해요.<br>드래그로 순서를 조정하세요.</p>
+										<ul class="files" id="sortable"></ul>
+										<div id="fileDiv"></div>
+									</div>
+								</div>
+							</div>
+		                    <div class="row">
+		                        <div class="col-sm-4">
+		                            <div class="form-group">
+		                                <label class="form-label required-label" for="biTitle">글 제목</label>
+		                                <input type="text" class="form-control" id="biTitle" required>
+		                            </div>
+		                        </div>                
+		                        <div class="col-sm-4">
+		                            <div class="form-group">
+		                                <label class="form-label required-label" for="biName">상품 이름</label>
+		                                <input type="email" class="form-control" id="biName" required>
+		                            </div>
+		                        </div>
+		                        <div class="col-sm-2">
+		                            <label class="form-label required-label" for="biPrice">거래 희망 가격</label>
+		                            <div class="form-group" style="display: flex;">
+		                                <input type="text" class="form-control" id="biPrice" required onkeyup="inputNumberFormat(this)" style="text-align: right"><p id="won">원</p>
+		                            </div>
+		                        </div>
+		                    </div>
+		                    <div class="row">
+								<div class="col-sm-12">
+									<div class="form-group">
+				                        <label class="form-label required-label" for="biContent">자세한 설명</label>
+				                        <textarea class="form-control" id="biContent" rows="5" required
+											placeholder="판매 금지 물품은 게시가 제한될 수 있어요. 신뢰할 수 있는 거래를 위해 자세히 적어주세요."></textarea>
+				                    </div>
+				                 </div>
+		                    </div>
+		                    <div class="row">
+			                    <div class="col-sm-4">
+		                                <label class="form-label required-label" for="biLoca">거래 희망 장소</label><br>
+		                                <label for="inputName"><p id="map-desc">내가 선택한 주소 : <span id="map-addr" style="color: darkblue;"></span></p></label>
+			                            <div class="form-group" style="display: flex;">
+			                                <input type="text" class="form-control" name="keyword" id="keyword" placeholder="지도에서 검색">
+											<button class="btn btn-primary" type="button" id="keyword-btn" onclick="mapSearch()" style="padding: 1%; width: 100px;">이동</button></input>
+			                            </div>
+		                            <div class="form-group">
+		                                <label class="form-label required-label" for="biLoca">거래 장소 이름을 상세히 입력해주세요.</label>
+		                                <input type="text" class="form-control" id="biLoca" required placeholder="예) 강남역 1번 출구, 교보타워 앞">
+		                            </div>
+		                        </div>
+		                        <div class="col-sm-8">
+			                            <div class="map_wrap">
+											<div id="map" style="width:100%; height:350px; position:relative;overflow:hidden;"></div>
+										</div>
+		                        </div>
+			                    
+		                    </div>
+		                    
+		                    <button onclick="editBoard()" id="update-button" type="button" class="btn btn-primary" style="float: right;"><i class="fa fa-paper-plane"></i> 수정하기</button>
+		                </form>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+		
+		
+		<!-- Footer  -->
+		<th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+	</section>
+	
+	<script>
+		const gunguBox = document.querySelector('select[name=gungu]');
+		gunguBox.style.display = "none";
+		
+		
+		// 지도 생성
+		var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+		    mapOption = { 
+		        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+		        level: 3 // 지도의 확대 레벨 
+		    }; 		    
+		var map = new kakao.maps.Map(mapContainer, mapOption);
+		var geocoder = new kakao.maps.services.Geocoder(); // 주소-좌표 변환 객체를 생성합니다
+		var marker = new kakao.maps.Marker(), // 클릭한 위치를 표시할 마커입니다
+		    infowindow = new kakao.maps.InfoWindow({zindex:1}); // 클릭한 위치에 대한 주소를 표시할 인포윈도우
+		const biNum = '[[${param.biNum}]]';
+		let boardFiles = [];
+		let roadAddr = '';
+		let jibunAddr = '';
+		
+		window.addEventListener('load', async function(){
+			const res = await fetch(`/board-infos/${biNum}`);
+			const board = await res.json();
+			
+			console.log(board);
+			
+			// 이미지 파일
+			boardFiles = board.files;
+			for(let i=0; i<boardFiles.length; i++){
+				const boardFile = boardFiles[i];
+				console.log(boardFile);
+				const html = `<li class="ui-state-default" id="fileDiv${i+1}" style="border:1px">`
+			             + `<span class="sort" id="sort${i+1}">${boardFile.fiSeq}</span>`
+			             + `<label for="file${i+1}"><div class="find-btn">파일 찾기</div></label>`
+			             + `<input type="file" id="file${i+1}" onchange="preview(this, 'img${i+1}', ${boardFile.fiNum})" data-fi-num=" ${boardFile.fiNum}" style="display: none;" accept=".jpg, .png">`
+			             + `<img src="${boardFile.fiPath}" style="width:160px" id="img${i+1}">`
+			             + `<button class="del-btn" onclick="removeFileInput('fileDiv${i+1}', ${boardFile.fiNum})"><img src="/imgs/trashcan.png"></button></li>`;
+				document.querySelector('.files').insertAdjacentHTML('beforeend',html);  
+			}
+			
+			// 다른 키 값
+			for(let key in board){
+				if(document.querySelector('#' + key)){
+					document.querySelector('#' + key).value = board[key];
+				}
+			}
+			
+			// 주소로 좌표를 검색합니다
+			geocoder.addressSearch(board.biAddr, function(result, status) {
+			
+			    // 정상적으로 검색이 완료됐으면 
+			     if (status === kakao.maps.services.Status.OK) {
+			
+			        var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+			
+			        // 마커와 인포윈도우를 표시
+			        marker.setPosition(coords);
+					marker.setMap(map);
+					infowindow.setContent('<div style="padding:5px;">거래 희망 주소 위치</div>');
+					infowindow.open(map, marker);
+					
+					// 지도 중심좌표를 접속위치로 변경합니다
+			    	map.setCenter(coords);
+			    	document.querySelector('#map-addr').innerText = board.biAddr;
+			    	
+				}
+				
+				// 지도를 클릭했을 때 클릭 위치 좌표에 대한 주소정보를 표시하도록 이벤트를 등록합니다
+		    	kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+					searchDetailAddrFromCoords(mouseEvent.latLng, function(result, status) {
+						if (status === kakao.maps.services.Status.OK) {
+							// 도로명 주소와 지번 주소 가져오기
+							if(!!result[0].road_address){
+								roadAddr = result[0].road_address.address_name;
+							}
+							jibunAddr = result[0].address.address_name;
+							jibunAddr = result[0].address.address_name;
+						  	document.querySelector('#map-addr').innerText = jibunAddr;
+							
+							// 마커를 클릭한 위치에 표시합니다
+							marker.setPosition(mouseEvent.latLng);
+							marker.setMap(map);
+							
+							// 인포윈도우에 클릭한 위치에 대한 법정동 상세 주소정보를 표시합니다
+							infowindow.setContent('<div style="padding:5px;">거래하고 싶은<br>장소를 선택해주세요</div>');
+							infowindow.open(map, marker);
+						}
+					});
+				});
+			    function searchDetailAddrFromCoords(coords, callback) {
+				    // 좌표로 법정동 상세 주소 정보를 요청합니다
+				    geocoder.coord2Address(coords.getLng(), coords.getLat(), callback);
+			    }
+			    // 시도
+				const sidoBox = document.querySelector('select[name=sido]');
+				for (let i = 0; i < sidoArr.length; i++) {
+				    const option = document.createElement('option'); // 옵션 요소 생성
+				    option.text = sidoArr[i]; // 옵션의 텍스트 설정
+				    option.value = sidoArr[i]; // 옵션의 값 설정
+				    sidoBox.add(option); // 옵션을 select 요소에 추가
+				}
+			});
+		});
+		
+		// 장소 검색 함수
+		const mapSearch = function(){
+			const keyword = document.querySelector('#keyword').value;
+			var ps = new kakao.maps.services.Places(); // 장소 검색 객체를 생성
+			ps.keywordSearch(keyword, placesSearchCB); // 키워드로 장소 검색
+		}
+		
+		// 키워드 검색 완료 시 호출되는 콜백함수
+		function placesSearchCB (data, status, pagination) {
+		    if (status === kakao.maps.services.Status.OK) {
+		        var bounds = new kakao.maps.LatLngBounds();
+		        bounds.extend(new kakao.maps.LatLng(data[0].y, data[0].x)); // LatLngBounds 객체에 좌표 추가
+		        map.setBounds(bounds); // 검색된 장소 위치를 기준으로 지도 범위를 재설정
+		    } 
+		}
+		
+		// 이미지 미리 보여주는 함수
+		function preview(fileInput, imgId) {
+			document.querySelector(`#${imgId}`).src = URL.createObjectURL(fileInput.files[0]);
+		}
+		
+		// 이미지 추가 함수
+		function addFileInput(button){
+			const files = document.querySelectorAll('input[type=file]');
+			event.preventDefault(); // 기본 폼 제출 동작 방지
+			const fileId = 'file' + (files.length+1);
+			console.log('files.length+1 : ' + (files.length+1));
+			const html = `<li class="ui-state-default" id="fileDiv${files.length+1}" style="border:1px">`
+						 + `<label for="${fileId}"><div class="find-btn">파일 찾기</div></label>`
+						 + `<span class="sort" id="sort${files.length+1}">${files.length+1}</span>`
+						 + `<input type="file" id="${fileId}" onchange="preview(this,'img${files.length+1}')" style="display: none;" accept=".jpg, .png">`
+			             + `<img src="/imgs/file-default.png" id="img${files.length+1}" style="width:160px"></img>`
+						 + `<button class="del-btn" onclick="removeFileInput('fileDiv${files.length+1}')"><img src="/imgs/trashcan.png"></button></li>`;
+			             + `</li>`;
+			document.querySelector('.files').insertAdjacentHTML('beforeend',html);
+			// 이미지 개수를 7개로 제한 
+			if(files.length == 6){
+				document.querySelector('#file-add-btn').style.display = 'none';
+			}
+		}
+		
+		// 파일 제거
+		function removeFileInput(divId, fiNum){
+			console.log(boardFiles);
+			for(const boardFile of boardFiles){
+				if(fiNum===boardFile.fiNum){
+					boardFile.status = 'DELETE';
+					break;
+				}
+			}
+			document.querySelector(`#${divId}`).remove();
+			document.querySelector('#file-add-btn').style.display = 'block';
+			var files = $(".file-container ul li").map(function() {
+				return $(this).attr("id");
+			  }).get();
+			  console.log(files);
+			  let idx = 1;
+			  for(let i=0; i<files.length; i++){
+				  let fileItem = document.querySelector('#' + files[i]);
+				  fileItem.querySelector('.sort').innerText = idx;
+				  idx += 1;
+		  	}
+		}
+		
+		async function editBoard(){
+			// 입력값 처리
+			const files = document.querySelectorAll('input[type=file]');
+			const sorts = document.querySelectorAll('span[id^=sort]');
+			const sortValues = Array.from(sorts).map(span => span.innerText);
+			const formData = new FormData();
+			
+			if(document.querySelector('#biTitle').value.trim() === ''){
+				alert('제목을 입력해주세요.');
+				return;
+			}else{
+				formData.append('biTitle', document.querySelector('#biTitle').value);
+			}
+			if(document.querySelector('#biName').value.trim() === ''){
+				alert('상품 이름을 입력해주세요.');
+				return;
+			}else{
+				formData.append('biName', document.querySelector('#biName').value);
+			}
+			if(document.querySelector('#biPrice').value.trim() === ''){
+				alert('상품 가격을 입력해주세요.');
+				return;
+			}else{
+				formData.append('biPrice', document.querySelector('#biPrice').value);
+			}
+			if(document.querySelector('#biContent').value.trim() === ''){
+				alert('상세 설명을 작성해주세요.')
+				return;
+			}else{
+				formData.append('biContent', document.querySelector('#biContent').value);
+			}
+			if(document.querySelector('#biLoca').value.trim() === ''){
+				alert('거래하고 싶은 장소를 입력해주세요. (예. 홍대입구역 1번 출구)');
+				return;
+			}else{
+				formData.append('biLoca', document.querySelector('#biLoca').value);
+			}
+			formData.append('biAddr', document.querySelector('#map-addr').innerText);
+			
+			let i=0;
+			for( ;i<files.length;i++){
+				if(files[i].files.length){
+					formData.append(`files[${i}].file`, files[i].files[0]);
+				}
+				formData.append(`files[${i}].fiSeq`, sortValues[i]);
+				if(files[i].getAttribute('data-fi-num')){
+					formData.append(`files[${i}].fiNum`,files[i].getAttribute('data-fi-num'));
+					formData.append(`files[${i}].status`, 'UPDATE');
+				}else{
+					formData.append(`files[${i}].status`, 'INSERT');
+				}
+			}
+			for(const boardFile of boardFiles){
+				if(boardFile.status==='DELETE'){
+					formData.append(`files[${i}].status`, 'DELETE');
+					formData.append(`files[${i}].fiNum`,`${boardFile.fiNum}`);
+					formData.append(`files[${i++}].fiPath`,`${boardFile.fiPath}`);
+				}
+			}
+			
+			const res = await fetch(`/board-infos/${biNum}`,{
+				method: 'PATCH',
+				body: formData
+			});
+			console.log(res);
+			const board = await res.json();
+			
+			// 게시물 뷰로 이동
+			if(res.ok){
+				alert("수정되었습니다.");
+				location.href='/html/board/board-list';
+			}
+		}
+		
+		// 드래그
+		$(document).ready(function () {
+			$("#sortable").sortable({
+				connectWith: ".files ul",
+				update: function (event, ui) {
+					var files = $(".file-container ul li").map(function () {
+						return $(this).attr("id");
+					}).get();
+					console.log(files);
+					let idx = 1;
+					for (let i = 0; i < files.length; i++) {
+						let fileItem = document.querySelector('#' + files[i]);
+						fileItem.querySelector('.sort').innerText = idx;
+						idx += 1;
+					}
+				}
+			}).disableSelection();
+		});
+		
+		// 스크롤 이벤트 리스너
+		window.addEventListener('scroll', () => {
+			// 스크롤 위치가 100px 이상일 때 위로 가기 버튼을 보이게 함
+			if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+				document.querySelector('#btn-back-to-top').style.display = 'block';
+			} else {
+				document.querySelector('#btn-back-to-top').style.display = 'none';
+			}
+		});
+		
+		// 시도 선택에 따라 시군구 셀렉트 박스 내용 변경
+		function sidoChange(sido){
+			gunguBox.style.display = "";
+			let gunguArr = [];
+			if(sido.value == '전체 지역'){
+				gunguBox.style.display = "none";
+			}else if(sido.value == '서울'){
+				gunguArr = seoul;
+			}else if(sido.value == '경기'){
+				gunguArr = gyeonggi;
+			}else if(sido.value == '부산'){
+				gunguArr = busan;
+			}
+			gunguBox.options.length = 0;
+			
+			for(idx in gunguArr){
+				const option = document.createElement('option'); // 옵션 요소 생성
+				option.text = gunguArr[idx]; // 옵션의 텍스트 설정
+			    option.value = gunguArr[idx]; // 옵션의 값 설정
+			    gunguBox.add(option); // 옵션을 select 요소에 추가
+			}
+		}
+		
+		// 검색 시 이동
+		function getBoards(){
+			let url = `/board-infos?page=1&pageSize=9`;
+			url += `&search=${document.querySelector('#inputtext4').value}`;
+			url += `&sido=${document.querySelector('select[name="sido"] > option:checked').innerText}`;
+			if(gunguBox.style.display != "none"){
+				url += `&gungu=${document.querySelector('select[name="gungu"] > option:checked').innerText}`;
+			}
+			window.location.href = url;
+		}
+		
+	</script>
+</body>

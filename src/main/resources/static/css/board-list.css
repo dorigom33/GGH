@@ -1,0 +1,280 @@
+@charset "UTF-8";
+
+.body-container{
+	width: 80%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 50em;
+	height: 60vh;
+}
+
+#search-form {
+    margin-top: 4.2em;
+    position: absolute;
+    right: 0;
+}
+#search-form input[type=radio]{
+    display: none;
+}
+#search-form input[type=radio]+label{
+    display: inline;
+    cursor: pointer;
+    line-height: 24px;
+    text-align: center;
+    font-size: 1em;
+    font-weight: 500;
+    margin-right: 22px;
+	position: relative;
+}
+
+#search-form input[type=radio]+label{
+    color: #222;
+}
+#search-form input[type=radio]:checked+label{
+    color: #0A60AF;
+}
+
+#search-form input[type=radio]+label:hover{
+    color: #0A60AF;
+}
+
+#search-container{
+	text-align: center;
+}
+
+#search{
+	padding: 20px;
+	width: 33%;
+	height: 2px;
+	margin-bottom: 10px;
+	border-radius: 0.4em;
+	border: 2px solid #0A60AF;
+}
+
+a#search-reset{
+	font-size: 1.3em;
+	color: #888;
+	position: absolute;
+	top: 7px;
+	right: 36.5%;
+}
+
+button#search-btn{
+	font-size: 1em;
+	border: none;
+	width: 70px;
+	padding: 12px;
+    background-color: #0A60AF;
+	color: #FFF;
+	border-radius: 0.4em;
+    cursor: pointer;
+}
+
+select{
+  	float: left;
+  	padding: 7px;
+	border-radius: 5px;
+	border: 2px solid #0A60AF;
+  	margin-left: 10px;
+}
+
+#addr-reset{
+	font-size: 0.9em;
+  	float: right;
+  	margin-right: 30%;
+  	color: #888;
+	border: 2px solid #AAA;
+	background-color: #EEE;
+	padding: 3px 7px 3px;
+	border-radius: 0.4em;
+}
+
+#reset:hover{
+  	color: #555;
+}
+
+select#sido{
+  	margin-left: 30%;
+}
+
+select#gungu{
+  	margin-left: 10px;
+}
+
+a#goAdd{
+	text-decoration-line: none;
+	border: 2px solid #4C9ACC;
+	background-color: #BDE9FD;
+    color: #000;
+	padding: 7px 12px 7px;
+	text-align: center;
+	width: 130px;
+	font-size: 1rem;
+  	float: right;
+	border-radius: 0.4em;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+a#goAdd:hover{
+	border: 2px solid #4C9ACC;
+    background-color: #4C9ACC;
+    color: #FFF;
+}
+
+.result-container{
+	width: 100%;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 80px;
+}
+
+p#result-title{
+	color: #000;
+	font-size: 1.5rem;
+	font-weight: 500;
+}
+
+div#total-count{
+	color: #000;
+	font-size: 1rem;
+	margin-top: -15px;
+	margin-left: 5px;
+	margin-bottom: 15px;
+}
+
+.result-analysis{
+	border: 2px solid #87C4EF;
+	margin-top: 10px;
+	height: 80px;
+	width: 100;
+	padding: 10px;
+	background-color: #FFF;
+	margin-bottom: 10px;
+}
+
+.analysis{
+	float: right;
+	width: 33%;
+	height: 100%;
+	margin-top: 10px;
+}
+
+.analysis span{
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.analysis p{
+	margin-top: -2px;
+}
+
+.lowest{
+	color: #0079FF;
+}
+
+.highest{
+	color: #FC2947;
+}
+
+#board-list {
+    margin-top: 1em;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 반응형 그리드 설정 */
+    grid-gap: 20px; /* 간격조정 */
+}
+
+.board {
+    height: 380px;
+	width: 280px;
+    padding: 5px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+img{
+	height: 280px;
+	width: 280px;
+	object-fit: cover;
+	filter: brightness(1);
+	border-radius: 3%;
+}
+
+.board img:hover{
+	filter: brightness(0.7);
+	-webkit-transform: scale(1.01);
+  	transform: scale(1.01);
+}
+
+div#board-title a{
+	text-decoration-line: none;	
+	color: #000;
+	font-weight: bold;
+	font-size: 1rem;
+	margin-top: 5px;
+}
+
+div#board-stat{
+	float: right;
+	margin-top: 2.2em;
+	padding: 2%;
+	width: 4em;
+	text-align: center;
+	background-color: #0A60AF;
+	color: #FFF;
+	border-radius: 6px;
+}
+
+div#board-addr{
+	color: #000;
+	font-size: 0.8rem;
+	margin-top: 5px;
+}
+
+div#board-price{
+	color: #0A60AF;
+	font-weight: bold;
+	font-size: 1rem;
+	margin-top: 5px;
+}
+
+div #board-ago{
+	margin-top: 5px;
+	font-size: 0.7rem;
+}
+
+div#pageDiv{
+	text-align: center;
+	width: 100%;
+}
+
+.pagination{
+	list-style: none;
+	display: inline-block;
+	padding: 0;
+	margin-top: 20px;
+}
+
+.pagination li{
+	display: inline;
+	text-align: center;
+}
+
+.pagination a{
+	float: left;
+	display: block;
+	font-size: 17px;
+	text-decoration-line: none;
+	padding: 5px 12px;
+  	color: #000;
+  	line-height: 1.5;
+}
+
+#nullMsg{
+	margin-top: 100px;
+	margin-bottom: 100px;
+	text-align: center;
+	font-size: 1em;
+}

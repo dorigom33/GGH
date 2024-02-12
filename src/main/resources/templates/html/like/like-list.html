@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+	<!-- ** Basic Page Needs ** -->
+	<meta charset="utf-8">
+	<title>Classimax | Classified Marketplace Template</title>
+
+	<!-- ** Mobile Specific Metas ** -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Agency HTML Template">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+	<meta name="author" content="Themefisher">
+	<meta name="generator" content="Themefisher Classified Marketplace Template v1.0">
+
+	<!-- 
+  Essential stylesheets
+  =====================================-->
+	<link href="/assets/plugins/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/plugins/bootstrap/dist/css/bootstrap-slider.css" rel="stylesheet">
+	<link href="/assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="/assets/plugins/slick-carousel/slick/slick.css" rel="stylesheet">
+	<link href="/assets/plugins/slick-carousel/slick/slick-theme.css" rel="stylesheet">
+	<link href="/assets/plugins/jquery-nice-select/css/nice-select.css" rel="stylesheet">
+
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+</head>
+
+<body class="body-wrapper">
+	<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+
+	<section class="dashboard section">
+		<!-- Container Start -->
+		<div class="container">
+			<!-- Row Start -->
+			<div class="row">
+				<div class="col-lg-4">
+					<div class="sidebar">
+						<!-- User Widget -->
+						<div class="widget user-dashboard-profile">
+							<!-- User Image -->
+							<div class="profile-thumb">
+								<img src="/assets/images/user/user-thumb.jpg" class="rounded-circle">
+							</div>
+							<!-- User Name -->
+							<h5 class="uiName"></h5>
+							<h6 class="uiDesc"></h6>
+							<p class="credat"></p>
+						</div>
+						<!-- Dashboard Links -->
+						<div class="widget user-dashboard-menu">
+							<ul>
+								<li class="active">
+									<a onclick="active('boardList')" class="boardList"><i
+											class="fa fa-user boardList"></i> 판매 상품</a>
+								</li>
+								<li>
+									<a onclick="active('likeList')" class="likeList"><i
+											class="fa fa-bookmark-o likeList"></i> 관심 목록<span>5</span></a>
+								</li>
+								<li>
+									<a onclick="active('reviewList')" class="reviewList"><i
+											class="fa fa-file-archive-o reviewList"></i> 유저 평가<span>12</span></a>
+								</li>
+								<li>
+									<a onclick="active('idk')" class="idk"><i class="fa fa-bolt idk"></i> 뭐
+										넣을까<span>23</span></a>
+								</li>
+								<li>
+									<a onclick="active('report')" class="report"><i class="fa fa-cog report"></i> 신고</a>
+								</li>
+								<li>
+									<a href="#!" data-toggle="modal" data-target="#deleteaccount"><i
+											class="fa fa-power-off"></i>Delete Account</a>
+								</li>
+							</ul>
+						</div>
+
+						<!-- delete-account modal -->
+						<!-- delete account popup modal start-->
+						<!-- Modal -->
+						<div class="modal fade" id="deleteaccount" tabindex="-1" role="dialog"
+							aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-centered" role="document">
+								<div class="modal-content">
+									<div class="modal-header border-bottom-0">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+									<div class="modal-body text-center">
+										<img src="/assets/images/account/Account1.png" class="img-fluid mb-2">
+										<h6 class="py-2">Are you sure you want to delete your account?</h6>
+										<p>Do you really want to delete these records? This process cannot be undone.
+										</p>
+										<textarea class="form-control" name="message" id="" cols="40"
+											rows="4"></textarea>
+									</div>
+									<div class="modal-footer border-top-0 mb-3 mx-5 justify-content-center">
+										<button type="button" class="btn btn-primary"
+											data-dismiss="modal">Cancel</button>
+										<button type="button" class="btn btn-danger">Delete</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- delete account popup modal end-->
+						<!-- delete-account modal -->
+
+					</div>
+				</div>
+				<div class="col-lg-8">
+					<!-- Recently Favorited -->
+					<div class="widget dashboard-container my-adslist">
+
+						<h3 class="widget-header">나의 관심 상품</h3>
+						<form id="search-form">
+							<input type="radio" id="all" name="check-stat" value="전체" checked><label for="all">전체</label>
+							<input type="radio" id="sale" name="check-stat" value="판매중"><label for="sale">판매중</label>
+							<input type="radio" id="soldOut" name="check-stat" value="판매완료"><label
+								for="soldOut">판매완료</label>
+						</form>
+
+						<table class="table table-responsive product-dashboard-table">
+							<div id="null-message"></div>
+							<thead>
+								<tr>
+									<th>Image</th>
+									<th>Product Title</th>
+									<th class="text-center" style="width:100px;">Status</th>
+									<th class="text-center">Action</th>
+								</tr>
+							</thead>
+							<tbody class="productTableBody">
+							</tbody>
+						</table>
+
+					</div>
+
+					<!-- pagination -->
+					<div class="pagination justify-content-center">
+						<nav aria-label="Page navigation example">
+							<ul class="pagination">
+							</ul>
+						</nav>
+					</div>
+					<!-- pagination -->
+
+				</div>
+			</div>
+			<!-- Row End -->
+		</div>
+		<!-- Container End -->
+	</section>
+	<!--============================
+=            Footer            =
+=============================-->
+	<!-- Container End -->
+
+	<!-- 
+Essential Scripts
+=====================================-->
+	<script src="/assets/plugins/jquery/dist/jquery.min.js"></script>
+	<script src="/assets/plugins/bootstrap/dist/js/popper.min.js"></script>
+	<script src="/assets/plugins/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="/assets/plugins/bootstrap/dist/js/bootstrap-slider.js"></script>
+	<script src="/assets/plugins/tether/js/tether.min.js"></script>
+	<script src="/assets/plugins/raty/jquery.raty-fa.js"></script>
+	<script src="/assets/plugins/slick-carousel/slick/slick.min.js"></script>
+	<script src="/assets/plugins/jquery-nice-select/js/jquery.nice-select.min.js"></script>
+	<!-- google map -->
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCcABaamniA6OL5YvYSpB3pFMNrXwXnLwU" defer></script>
+	<script src="/assets/plugins/google-map/map.js" defer></script>
+
+	<script src="/assets/js/scripts.js"></script>
+	<script>
+		window.addEventListener('load', async function(){
+				const responsUser = await fetch('/select-user-info');
+        const userJson = await responsUser.json();
+        const uiName = userJson.uiName;
+        console.log(uiName);
+        const uiDesc = userJson.uiDesc;
+        const userCredat = userJson.credat;
+        const subDate = subStr(userCredat);
+        console.log(uiDesc);
+        console.log(userCredat);
+        console.log(userJson);
+        document.querySelector('.uiName').innerText = `${uiName}`;
+			document.querySelector('.uiDesc').innerText = `${uiDesc}`;
+			document.querySelector('.credat').innerText = `가입 ${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일`;
+			});
+			
+		let total = 0;
+		let pageSize = 12; // 한번에 12개씩 보여줌
+		const blockSize = 10; // 페이지 블록 크기는 10
+		const getBoards = async function (evt, page) {
+			// 현재 페이지가 undefined면 맨 처음 페이지로
+			if (!page) {
+				page = 1;
+			}
+			let url = `/like-infos?page=${page}&pageSize=${pageSize}`;
+			const selectedStatus = document.querySelector('input[name="check-stat"]:checked');
+			const statusQueryParam = selectedStatus ? selectedStatus.value : '전체';
+			if (statusQueryParam) {
+				url += `&biStat=${statusQueryParam}`;
+			}
+			
+			const res = await fetch(url);
+			const json = await res.json();
+			console.log(json);
+			if (json.list.length === 0) {
+				document.querySelector('#null-message').innerHTML = '<p id="nullMsg">등록된 관심상품이 없어요.</p>';
+			}
+			
+			
+			const totalCnt = json.totalCnt; // 전체 게시물 개수
+			const pageBlock = Math.ceil(totalCnt / pageSize); // 페이지 블록의 개수 (몇 페이지까지 있는지)
+			const startBlock = (Math.ceil(page / blockSize) - 1) * blockSize + 1;
+			let endBlock = startBlock + blockSize - 1;
+			let pageHtml = '';
+			if (endBlock > pageBlock) {
+				endBlock = pageBlock
+			}
+			if (startBlock != 1) {
+				pageHtml += `<li class="page-item">
+								<a class="page-link" href="javascript:void(0)" aria-label="Previous" onclick="getBoards(event, ${endBlock-1})">
+									<span aria-hidden="true">&laquo;</span>
+									<span class="sr-only">Previous</span>
+								</a>
+							</li>`;
+			}
+			for (let i = startBlock; i <= endBlock; i++) { // 10개 만들어짐
+				pageHtml += `<li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="getBoards(event, ${i})">${i}</a></li>`;
+			}
+			if (endBlock < pageBlock) {
+				pageHtml += `<li class="page-item">
+								<a class="page-link" href="javascript:void(0)" aria-label="Next" onclick="getBoards(event, ${endBlock+1})">
+										<span aria-hidden="true">&raquo;</span>
+										<span class="sr-only">Next</span>
+									</a>
+								</li>`;
+			}
+			document.querySelector('.pagination').innerHTML = pageHtml;
+			document.querySelector('.productTableBody').innerHTML = '';
+			document.querySelector('#null-message').innerHTML = '';
+
+			if (json.list.length === 0) {
+				boardHtml = `<p id="nullMsg">관심 목록 중에 ${document.querySelector('input[name="check-stat"]:checked').value}인 상품이 없어요.</p>`;
+				document.querySelector('#null-message').innerHTML = boardHtml;
+			} else {
+				for (let i = 0; i < json.list.length; i++) {
+					const like = json.list[i];
+					console.log(like.uiName);
+					console.log(like.uiDesc);
+					const subDate = subStr(like.credat);
+					const likeFilePath = like.files[0].fiPath;
+					const likeFileName = like.files[0].fiName;
+					const price = Number(like.biPrice);
+					boardHtml =
+						`<tr><td class="proudct-thumb">
+					<img width="80px" height="auto" src="${likeFilePath}"></td>
+					<td class="product-details">
+					<h3 class="title">${like.biTitle}</h3>
+					<span class="add-id"><strong>상품 ID:</strong>${like.biNum}</span>
+					<span><strong>게시일:</strong><time>${subDate[0]}년 ${subDate[1]}월 ${subDate[2]}일
+						</time></span>
+						<span class="status ${like.biStat === '판매중' ? 'active' : 'inactive'}"><strong>거래 상태</strong>${like.biStat}</span>
+							<span class="location"><strong>거래 장소</strong>${like.biAddr}</span></td>
+							<td class="product-category"><span class="categories" style="color:${like.biStat === '판매중' ? 'rgb(0, 183, 0)' : 'gray'}; font-weight:bold;">${like.biStat}</span></td>
+							<td class="action" data-title="Action">
+				<div class="">
+				<ul class="list-inline justify-content-center">
+				<li class="list-inline-item">
+				<a data-toggle="tooltip" data-placement="top" title="View" class="view" href="category.html">
+				<i class="fa fa-eye"></i></a></li>
+				<li class="list-inline-item">
+				<a data-toggle="tooltip" data-placement="top" title="Edit" class="edit" href="dashboard-my-ads.html">
+				<i class="fa fa-pencil"></i></a></li>
+				<li class="list-inline-item">
+				<a data-toggle="tooltip" data-placement="top" title="Delete" class="delete" href="dashboard-my-ads.html">
+				<i class="fa fa-trash"></i>
+				</a></li></ul></div></td></tr>`;
+					document.querySelector('.productTableBody').insertAdjacentHTML('beforeend', boardHtml);
+					
+				}
+				
+			}
+
+			function active(dom) {
+				document.querySelector('.active').classList.remove('active');
+				document.querySelector(`.${dom}`).className = "active";
+			}
+			
+		}
+		function subStr(date) {
+				return subDate = [date.substr(0, 4), date.substr(4, 2), date.substr(6, 2)];
+			}
+		window.addEventListener('load', getBoards); // 로딩 시 호출
+		
+		
+		// 라디오 버튼 선택 시마다 결과 호출
+		document.querySelector('#search-form').addEventListener('change', function(event){
+			getBoards();
+		});
+		
+		
+	</script>
+</body>
+
+</html>

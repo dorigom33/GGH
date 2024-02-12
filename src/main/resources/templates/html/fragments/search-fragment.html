@@ -1,0 +1,50 @@
+<section class="page-search" th:fragment="search-fragment">
+	<style>
+		#sido, #gungu{
+			padding: 5%;
+			border-radius: 3px;
+			width: 500px;
+		}
+		
+		#gungu{
+			margin-left: 10px;
+		}
+		
+		/* 모바일 스타일 */
+		@media only screen and (max-width: 767px) {
+			#sido, #gungu{
+				margin-top: 10px;
+				padding: 0%;
+			}
+			
+			#search-btn{
+				margin-top: 5px;
+			}
+		}
+	</style>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<!-- Advance Search -->
+				<div class="advance-search">
+					<form>
+					    <div class="form-row" style="display: flex; justify-content: center;">
+					        <div class="form-group col-md-4">
+					            <input type="text" class="form-control" name="search" id="inputtext4" placeholder="물건 이름">
+					        </div>
+					        <div class="form-group col-md-3" style="display: flex;">
+					            <select name="sido" id="sido" onchange="sidoChange(this)" style="height: 50px;">
+					            </select>
+					            <select name="gungu" id="gungu">    
+					            </select>
+					        </div>
+					        <div class="form-group col-md-2" id="search-btn">
+					            <button type="button" class="btn btn-primary" id="search-btn" onclick="getBoards()" style="height: 50px;">상품 검색</button>
+					        </div>
+					    </div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

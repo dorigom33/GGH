@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+<title>지중해</title>
+<link rel="stylesheet" href="/css/board-list.css">
+<link rel="stylesheet" href="/css/common.css">
+<div th:replace="html/fragment/header.html :: header-head"></div>
+<script src="/js/data-processing.js"></script>
+<script src="/js/sigungu.js"></script>
+</head>
+<body>
+	<div th:replace="html/fragment/header.html :: header-container"></div>
+	<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+	<div class="body-container">
+		<div id="search-container">
+			<input type="text" name="search" id="search" placeholder="물품이나 동네를 검색해보세요">
+			<a href="#" onclick="searchReset()" id="search-reset">⨉</a>
+			<button id="search-btn" onclick="getBoards()">검색</button><br>
+		</div>
+		<div class="result-container">
+			<form id="search-form">
+				<input type="radio" id="all" name="check-stat" value="전체"><label for="all">전체</label>
+	            <input type="radio" id="sale" name="check-stat" value="판매중"><label for="sale">판매중</label>
+	            <input type="radio" id="soldOut" name="check-stat" value="판매완료"><label for="soldOut">판매완료</label>
+	        </form>
+			<p id="result-title"></p>
+			<div id="total-count"></div>
+			<div id="board-list"></div>
+			<div id="null-message"></div>
+			<div id="pageDiv">
+				<ul class="pagination"></ul>
+			</div>
+		</div>
+	</div>
+	<script>
+		document.querySelector('#search-form').addEventListener('change', function(event) {
+            getBoards();
+        });
+		
+		// 페이징
+		let totalCnt = 0;
+		let pageSize = 12; // 한번에 12개씩 보여줌
+		const blockSize = 10; // 페이지 블록 크기는 10
+		const getBoards = async function(evt, page){
+			document.querySelector('#result-title').innerHTML = '검색 결과';
+			listStyle = '[[${param.listStyle}]]';
+			if(listStyle != ""){
+				document.querySelector('#result-title').innerHTML = listStyle;
+			}
+			// 현재 페이지가 undefined면 맨 처음 페이지로
+			if(!page){
+				page = 1;
+			}
+			let url = `/board-infos?page=${page}&pageSize=${pageSize}`;
+			url += `&search=${document.querySelector('#search').value}`;
+			if(`[[${param.searchNum}]]` != ''){
+				url += `&searchNum=[[${param.searchNum}]]`;
+			}
+			const selectedStatus = document.querySelector('input[name="check-stat"]:checked');
+            const statusQueryParam = selectedStatus ? selectedStatus.value : '전체';  // 디폴트는 전체
+            if (statusQueryParam) {
+                url += `&biStat=${statusQueryParam}`;
+            }
+         	console.log(url);
+            const res = await fetch(url);
+			const json = await res.json();
+			const totalCnt = json.totalCnt; // 전체 게시물 개수
+			document.querySelector('#board-list').innerHTML = ''; // 내용 지우기
+			document.querySelector('#null-message').innerHTML = '';
+			// 게시물이 없는 경우
+			if(totalCnt <= 0){
+				document.querySelector('#null-message').innerHTML = '<p id="nullMsg">등록된 상품이 없습니다.</p>';
+				document.querySelector('#total-count').innerText = `0개의 상품`;
+				document.querySelector('#low-price').textContent = 0;
+				document.querySelector('#high-price').textContent = 0;
+				document.querySelector('#avg-price').textContent = 0;
+				return;
+			}
+			const pageBlock = Math.ceil(totalCnt/pageSize); // 페이지 블록의 개수 (몇 페이지까지 있는지)
+			const startBlock = (Math.ceil(page/blockSize)-1)*blockSize+1;
+			let endBlock = startBlock + blockSize - 1;
+			let pageHtml = '';
+			if(endBlock > pageBlock){
+				endBlock = pageBlock
+			}
+			if(startBlock != 1){
+				pageHtml += `<li><a href="javascript:void(0)" class="page" onclick="getBoards(event, ${startBlock-1})">◀</a></li>`;
+			}
+			for(let i=startBlock; i<=endBlock; i++){ // 10개 만들어짐
+				pageHtml += `<li><a href="javascript:void(0)" class="page" onclick="getBoards(event, ${i})"><p> ${i} </p></a></li>`;
+			}
+			if(endBlock<pageBlock){
+				pageHtml += `<li><a href="javascript:void(0)" class="page" onclick="getBoards(event, ${endBlock+1})">▶</a></li>`;
+			}
+			document.querySelector('.pagination').innerHTML = pageHtml;
+			
+			
+			// 전체 상품 개수
+			const boardSize = json.list.length;
+			if(boardSize != 0){
+				// 보드 채우기
+				for(let i=0; i<boardSize; i++){
+					const board = json.list[i];
+					const boardFile = board.files[0];
+					const price = Number(board.biPrice);
+					boardHtml = 
+					`<div class="board">
+						<div id="img${i+1}">
+							<a href="/html/board/board-view?biNum=${board.biNum}&uiNum=${board.uiNum}">
+								<img src="${boardFile.fiPath}" alt="${boardFile.fiName}">
+							</a>
+						</div>
+						<div id="board-title"><a href="/html/board/board-view?biNum=${board.biNum}&uiNum=${board.uiNum}">${board.biTitle}</a></div>
+						<div id="board-stat">${board.biStat}</div>
+						<div id="board-addr">${findDong(board.biAddr)}</div>
+						<div id="board-price">${priceToString(price)}원</div>
+						<div id="board-ago">끌올 ${calculateTime(board.credat, board.cretim)}</div>
+					</div>`;
+					document.querySelector('#board-list').insertAdjacentHTML('beforeend',boardHtml);
+				}
+			}
+			// 전체 게시물 분석 결과 불러오기
+			getAnalysis(url, totalCnt);
+			
+			// 끌올 가능한지 (개발 예정)
+		}
+		window.addEventListener('load', getBoards); // 호출
+		
+		// 전체 상품 개수 불러오는 함수
+		async function getAnalysis(url, totalCnt){
+			document.querySelector('#total-count').innerText = `${totalCnt}개의 상품`;
+			url = `/board-infos?page=1&pageSize=${totalCnt}`;
+			url += `&search=${document.querySelector('#search').value}`;
+			url += `&sido=${document.querySelector('select[name="sido"] > option:checked').innerText}`;
+			
+			if(`[[${param.searchNum}]]` != ''){
+				url += `&searchNum=[[${param.searchNum}]]`;
+			}
+		}
+		
+		
+		// 스크롤 이벤트 리스너
+		window.addEventListener('scroll', () => {
+			// 스크롤 위치가 100px 이상일 때 위로 가기 버튼을 보이게 함
+			if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+				document.querySelector('#btn-back-to-top').style.display = 'block';
+			} else {
+				document.querySelector('#btn-back-to-top').style.display = 'none';
+			}
+		});
+		
+		// 검색 초기화 함수
+		function searchReset(){
+			document.querySelector('#search').value = null;
+		}
+		
+	</script>
+</body>
+</html>

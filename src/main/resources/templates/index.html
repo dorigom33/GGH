@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- head 태그 -->
+<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+
+<style>
+	.form-row {
+	    display: flex;
+	    justify-content: center;
+	}
+	
+	.col-md-6{
+		display: flex;
+		background-color: #FFF;
+	}
+	
+	#inputtext4{
+		width: 80%;
+	}
+	
+	#search-btn{
+		width: 20%;
+		padding: 0;
+	}
+	
+	.sticky {
+	  position: fixed;
+	  margin-top: -415px;
+	  width: 35%;
+	  z-index: 100;
+	}
+	
+	.shiftDown {
+	  margin-top: 90px;
+	}
+	
+	.downShadow {
+	    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+	    transition: all 0.3s ease-in;
+	}
+	
+	/* 모바일 스타일 */
+	@media only screen and (max-width: 767px) {
+		
+		#inputtext4{
+			font-size: 0.8em;
+			width: 80%;
+		}
+		
+		#search-btn{
+			font-size: 0.8em;
+			width: 20%;
+			padding: 0;
+		}
+		
+		.sticky {
+		  position: fixed;
+		  margin-top: -405px;
+		  width: 75%;
+		  left: 15px;
+		  z-index: 100;
+		}
+	}
+</style>
+
+<body class="body-wrapper">
+	<!-- Top으로 가는 버튼 -->
+	<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+	
+	<!-- Header 및 Nav -->
+	<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+	
+	<section class="content-container">
+	
+		<!-- 배너 및 검색 -->
+		<section class="hero-area bg-1 text-center overly" id="downplease">
+			<!-- Container Start -->
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<!-- Header Contetnt -->
+						<div class="content-block">
+							<h1>믿을만한 중고거래</h1>
+							<p>나누면 나눌수록 행복이 커지는 <br> 따뜻한 이웃간 거래를 지금 경험해보세요.</p>
+							
+						</div>
+						<!-- Advance Search -->
+						<div class="advance-search">
+							<form class="form" action="/html/board/board-list" method="get">
+								<div class="form-row">
+									<div class="form-group col-md-6 search" id="search">
+										<input type="text" class="form-control" id="inputtext4" name="search" placeholder="찾고 싶은 물건을 검색해보세요">
+										<button type="submit" class="btn btn-primary" id="search-btn">검색</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- Container End -->
+		</section>
+		
+		<!-- 인기 상품 리스트 -->
+		<section class="popular-deals section bg-gray " id="random-stuff">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="section-title">
+							<h2>인기 상품</h2>
+							<p>현재 가장 많이 조회되고 있는 상품이에요</p>
+						</div>
+					</div>
+				</div>
+				<div class="row" id="board-list">
+				</div>
+			</div>
+		</section>
+		
+		<!-- Footer  -->
+		<th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+	</section>
+  
+  
+  <script>
+	  // 인기 상품 가져오는 함수
+	const getBoards = async function(evt){
+		let url = '/board-infos-hot';
+		const res = await fetch(url);
+		const json = await res.json();
+		let boardHtml = '';
+		for(let i=0; i<json.length; i++){
+			const board = json[i];
+			const boardFile = board.files[0];
+			const price = Number(board.biPrice);
+			const statColor = board.biStat=='판매중' ? '#10AEDB' : '#888';
+			boardHtml = 
+			`<div class="col-sm-12 col-lg-4">
+					<div class="product-item bg-light">
+						<div class="card">
+							<div class="thumb-content">
+								<div class="price" style="background:${statColor};"]>${board.biStat}</div>
+								<a href="/html/board/board-view?biNum=${board.biNum}&uiNum=${board.uiNum}">
+									<img class="card-img-top img-fluid" id="index-list-img" src="${boardFile.fiPath}" alt="${boardFile.fiName}">
+								</a>
+							</div>
+							<div class="card-body">
+							    <h4 class="card-title"><a href="/html/board/board-view?biNum=${board.biNum}&uiNum=${board.uiNum}">${board.biTitle}</a></h4>
+							    <ul class="list-inline product-meta">
+							    	<li class="list-inline-item">
+							    		<a href="">${findDong(board.biAddr)}</a>
+							    	</li>
+							    	<li class="list-inline-item">
+							    		<a href=""><i class="fa fa-calendar"></i>${calculateTime(board.lmodat, board.lmotim)}</a>
+							    	</li>
+							    </ul>
+							    <p class="card-text">채팅 <span id="chatCnt">${board.chatCnt}</span>  ∙ 관심 <span id="likeCnt">${board.likeCnt}</span>  ∙ 조회 <span id="biViews">${board.biViews}</span></p>
+							    <div class="product-ratings">
+							    	<p>${priceToString(price)}원</p>
+							    </div>
+							</div>
+						</div>
+					</div>
+				</div>`
+			document.querySelector('#board-list').insertAdjacentHTML('beforeend', boardHtml);
+		}
+	}
+	window.addEventListener('load', getBoards);
+	
+	// 스크롤 이벤트 리스너
+	window.addEventListener('scroll', () => {
+		// 스크롤 위치가 100px 이상일 때 위로 가기 버튼을 보이게 함
+		if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+			document.querySelector('#btn-back-to-top').style.display = 'block';
+		} else {
+			document.querySelector('#btn-back-to-top').style.display = 'none';
+		}
+	});
+	
+	// 검색창 천장에 붙이기
+	window.onscroll = function(){
+		searchScroll();
+	}
+	let search = document.getElementById("search");
+	let randomStuff = document.getElementById("random-stuff");
+	let headerBar = document.getElementById("header-bar");
+	
+	function searchScroll(){
+		if(window.pageYOffset > 425){
+			search.classList.add("sticky");
+			randomStuff.classList.add("shiftDown");
+			headerBar.classList.add("downShadow");
+		}else{
+			search.classList.remove("sticky");
+			randomStuff.classList.remove("shiftDown");
+			headerBar.classList.remove("downShadow");
+		}
+	}
+	
+  </script>
+</body>
+
+</html>

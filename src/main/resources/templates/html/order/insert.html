@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+	<title>지중해</title>
+	<link rel="stylesheet" href="/css/order-insert.css">
+	<script src="/js/data-processing.js"></script>
+</head>
+
+<body class="body-wrapper">
+	<section class="login py-5 border-top-1">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-lg-5 col-md-8 align-item-center">
+					<div class="border">
+							<h2 id="order-title">실제 구매 가격</h2>
+							<form id="orderInfoForm">
+								<input type="hidden" id="diNum" name="diNum">
+								<div class="input-field"><input class="text-field" type="text" id="oiPrice"
+										name="oiPrice" onkeyup="inputNumberFormat(this)" required> 원</div>
+								<button id="order-btn" type="button" onclick="addOrderInfo()">거래 확정</button>
+							</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const urlParams = new URLSearchParams(window.location.search);
+		const diNumParam = urlParams.get('diNum');
+
+		document.querySelector("#diNum").value = diNumParam;
+	});
+
+	async function addOrderInfo() {
+		var diNum = document.querySelector("#diNum").value;
+		var oiPrice = document.querySelector("#oiPrice").value.trim().replace(/,/g, '');
+
+		const fetchBiNumAndBiPrice = async (diNum) => {
+			const response = await fetch(`/get-bi-num-and-bi-price/${diNum}`);
+			const data = await response.json();
+			return data;
+		};
+
+		const {biNum, biPrice} = await fetchBiNumAndBiPrice(diNum);
+
+		var orderInfo = {
+			diNum: diNum,
+			oiPrice: oiPrice,
+			biNum: biNum
+		};
+
+		const xhr = new XMLHttpRequest();
+		xhr.open("POST", "/update-order-info", true);
+		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+		xhr.onreadystatechange = async function () {
+			if (xhr.readyState === XMLHttpRequest.DONE) {
+				if (xhr.status === 200) {
+					await updateBoardPrice(biNum, oiPrice);
+
+					const diStatRes = await fetch(`/update-buyer-di-stat/${diNum}`, {
+						method: 'POST'
+					});
+					const diStat = await diStatRes.json();
+					if (diStat == 1) {
+						alert("구매정보를 갱신했습니다");
+						fetchSellerUiNumAndRedirect(diNum);
+					}
+				} else {
+					alert("구매정보 갱신에 실패했습니다");
+				}
+			}
+		};
+
+		xhr.send(JSON.stringify(orderInfo));
+	}
+
+	async function updateBoardPrice(biNum, oiPrice) {
+		const response = await fetch(`/board-infos/update-bi-price/${biNum}/${oiPrice}`, {
+			method: 'PATCH'
+		});
+		return response.json();
+	}
+
+
+	async function fetchSellerUiNumAndRedirect(diNum) {
+		const oiNumRes = await fetch(`/fetch-seller-num?diNum=${diNum}`);
+
+		if (oiNumRes.ok) {
+			const oiNumData = await oiNumRes.json();
+
+			const oiNum = oiNumData.oiNum;
+			const diNumFromServer = oiNumData.diNum;
+			const sellerUiNum = oiNumData.sellerUiNum;
+
+			window.location.href = `/html/rank/rank-add-seller?oiNum=${oiNum}&diNum=${diNumFromServer}&sellerUiNum=${sellerUiNum}`;
+		} else {
+			alert("서버에서 데이터를 가져오는 중 오류가 발생했습니다");
+		}
+	}
+
+</script>
+
+</body>
+
+</html>

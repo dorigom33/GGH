@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<th:block th:replace="html/fragments/head-fragment :: head-fragment"></th:block>
+
+	<!-- ** Mobile Specific Metas ** -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Agency HTML Template">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+	<meta name="author" content="Themefisher">
+	<meta name="generator" content="Themefisher Classified Marketplace Template v1.0">
+	
+	<style>
+		body {
+		    color: #333;
+		    background: #fafafa;
+		}
+		.form-control{
+			background-color: #FFF;
+		}
+		.contact-form {
+		    padding: 50px;
+		    margin: 30px 0;
+		}
+		.contact-form h3 {
+			font-size: 1.5em;
+			font-weight: 500;
+		    color: #000;
+		    margin: 0 0 15px;
+		}
+		.contact-form .form-control, .contact-form .btn {
+		    min-height: 38px;
+		    border-radius: 2px;
+		}
+		.contact-form .form-control:focus {
+		    border-color: #10AEDB;
+		}
+		.contact-form .btn-primary, .contact-form .btn-primary:active {
+		    color: #fff;
+		    font-size: 16px;
+		    background: #10AEDB !important;
+		    border: none;
+		}
+		.contact-form .btn-primary:hover {
+		    background: #15a487 !important; 
+		}
+		.contact-form .btn i {
+		    margin-right: 5px;
+		}
+		.contact-form label {
+		    opacity: 0.7;
+		}
+		.contact-form textarea {
+		    resize: vertical;
+		}
+		
+		#uiDesc::placeholder{
+			font-size: 0.9rem;
+			font-family: 'Noto Sans KR', sans-serif;
+		}
+	
+		#uiDesc{
+			font-family: 'Noto Sans KR', sans-serif;
+		  	resize: none;
+		  	height: 10em;
+		}
+		
+		#addr-btn{
+			padding: 1.5%;
+			width: 110px;
+			float: right;
+			margin-right: 10px;
+		}
+		
+		#uiImg{
+			width: 150px;
+			height: 150px;
+			object-fit: cover;
+			border-radius: 50%;
+			margin: 0 auto;
+		    display: block;
+		}
+		
+		.img-group{
+		    text-align: center;
+		}
+		
+		#img-edit{
+		    cursor: pointer;
+		}
+		
+		label.form-label.required-label::after,
+		p.required-label::after{
+		    content: ' *';
+		    color: red;
+		}
+		
+		.hint-text::before {
+		    content: '* ';
+		    color: red;
+		    display: inline-block;
+		    margin-right: 3px; 
+		}
+		
+		/* 모바일 스타일 */
+		@media only screen and (max-width: 767px) {
+			.contact-form {
+			    padding: 30px;
+			}
+			
+			#uiDesc, #uiDesc::placeholder, input::placeholder{
+				font-size: 0.8rem;
+			}
+		}
+	</style>
+
+	<body class="body-wrapper">
+		<!-- 헤더 -->
+		<th:block th:replace="html/fragments/header-fragment :: header-fragment"></th:block>
+		
+		<!-- Top으로 가는 버튼 -->
+		<button onclick="backToTopSmooth()" id="btn-back-to-top" title="위로 가기">Top</button>
+		
+		<section class="content-container">
+		
+			<section class="page-search"></section>
+		
+			<div class="container-lg">
+			    <div class="row">
+			        <div class="col-md-10 mx-auto">
+			            <div class="contact-form">
+			                <h3>회원 정보 수정</h3>
+			                <p class="hint-text">는 필수입력 사항입니다.</p>       
+			                <form>
+			                    <div class="row">
+			                        <div class="col-sm-4">
+			                            <div class="form-group">
+			                                <label class="form-label required-label" for="uiId">아이디는 변경 불가합니다</label>
+			                                <input type="text" class="form-control" id="uiId" required readonly>
+			                            </div>
+			                        </div>                
+			                        <div class="col-sm-4">
+			                            <div class="form-group">
+			                                <label class="form-label required-label" for="uiPwd">비밀번호</label>
+			                                <input type="password" class="form-control" id="uiPwd" placeholder="6자리 이상 입력해주세요" required>
+			                            </div>
+			                        </div>
+			                        <div class="col-sm-4">
+			                            <div class="form-group">
+			                                <label class="form-label required-label" for="checkPwd">비밀번호 확인</label>
+			                                <input type="password" class="form-control" id="checkPwd" placeholder="비밀번호를 한번 더 입력해주세요" required>
+			                            </div>
+			                        </div>
+			                    </div>
+			                    <div class="row" style="margin-bottom: 20px;">
+			                        <div class="col-sm-4">
+			                            <div class="form-group">
+			                                <label class="form-label required-label" for="uiName">이름</label>
+			                                <input type="text" class="form-control" id="uiName" required>
+			                            </div>
+			                        </div>                
+			                        <div class="col-sm-4">
+			                            <div class="form-group">
+			                                <label class="form-label required-label" for="uiEmail">이메일</label>
+			                                <input type="email" class="form-control" id="uiEmail" required>
+			                            </div>
+			                        </div>
+			                        <div class="col-sm-4">
+			                            <div class="form-group">
+			                                <label class="form-label required-label" for="uiMobile">전화번호</label>
+			                                <input type="text" class="form-control" id="uiMobile" oninput="hypenTel(this)" maxlength="13" required>
+			                            </div>
+			                        </div>
+			                    </div>
+			                    <div class="row">
+									<div class="col-sm-3">
+										<label class="form-label">프로필 이미지</label>
+										<div class="img-group">
+											<img id="uiImg" src="/imgs/user.png" alt="user-image">
+											<input type="file" class="form-control mb-3" id="file" onchange="preview(this,'uiImg')" accept=".jpg, .png, .jpeg" style="display: none;">
+											<label for="file" id="img-edit">이미지 수정</label>
+										</div>
+									</div>
+									<div class="col-sm-5">
+										<div class="form-group">
+					                        <label class="form-label" for="uiDesc">상태 메시지</label>
+					                        <textarea class="form-control" id="uiDesc" rows="5" required placeholder="다른 사용자들이 볼 수 있는 상태 메시지에요."></textarea>
+					                    </div>
+					                 </div>
+					                 <div class="col-sm-4">
+										<div class="form-group">
+					                        <label class="form-label required-label" for="uiAddr">주소</label>
+					                        <button type="button" class="btn btn-primary" style="margin-left: 10px; margin-bottom: 10px;" id="addr-btn" onclick="openDaum()">주소 찾기</button><br>
+					                        <input class="form-control" type="text" id="zonecode" placeholder="우편번호" required readonly><br>
+											<input class="form-control" type="text" id="roadAddress" placeholder="도로명 주소" required readonly><br>
+											<input class="form-control" type="text" id="address2" placeholder="상세주소" required>
+					                    </div>
+					                 </div>
+			                    </div>
+			                    <button onclick="updateUserInfo()" type="button" class="btn btn-primary"><i class="fa fa-plus-circle"></i>수정하기</button>
+			                </form>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+			<!-- 푸터 -->
+			<th:block th:replace="html/fragments/footer-fragment :: footer-fragment"></th:block>
+		</section>
+
+		<script>
+			async function updateUserInfo() {
+				const pwd = document.querySelector('#uiPwd').value;
+				const checkPwd = document.querySelector('#checkPwd').value;
+				
+		        // 비밀번호는 6자리 이상
+				if(pwd.length < 6){
+					alert('비밀번호는 6자리 이상이어야 합니다')
+					return;
+				}
+				// 비밀번호와 비밀번호 확인 입력창이 일치하는지 체크
+				if(pwd != checkPwd){
+					alert('비밀번호가 일치하지 않습니다');
+					return;
+				}
+				
+				const formData = new FormData();
+				
+				// 모든 필드가 다 입력되었는지 체크
+				if(document.querySelector('#uiId').value.trim() === ''){
+					alert('아이디를 입력해주세요.');
+					return;
+				}else{
+					formData.append('uiId', document.querySelector('#uiId').value);
+				}
+				if(pwd.trim() === ''){
+					alert('새 비밀번호를 입력해주세요.');
+					return;
+				}else{
+					formData.append('uiPwd', document.querySelector('#uiPwd').value);
+				}
+				if(checkPwd.trim() === ''){
+					alert('비밀번호를 확인해주세요.');
+					return;
+				}
+				if(document.querySelector('#uiName').value.trim() === ''){
+					alert('이름을 입력해주세요.');
+					return;
+				}else{
+					formData.append('uiName', document.querySelector('#uiName').value);
+				}
+				if(document.querySelector('#uiEmail').value.trim() === ''){
+					alert('이메일을 입력해주세요.');
+					return;
+				}else{
+					formData.append('uiEmail', document.querySelector('#uiEmail').value);
+				}
+		        if(document.querySelector('#uiMobile').value.trim() === ''){
+					alert('전화번호를 입력해주세요.');
+					return;
+				}else{
+					formData.append('uiMobile', document.querySelector('#uiMobile').value);
+				}
+				if(document.querySelector('#zonecode').value.trim() === '' ||
+				document.querySelector('#roadAddress').value.trim() === ''){
+					alert('주소를 입력해주세요.');
+					return;
+				}else {
+					formData.append('uiZonecode', document.querySelector('#zonecode').value);
+					formData.append('uiRoadaddr', document.querySelector('#roadAddress').value);
+				}
+		        formData.append('uiDesc', document.querySelector('#uiDesc').value);
+				const uiDetailAddr = document.querySelector('#address2').value
+				
+				const fileInput = document.querySelector('input[type=file]');
+				if (fileInput.files.length > 0) {
+				    formData.append('file', fileInput.files[0]);
+				}
+		
+		        const response = await fetch('/update-user-info', {
+		            method: 'POST',
+		            body: formData
+		        });
+		
+		        if (response.ok) {
+		            const result = await response.json();
+		            alert(result.msg);
+		            if (result.success) {
+		                // 성공 시 로그인 페이지로 이동 또는 다른 동작 수행
+		                window.location.href = '/html/login';
+		            }
+		        } else {
+		           alert('사용자 정보를 수정하지 못했습니다');
+		        }
+		    }
+		    
+		    function openDaum(){
+				new daum.Postcode({
+			        oncomplete: function(data) {
+						for(const key in data){
+							if(document.querySelector(`#${key}`)){
+								document.querySelector(`#${key}`).value = data[key];
+							}
+						}
+			        }
+			    }).open();
+			}
+		
+		    async function loadUserInfo() {
+		        const response = await fetch('/select-user-info', {
+		            method: 'GET',
+		            headers: {
+		                'Content-Type': 'application/json;charset=UTF-8'
+		            }
+		        });
+		
+		        if (response.ok) {
+		            const userInfo = await response.json();
+		            console.log(userInfo);
+		            document.querySelector('#uiId').value = userInfo.uiId;
+		            document.querySelector('#uiName').value = userInfo.uiName;
+		            document.querySelector('#uiEmail').value = userInfo.uiEmail;
+		            document.querySelector('#uiMobile').value = userInfo.uiMobile;
+		            document.querySelector('#uiDesc').value = userInfo.uiDesc;
+		            document.querySelector('#zonecode').value = userInfo.uiZonecode;
+		            document.querySelector('#roadAddress').value = userInfo.uiRoadaddr;
+		            document.querySelector('#address2').value = userInfo.uiDetailAddr;
+		            // 유저 프로필 사진
+					if(!(userInfo.uiImgName.trim() === '' && userInfo.uiImgPath.trim() === '')){
+						document.querySelector('#uiImg').src = userInfo.uiImgPath;
+					}
+		        } else {
+		            alert('사용자 정보를 가져오지 못했습니다');
+		        }
+		    }
+		    
+		    // 이미지 미리 보여주는 함수
+			function preview(fileInput, imgId){
+				document.querySelector(`#${imgId}`).src = URL.createObjectURL(fileInput.files[0]);
+			}
+		
+		    // 페이지 로드 시 사용자 정보 가져오기
+		    window.addEventListener('load', loadUserInfo);
+		    
+		    // 스크롤 이벤트 리스너
+			window.addEventListener('scroll', () => {
+				// 스크롤 위치가 100px 이상일 때 위로 가기 버튼을 보이게 함
+				if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+					document.querySelector('#btn-back-to-top').style.display = 'block';
+				} else {
+					document.querySelector('#btn-back-to-top').style.display = 'none';
+				}
+			});
+		</script>
+	</body>
+</html>

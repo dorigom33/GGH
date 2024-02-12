@@ -1,0 +1,41 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.secu.team2.rank.mapper.RankInfoMapper">
+<insert id="insertSellerRankInfo">                       
+    INSERT INTO RANK_INFO (DI_NUM, OI_NUM, RI_RANK, RI_COMMENT, BUYER_UI_NUM, SELLER_UI_NUM)
+    VALUES (#{diNum}, #{oiNum}, #{riRank}, #{riComment}, NULL, #{sellerUiNum})
+</insert>
+
+<insert id="insertBuyerRankInfo">
+    INSERT INTO RANK_INFO (DI_NUM, OI_NUM, RI_RANK, RI_COMMENT, BUYER_UI_NUM, SELLER_UI_NUM)
+    VALUES (#{diNum}, #{oiNum}, #{riRank}, #{riComment}, #{buyerUiNum}, NULL)
+</insert>
+
+<select id="selectAverageRankInfo" resultType="float" parameterType="map">
+    SELECT IFNULL(AVG(RI_RANK), 0.0) AS averageRank
+    FROM RANK_INFO 
+    WHERE BUYER_UI_NUM = #{uiNum} OR SELLER_UI_NUM = #{uiNum}
+</select>
+
+
+<select id="selectCountRankInfo" resultType="int">
+	SELECT COUNT(RI_RANK)
+	FROM RANK_INFO 
+    WHERE BUYER_UI_NUM = #{uiNum} OR SELLER_UI_NUM = #{uiNum}
+</select>
+
+<select id="selectCountRivewInfo" resultType="com.secu.team2.rank.vo.RankInfoVO">
+	SELECT RI_RANK, RI_COMMENT
+	FROM RANK_INFO 
+	WHERE BUYER_UI_NUM = #{uiNum} OR SELLER_UI_NUM = #{uiNum}
+
+</select>
+
+<select id="selectRankInfoByDiNumAndUiNum" resultType="com.secu.team2.rank.vo.RankInfoVO">
+	SELECT RI_RANK, RI_COMMENT
+	FROM RANK_INFO 
+	WHERE (BUYER_UI_NUM = #{buyerUiNum} OR SELLER_UI_NUM = #{buyerUiNum})
+	AND DI_NUM=#{diNum}
+	LIMIT 1
+</select>
+
+</mapper>
